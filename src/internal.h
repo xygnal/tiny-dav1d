@@ -28,6 +28,8 @@
 #ifndef DAV1S_SRC_INTERNAL_H
 #define DAV1S_SRC_INTERNAL_H
 
+#define CONFIG_STILL_PICTURE 1
+
 #include <stdatomic.h>
 
 #include "dav1s/data.h"

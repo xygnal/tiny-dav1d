@@ -109,6 +109,7 @@ static COLD size_t get_stack_size_internal(const pthread_attr_t *const thread_at
 static COLD void get_num_threads(Dav1dContext *const c, const Dav1dSettings *const s,
                                  unsigned *n_tc, unsigned *n_fc)
 {
+#if !CONFIG_STILL_PICTURE
     /* ceil(sqrt(n)) */
     static const uint8_t fc_lut[49] = {
         1,                                     /*     1 */
@@ -119,10 +120,15 @@ static COLD void get_num_threads(Dav1dContext *const c, const Dav1dSettings *con
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,       /* 26-36 */
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, /* 37-49 */
     };
+#endif
     *n_tc = s->n_threads ? s->n_threads :
         iclip(dav1s_num_logical_processors(c), 1, DAV1S_MAX_THREADS);
+#if CONFIG_STILL_PICTURE
+    *n_fc = 1;
+#else
     *n_fc = s->max_frame_delay ? umin(s->max_frame_delay, *n_tc) :
             *n_tc < 50 ? fc_lut[*n_tc - 1] : 8; // min(8, ceil(sqrt(n)))
+#endif
 }
 
 COLD int dav1s_get_frame_delay(const Dav1dSettings *const s) {
@@ -183,8 +189,11 @@ COLD int dav1s_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
         dav1s_mem_pool_init(ALLOC_OBU_HDR, &c->frame_hdr_pool) ||
         dav1s_mem_pool_init(ALLOC_SEGMAP, &c->segmap_pool) ||
         dav1s_mem_pool_init(ALLOC_REFMVS, &c->refmvs_pool) ||
-        dav1s_mem_pool_init(ALLOC_PIC_CTX, &c->pic_ctx_pool) ||
-        dav1s_mem_pool_init(ALLOC_CDF, &c->cdf_pool))
+        dav1s_mem_pool_init(ALLOC_PIC_CTX, &c->pic_ctx_pool)
+#if !CONFIG_STILL_PICTURE
+        || dav1s_mem_pool_init(ALLOC_CDF, &c->cdf_pool)
+#endif
+        )
     {
         goto error;
     }
@@ -538,7 +547,9 @@ void dav1s_flush(Dav1dContext *const c) {
             dav1s_thread_picture_unref(&c->refs[i].p);
         dav1s_ref_dec(&c->refs[i].segmap);
         dav1s_ref_dec(&c->refs[i].refmvs);
+#if !CONFIG_STILL_PICTURE
         dav1s_cdf_thread_unref(&c->cdf[i]);
+#endif
     }
     c->frame_hdr = NULL;
     c->seq_hdr = NULL;
@@ -680,7 +691,9 @@ static COLD void close_internal(Dav1dContext **const c_out, int flush) {
         dav1s_data_unref_internal(&c->tile[n].data);
     dav1s_free(c->tile);
     for (int n = 0; n < 8; n++) {
+#if !CONFIG_STILL_PICTURE
         dav1s_cdf_thread_unref(&c->cdf[n]);
+#endif
         if (c->refs[n].p.p.frame_hdr)
             dav1s_thread_picture_unref(&c->refs[n].p);
         dav1s_ref_dec(&c->refs[n].refmvs);
@@ -697,7 +710,9 @@ static COLD void close_internal(Dav1dContext **const c_out, int flush) {
     dav1s_mem_pool_end(c->frame_hdr_pool);
     dav1s_mem_pool_end(c->segmap_pool);
     dav1s_mem_pool_end(c->refmvs_pool);
+#if !CONFIG_STILL_PICTURE
     dav1s_mem_pool_end(c->cdf_pool);
+#endif
     dav1s_mem_pool_end(c->picture_pool);
     dav1s_mem_pool_end(c->pic_ctx_pool);
 

@@ -8,3 +8,6 @@ tags
 /tests/dav1s-test-data
 *.snap
 /tools/output/xxhash.h
+*.ivf
+*.yuv
+
