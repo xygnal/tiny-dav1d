@@ -1,4 +1,4 @@
-# Copyright © 2018, VideoLAN and dav1d authors
+# Copyright © 2018, VideoLAN and dav1s authors
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #
-# Build definition for the dav1d examples
+# Build definition for the dav1s examples
 #
 
 # Leave subdir if examples are disabled
@@ -32,9 +32,9 @@ if not get_option('enable_examples')
 endif
 
 
-# dav1d player sources
-dav1dplay_sources = files(
-    'dav1dplay.c',
+# dav1s player sources
+dav1splay_sources = files(
+    'dav1splay.c',
     'dp_fifo.c',
     'dp_renderer_placebo.c',
     'dp_renderer_sdl.c',
@@ -43,36 +43,36 @@ dav1dplay_sources = files(
 sdl2_dependency = dependency('sdl2', version: '>= 2.0.1', required: true, include_type: 'system')
 
 if sdl2_dependency.found()
-    dav1dplay_deps = [sdl2_dependency, libm_dependency]
-    dav1dplay_cflags = []
+    dav1splay_deps = [sdl2_dependency, libm_dependency]
+    dav1splay_cflags = []
 
     placebo_dependency = dependency('libplacebo', version: '>= 4.160.0', required: false)
 
     have_vulkan = false
     have_placebo = placebo_dependency.found()
     if have_placebo
-        dav1dplay_deps += placebo_dependency
+        dav1splay_deps += placebo_dependency
 
         # If libplacebo is found, we might be able to use Vulkan
         # with it, in which case we need the Vulkan library too.
         vulkan_dependency = dependency('vulkan', required: false)
         if vulkan_dependency.found()
-            dav1dplay_deps += vulkan_dependency
+            dav1splay_deps += vulkan_dependency
             have_vulkan = true
         endif
     endif
 
-    dav1dplay_cflags += '-DHAVE_PLACEBO=' + (have_placebo ? '1' : '0')
-    dav1dplay_cflags += '-DHAVE_VULKAN=' + (have_vulkan ? '1' : '0')
+    dav1splay_cflags += '-DHAVE_PLACEBO=' + (have_placebo ? '1' : '0')
+    dav1splay_cflags += '-DHAVE_VULKAN=' + (have_vulkan ? '1' : '0')
 
-    dav1dplay = executable('dav1dplay',
-        dav1dplay_sources,
+    dav1splay = executable('dav1splay',
+        dav1splay_sources,
         rev_target,
 
-        link_with : [libdav1d, dav1d_input_objs],
-        include_directories : [dav1d_inc_dirs],
-        dependencies : [getopt_dependency, dav1dplay_deps],
+        link_with : [libdav1s, dav1s_input_objs],
+        include_directories : [dav1s_inc_dirs],
+        dependencies : [getopt_dependency, dav1splay_deps],
         install : true,
-        c_args : dav1dplay_cflags,
+        c_args : dav1splay_cflags,
     )
 endif

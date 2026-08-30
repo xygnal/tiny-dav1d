@@ -1,6 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
- * Copyright © 2018, Janne Grunau
+ * Copyright © 2019-2024, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,13 +24,27 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_TESTS_LIBFUZZER_DAV1D_FUZZER_H
-#define DAV1D_TESTS_LIBFUZZER_DAV1D_FUZZER_H
+#ifndef DAV1S_VERSION_H
+#define DAV1S_VERSION_H
 
-#include <stddef.h>
-#include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int LLVMFuzzerInitialize(int *argc, char ***argv);
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
+#define DAV1S_API_VERSION_MAJOR 7
+#define DAV1S_API_VERSION_MINOR 0
+#define DAV1S_API_VERSION_PATCH 0
 
-#endif /* DAV1D_TESTS_LIBFUZZER_DAV1D_FUZZER_H */
+/**
+ * Extract version components from the value returned by
+ * dav1s_version_int()
+ */
+#define DAV1S_API_MAJOR(v) (((v) >> 16) & 0xFF)
+#define DAV1S_API_MINOR(v) (((v) >>  8) & 0xFF)
+#define DAV1S_API_PATCH(v) (((v) >>  0) & 0xFF)
+
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
+
+#endif /* DAV1S_VERSION_H */

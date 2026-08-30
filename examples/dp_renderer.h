@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include <SDL.h>
 #if HAVE_PLACEBO
@@ -78,9 +78,9 @@ typedef struct {
 #define WINDOW_HEIGHT 512
 
 enum {
-    DAV1D_EVENT_NEW_FRAME,
-    DAV1D_EVENT_SEEK_FRAME,
-    DAV1D_EVENT_DEC_QUIT
+    DAV1S_EVENT_NEW_FRAME,
+    DAV1S_EVENT_SEEK_FRAME,
+    DAV1S_EVENT_DEC_QUIT
 };
 
 /**
@@ -98,8 +98,8 @@ typedef struct rdr_info
     void (*destroy_renderer)(void *cookie);
     // Callback to the render function that renders a prevously sent frame
     void (*render)(void *cookie, const Dav1dPlaySettings *settings);
-    // Callback to the send frame function, _may_ also unref dav1d_pic!
-    int (*update_frame)(void *cookie, Dav1dPicture *dav1d_pic,
+    // Callback to the send frame function, _may_ also unref dav1s_pic!
+    int (*update_frame)(void *cookie, Dav1dPicture *dav1s_pic,
                         const Dav1dPlaySettings *settings);
     // Callback for alloc/release pictures (optional)
     int (*alloc_pic)(Dav1dPicture *pic, void *cookie);

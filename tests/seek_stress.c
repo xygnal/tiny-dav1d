@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * Copyright © 2020, Two Orioles, LLC
  * All rights reserved.
  *
@@ -34,10 +34,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 #include "input/input.h"
 #include "input/demuxer.h"
-#include "dav1d_cli_parse.h"
+#include "dav1s_cli_parse.h"
 
 #define NUM_RAND_SEEK 3
 #define NUM_REL_SEEK  4
@@ -100,20 +100,20 @@ static inline int decode_frame(Dav1dPicture *const p,
 {
     int res;
     memset(p, 0, sizeof(*p));
-    if ((res = dav1d_send_data(c, data)) < 0) {
-        if (res != DAV1D_ERR(EAGAIN)) {
+    if ((res = dav1s_send_data(c, data)) < 0) {
+        if (res != DAV1S_ERR(EAGAIN)) {
             fprintf(stderr, "Error decoding frame: %s\n",
-                    strerror(DAV1D_ERR(res)));
+                    strerror(DAV1S_ERR(res)));
             return res;
         }
     }
-    if ((res = dav1d_get_picture(c, p)) < 0) {
-        if (res != DAV1D_ERR(EAGAIN)) {
+    if ((res = dav1s_get_picture(c, p)) < 0) {
+        if (res != DAV1S_ERR(EAGAIN)) {
             fprintf(stderr, "Error decoding frame: %s\n",
-                    strerror(DAV1D_ERR(res)));
+                    strerror(DAV1S_ERR(res)));
             return res;
         }
-    } else dav1d_picture_unref(p);
+    } else dav1s_picture_unref(p);
     return 0;
 }
 
@@ -147,16 +147,16 @@ static int seek(DemuxerContext *const in, Dav1dContext *const c,
     if ((res = input_seek(in, pts))) return res;
     Dav1dSequenceHeader seq;
     do { if ((res = input_read(in, data))) break;
-    } while (dav1d_parse_sequence_header(&seq, data->data, data->sz));
-    dav1d_flush(c);
+    } while (dav1s_parse_sequence_header(&seq, data->data, data->sz));
+    dav1s_flush(c);
     return res;
 }
 
 int main(const int argc, char *const *const argv) {
-    const char *version = dav1d_version();
-    if (strcmp(version, DAV1D_VERSION)) {
+    const char *version = dav1s_version();
+    if (strcmp(version, DAV1S_VERSION)) {
         fprintf(stderr, "Version mismatch (library: %s, executable: %s)\n",
-                version, DAV1D_VERSION);
+                version, DAV1S_VERSION);
         return EXIT_FAILURE;
     }
 
@@ -178,7 +178,7 @@ int main(const int argc, char *const *const argv) {
     {
         return EXIT_SUCCESS;
     }
-    if (dav1d_open(&c, &lib_settings))
+    if (dav1s_open(&c, &lib_settings))
         return EXIT_FAILURE;
 
     timebase = (double)i_timebase[1] / i_timebase[0];
@@ -233,11 +233,11 @@ int main(const int argc, char *const *const argv) {
         if (seek(in, c, FRAME_OFFSET_TO_PTS(total - shift), &data)) goto end;
         if (decode_all(in, c, &data)) goto end;
         int num_flush = 1 + 64 + xor128_rand() % 64;
-        while (num_flush--) dav1d_flush(c);
+        while (num_flush--) dav1s_flush(c);
     }
 
 end:
     input_close(in);
-    dav1d_close(&c);
+    dav1s_close(&c);
     return EXIT_SUCCESS;
 }

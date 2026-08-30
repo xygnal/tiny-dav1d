@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_CDEF_H
-#define DAV1D_SRC_CDEF_H
+#ifndef DAV1S_SRC_CDEF_H
+#define DAV1S_SRC_CDEF_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -66,6 +66,6 @@ typedef struct Dav1dCdefDSPContext {
     cdef_fn fb[3 /* 444/luma, 422, 420 */];
 } Dav1dCdefDSPContext;
 
-bitfn_decls(void dav1d_cdef_dsp_init, Dav1dCdefDSPContext *c);
+bitfn_decls(void dav1s_cdef_dsp_init, Dav1dCdefDSPContext *c);
 
-#endif /* DAV1D_SRC_CDEF_H */
+#endif /* DAV1S_SRC_CDEF_H */

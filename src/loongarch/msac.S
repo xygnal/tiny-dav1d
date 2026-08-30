@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023, VideoLAN and dav1d authors
+ * Copyright © 2023, VideoLAN and dav1s authors
  * Copyright © 2023, Loongson Technology Corporation Limited
  * All rights reserved.
  *
@@ -569,7 +569,7 @@ endfunc
 .endm
 
 /**
- * @param unsigned dav1d_msac_decode_hi_tok_c(MsacContext *const s, uint16_t *const cdf)
+ * @param unsigned dav1s_msac_decode_hi_tok_c(MsacContext *const s, uint16_t *const cdf)
  * * Reg Alloction
  * * vr0: cdf;
  * * vr1: temp;

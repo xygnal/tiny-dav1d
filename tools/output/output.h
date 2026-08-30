@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_OUTPUT_OUTPUT_H
-#define DAV1D_OUTPUT_OUTPUT_H
+#ifndef DAV1S_OUTPUT_OUTPUT_H
+#define DAV1S_OUTPUT_OUTPUT_H
 
 #include "picture.h"
 
@@ -45,4 +45,4 @@ void output_close(MuxerContext *ctx);
  */
 int output_verify(MuxerContext *ctx, const char *hash_string);
 
-#endif /* DAV1D_OUTPUT_OUTPUT_H */
+#endif /* DAV1S_OUTPUT_OUTPUT_H */

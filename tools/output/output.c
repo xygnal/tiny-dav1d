@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -102,7 +102,7 @@ int output_open(MuxerContext **const c_out,
         }
         if (!muxers[i]) {
             fprintf(stderr, "Failed to find muxer named \"%s\"\n", name);
-            return DAV1D_ERR(ENOPROTOOPT);
+            return DAV1S_ERR(ENOPROTOOPT);
         }
     } else if (!strcmp(filename, "/dev/null")) {
         impl = muxers[0];
@@ -120,13 +120,13 @@ int output_open(MuxerContext **const c_out,
         }
         if (!muxers[i]) {
             fprintf(stderr, "Failed to find muxer for extension \"%s\"\n", ext);
-            return DAV1D_ERR(ENOPROTOOPT);
+            return DAV1S_ERR(ENOPROTOOPT);
         }
     }
 
     if (!(c = malloc(offsetof(MuxerContext, priv_data) + impl->priv_data_size))) {
         fprintf(stderr, "Failed to allocate memory\n");
-        return DAV1D_ERR(ENOMEM);
+        return DAV1S_ERR(ENOMEM);
     }
     c->impl = impl;
     c->data = (MuxerPriv *) c->priv_data;

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019, VideoLAN and dav1d authors
+ * Copyright © 2019, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 
 #include <SDL.h>
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include "common/attributes.h"
 #include "tools/input/input.h"
@@ -174,7 +174,7 @@ static void dp_rd_ctx_parse_args(Dav1dPlayRenderContext *rd_ctx,
                 settings->inputfile = optarg;
                 break;
             case 'v':
-                fprintf(stderr, "%s\n", dav1d_version());
+                fprintf(stderr, "%s\n", dav1s_version());
                 exit(0);
             case 'u':
                 settings->untimed = true;
@@ -246,7 +246,7 @@ static Dav1dPlayRenderContext *dp_rd_ctx_create(int argc, char **argv)
     }
 
     // Parse and validate arguments
-    dav1d_default_settings(&rd_ctx->lib_settings);
+    dav1s_default_settings(&rd_ctx->lib_settings);
     memset(&rd_ctx->settings, 0, sizeof(rd_ctx->settings));
     dp_rd_ctx_parse_args(rd_ctx, argc, argv);
 
@@ -315,17 +315,17 @@ static void dp_rd_ctx_post_event(Dav1dPlayRenderContext *rd_ctx, uint32_t type)
 }
 
 /**
- * Update the decoder context with a new dav1d picture
+ * Update the decoder context with a new dav1s picture
  *
  * Once the decoder decoded a new picture, this call can be used
  * to update the internal texture of the render context with the
  * new picture.
  */
-static void dp_rd_ctx_update_with_dav1d_picture(Dav1dPlayRenderContext *rd_ctx,
-                                                Dav1dPicture *dav1d_pic)
+static void dp_rd_ctx_update_with_dav1s_picture(Dav1dPlayRenderContext *rd_ctx,
+                                                Dav1dPicture *dav1s_pic)
 {
-    rd_ctx->current_ts = dav1d_pic->m.timestamp;
-    renderer_info->update_frame(rd_ctx->rd_priv, dav1d_pic, &rd_ctx->settings);
+    rd_ctx->current_ts = dav1s_pic->m.timestamp;
+    renderer_info->update_frame(rd_ctx->rd_priv, dav1s_pic, &rd_ctx->settings);
 }
 
 /**
@@ -397,7 +397,7 @@ static int dp_rd_ctx_handle_seek(Dav1dPlayRenderContext *rd_ctx,
     if (end)
         pts = FRAME_OFFSET_TO_PTS(rd_ctx->total - 1);
     uint64_t target_pts = pts;
-    dav1d_flush(c);
+    dav1s_flush(c);
     uint64_t shift = FRAME_OFFSET_TO_PTS(5);
     while (1) {
         if (shift > pts)
@@ -410,7 +410,7 @@ static int dp_rd_ctx_handle_seek(Dav1dPlayRenderContext *rd_ctx,
             if ((res = input_read(in_ctx, data)))
                 break;
             cur_pts = TS_TO_PTS(data->m.timestamp);
-            res = dav1d_parse_sequence_header(&seq, data->data, data->sz);
+            res = dav1s_parse_sequence_header(&seq, data->data, data->sz);
         } while (res && cur_pts < pts);
         if (!res && cur_pts <= pts)
             break;
@@ -430,7 +430,7 @@ static int dp_rd_ctx_handle_seek(Dav1dPlayRenderContext *rd_ctx,
                     destroy_pic(p);
                 else {
                     dp_fifo_push(rd_ctx->fifo, p);
-                    uint32_t type = rd_ctx->event_types + DAV1D_EVENT_SEEK_FRAME;
+                    uint32_t type = rd_ctx->event_types + DAV1S_EVENT_SEEK_FRAME;
                     dp_rd_ctx_post_event(rd_ctx, type);
                 }
             }
@@ -519,29 +519,29 @@ static int decode_frame(Dav1dPicture **p, Dav1dContext *c,
                         Dav1dData *data, DemuxerContext *in_ctx)
 {
     int res;
-    // Send data packets we got from the demuxer to dav1d
-    if ((res = dav1d_send_data(c, data)) < 0) {
-        // On EAGAIN, dav1d can not consume more data and
-        // dav1d_get_picture needs to be called first, which
+    // Send data packets we got from the demuxer to dav1s
+    if ((res = dav1s_send_data(c, data)) < 0) {
+        // On EAGAIN, dav1s can not consume more data and
+        // dav1s_get_picture needs to be called first, which
         // will happen below, so just keep going in that case
         // and do not error out.
-        if (res != DAV1D_ERR(EAGAIN)) {
-            dav1d_data_unref(data);
+        if (res != DAV1S_ERR(EAGAIN)) {
+            dav1s_data_unref(data);
             goto err;
         }
     }
     *p = calloc(1, sizeof(**p));
     // Try to get a decoded frame
-    if ((res = dav1d_get_picture(c, *p)) < 0) {
+    if ((res = dav1s_get_picture(c, *p)) < 0) {
         // In all error cases, even EAGAIN, p needs to be freed as
         // it is never added to the queue and would leak.
         free(*p);
         *p = NULL;
-        // On EAGAIN, it means dav1d has not enough data to decode
+        // On EAGAIN, it means dav1s has not enough data to decode
         // therefore this is not a decoding error but just means
         // we need to feed it more data, which happens in the next
         // run of the decoder loop.
-        if (res != DAV1D_ERR(EAGAIN))
+        if (res != DAV1S_ERR(EAGAIN))
             goto err;
     }
     return data->sz == 0 ? input_read(in_ctx, data) : 0;
@@ -554,7 +554,7 @@ err:
 static inline void destroy_pic(void *a)
 {
     Dav1dPicture *p = (Dav1dPicture *)a;
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
     free(p);
 }
 
@@ -585,8 +585,8 @@ static int decoder_thread_main(void *cookie)
     rd_ctx->spf = (double)fps[1] / fps[0];
     rd_ctx->total = total;
 
-    if ((res = dav1d_open(&c, &rd_ctx->lib_settings))) {
-        fprintf(stderr, "Failed opening dav1d decoder\n");
+    if ((res = dav1s_open(&c, &rd_ctx->lib_settings))) {
+        fprintf(stderr, "Failed opening dav1s decoder\n");
         res = 1;
         goto cleanup;
     }
@@ -612,7 +612,7 @@ static int decoder_thread_main(void *cookie)
             SDL_UnlockMutex(rd_ctx->lock);
             if (!seek) {
                 dp_fifo_push(rd_ctx->fifo, p);
-                uint32_t type = rd_ctx->event_types + DAV1D_EVENT_NEW_FRAME;
+                uint32_t type = rd_ctx->event_types + DAV1S_EVENT_NEW_FRAME;
                 dp_rd_ctx_post_event(rd_ctx, type);
             }
         }
@@ -620,7 +620,7 @@ static int decoder_thread_main(void *cookie)
 
     // Release remaining data
     if (data.sz > 0)
-        dav1d_data_unref(&data);
+        dav1s_data_unref(&data);
     // Do not drain in case an error occured and caused us to leave the
     // decoding loop early.
     if (res < 0)
@@ -630,16 +630,16 @@ static int decoder_thread_main(void *cookie)
     // When there is no more data to feed to the decoder, for example
     // because the file ended, we still need to request pictures, as
     // even though we do not have more data, there can be frames decoded
-    // from data we sent before. So we need to call dav1d_get_picture until
+    // from data we sent before. So we need to call dav1s_get_picture until
     // we get an EAGAIN error.
     do {
         if (dp_rd_ctx_should_terminate(rd_ctx))
             break;
         p = calloc(1, sizeof(*p));
-        res = dav1d_get_picture(c, p);
+        res = dav1s_get_picture(c, p);
         if (res < 0) {
             free(p);
-            if (res != DAV1D_ERR(EAGAIN)) {
+            if (res != DAV1S_ERR(EAGAIN)) {
                 fprintf(stderr, "Error decoding frame: %s\n",
                         strerror(-res));
                 break;
@@ -647,20 +647,20 @@ static int decoder_thread_main(void *cookie)
         } else {
             // Queue frame
             dp_fifo_push(rd_ctx->fifo, p);
-            uint32_t type = rd_ctx->event_types + DAV1D_EVENT_NEW_FRAME;
+            uint32_t type = rd_ctx->event_types + DAV1S_EVENT_NEW_FRAME;
             dp_rd_ctx_post_event(rd_ctx, type);
         }
-    } while (res != DAV1D_ERR(EAGAIN));
+    } while (res != DAV1S_ERR(EAGAIN));
 
 cleanup:
-    dp_rd_ctx_post_event(rd_ctx, rd_ctx->event_types + DAV1D_EVENT_DEC_QUIT);
+    dp_rd_ctx_post_event(rd_ctx, rd_ctx->event_types + DAV1S_EVENT_DEC_QUIT);
 
     if (in_ctx)
         input_close(in_ctx);
     if (c)
-        dav1d_close(&c);
+        dav1s_close(&c);
 
-    return (res != DAV1D_ERR(EAGAIN) && res < 0);
+    return (res != DAV1S_ERR(EAGAIN) && res < 0);
 }
 
 int main(int argc, char **argv)
@@ -668,10 +668,10 @@ int main(int argc, char **argv)
     SDL_Thread *decoder_thread;
 
     // Check for version mismatch between library and tool
-    const char *version = dav1d_version();
-    if (strcmp(version, DAV1D_VERSION)) {
+    const char *version = dav1s_version();
+    if (strcmp(version, DAV1S_VERSION)) {
         fprintf(stderr, "Version mismatch (library: %s, executable: %s)\n",
-                version, DAV1D_VERSION);
+                version, DAV1S_VERSION);
         return 1;
     }
 
@@ -743,24 +743,24 @@ int main(int argc, char **argv)
                     else if (kbde->keysym.sym == SDLK_RIGHT)
                         dp_rd_ctx_seek(rd_ctx, +5);
                     dp_fifo_flush(rd_ctx->fifo, destroy_pic);
-                    SDL_FlushEvent(rd_ctx->event_types + DAV1D_EVENT_NEW_FRAME);
+                    SDL_FlushEvent(rd_ctx->event_types + DAV1S_EVENT_NEW_FRAME);
                     num_frame_events = 0;
                 }
-            } else if (e->type == rd_ctx->event_types + DAV1D_EVENT_NEW_FRAME) {
+            } else if (e->type == rd_ctx->event_types + DAV1S_EVENT_NEW_FRAME) {
                 num_frame_events++;
                 // Store current ticks for stats calculation
                 if (start_time == 0)
                     start_time = SDL_GetTicks();
-            } else if (e->type == rd_ctx->event_types + DAV1D_EVENT_SEEK_FRAME) {
+            } else if (e->type == rd_ctx->event_types + DAV1S_EVENT_SEEK_FRAME) {
                 // Dequeue frame and update the render context with it
                 Dav1dPicture *p = dp_fifo_shift(rd_ctx->fifo);
                 // Do not update textures during termination
                 if (!dp_rd_ctx_should_terminate(rd_ctx)) {
-                    dp_rd_ctx_update_with_dav1d_picture(rd_ctx, p);
+                    dp_rd_ctx_update_with_dav1s_picture(rd_ctx, p);
                     n_out++;
                 }
                 destroy_pic(p);
-            } else if (e->type == rd_ctx->event_types + DAV1D_EVENT_DEC_QUIT) {
+            } else if (e->type == rd_ctx->event_types + DAV1S_EVENT_DEC_QUIT) {
                 goto out;
             }
         }
@@ -769,7 +769,7 @@ int main(int argc, char **argv)
             Dav1dPicture *p = dp_fifo_shift(rd_ctx->fifo);
             // Do not update textures during termination
             if (!dp_rd_ctx_should_terminate(rd_ctx)) {
-                dp_rd_ctx_update_with_dav1d_picture(rd_ctx, p);
+                dp_rd_ctx_update_with_dav1s_picture(rd_ctx, p);
                 dp_rd_ctx_render(rd_ctx);
                 n_out++;
             }

@@ -1,5 +1,6 @@
 /*
- * Copyright © 2019-2024, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
+ * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,27 +25,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_VERSION_H
-#define DAV1D_VERSION_H
+#ifndef DAV1S_CLI_PARSE_H
+#define DAV1S_CLI_PARSE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "dav1s/dav1s.h"
 
-#define DAV1D_API_VERSION_MAJOR 7
-#define DAV1D_API_VERSION_MINOR 0
-#define DAV1D_API_VERSION_PATCH 0
+typedef struct {
+    const char *outputfile;
+    const char *inputfile;
+    const char *demuxer;
+    const char *muxer;
+    const char *frametimes;
+    const char *verify;
+    unsigned limit, skip;
+    int quiet;
+    enum {
+        REALTIME_DISABLE = 0,
+        REALTIME_INPUT,
+        REALTIME_CUSTOM,
+    } realtime;
+    double realtime_fps;
+    unsigned realtime_cache;
+    int neg_stride;
+} CLISettings;
 
-/**
- * Extract version components from the value returned by
- * dav1d_version_int()
- */
-#define DAV1D_API_MAJOR(v) (((v) >> 16) & 0xFF)
-#define DAV1D_API_MINOR(v) (((v) >>  8) & 0xFF)
-#define DAV1D_API_PATCH(v) (((v) >>  0) & 0xFF)
+void parse(const int argc, char *const *const argv,
+           CLISettings *const cli_settings, Dav1dSettings *const lib_settings);
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
-
-#endif /* DAV1D_VERSION_H */
+#endif /* DAV1S_CLI_PARSE_H */

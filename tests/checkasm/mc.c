@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -772,7 +772,7 @@ static void check_resize(Dav1dMCDSPContext *const c) {
 
 void bitfn(checkasm_check_mc)(void) {
     Dav1dMCDSPContext c;
-    bitfn(dav1d_mc_dsp_init)(&c);
+    bitfn(dav1s_mc_dsp_init)(&c);
 
     check_mc(&c);
     check_mct(&c);

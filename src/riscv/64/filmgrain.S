@@ -1,5 +1,5 @@
 /*
- * Copyright © 2026, VideoLAN and dav1d authors
+ * Copyright © 2026, VideoLAN and dav1s authors
  * Copyright © 2026, Mohd Zaid
  * All rights reserved.
  *
@@ -33,7 +33,7 @@
 
 function generate_grain_y_8bpc_rvv, export=1, ext="v,zba,zbb"
     lbu t1, FGD_GRAIN_SCALE_SHIFT(a1)
-    lla a2, dav1d_gaussian_sequence
+    lla a2, dav1s_gaussian_sequence
     lwu a5, FGD_SEED(a1)
 
     addi t1, t1, 4

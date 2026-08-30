@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -133,7 +133,7 @@ static void check_cdef_direction(const cdef_dir_fn fn) {
 
 void bitfn(checkasm_check_cdef)(void) {
     Dav1dCdefDSPContext c;
-    bitfn(dav1d_cdef_dsp_init)(&c);
+    bitfn(dav1s_cdef_dsp_init)(&c);
 
     check_cdef_direction(c.dir);
 

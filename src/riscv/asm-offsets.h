@@ -1,5 +1,5 @@
 /*
- * Copyright © 2026, VideoLAN and dav1d authors
+ * Copyright © 2026, VideoLAN and dav1s authors
  * Copyright © 2026, Mohd Zaid
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_RISCV_64_ASM_OFFSETS_H
-#define DAV1D_SRC_RISCV_64_ASM_OFFSETS_H
+#ifndef DAV1S_SRC_RISCV_64_ASM_OFFSETS_H
+#define DAV1S_SRC_RISCV_64_ASM_OFFSETS_H
 
 #define FGD_SEED                         0
 #define FGD_AR_COEFF_LAG                 92
@@ -41,4 +41,4 @@
 #define FGD_UV_OFFSET                    204
 #define FGD_CLIP_TO_RESTRICTED_RANGE     216
 
-#endif /*DAV1D_SRC_RISCV_64_ASM_OFFSETS_H*/
+#endif /*DAV1S_SRC_RISCV_64_ASM_OFFSETS_H*/

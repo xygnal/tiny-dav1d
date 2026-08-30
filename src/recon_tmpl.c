@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -50,8 +50,8 @@ static inline unsigned read_golomb(MsacContext *const msac) {
     int len = 0;
     unsigned val = 1;
 
-    while (!dav1d_msac_decode_bool_equi(msac) && len < 32) len++;
-    while (len--) val = (val << 1) + dav1d_msac_decode_bool_equi(msac);
+    while (!dav1s_msac_decode_bool_equi(msac) && len < 32) len++;
+    while (len--) val = (val << 1) + dav1s_msac_decode_bool_equi(msac);
 
     return val - 1;
 }
@@ -63,11 +63,11 @@ static inline unsigned get_skip_ctx(const TxfmInfo *const t_dim,
                                     const int chroma,
                                     const enum Dav1dPixelLayout layout)
 {
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
 
     if (chroma) {
-        const int ss_ver = layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_ver = layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = layout != DAV1S_PIXEL_LAYOUT_I444;
         const int not_one_blk = b_dim[2] - (!!b_dim[2] && ss_hor) > t_dim->lw ||
                                 b_dim[3] - (!!b_dim[3] && ss_ver) > t_dim->lh;
         unsigned ca, cl;
@@ -133,7 +133,7 @@ static inline unsigned get_skip_ctx(const TxfmInfo *const t_dim,
         }
 #undef MERGE_CTX
 
-        return dav1d_skip_ctx[umin(la & 0x3F, 4)][umin(ll & 0x3F, 4)];
+        return dav1s_skip_ctx[umin(la & 0x3F, 4)][umin(ll & 0x3F, 4)];
     }
 }
 
@@ -329,7 +329,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
     const int chroma = !!plane;
     const Dav1dFrameContext *const f = t->f;
     const int lossless = f->frame_hdr->segmentation.lossless[b->seg_id];
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[tx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[tx];
     const int dbg = DEBUG_BLOCK_INFO && plane && 0;
 
     if (dbg)
@@ -337,7 +337,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
 
     // does this block have any non-zero coefficients
     const int sctx = get_skip_ctx(t_dim, bs, a, l, chroma, f->cur.p.layout);
-    const int all_skip = dav1d_msac_decode_bool_adapt(&ts->msac,
+    const int all_skip = dav1s_msac_decode_bool_adapt(&ts->msac,
                              ts->cdf.coef.skip[t_dim->ctx][sctx]);
     if (dbg)
         printf("Post-non-zero[%d][%d][%d]: r=%d\n",
@@ -356,7 +356,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
         *txtp = DCT_DCT;
     } else if (chroma) {
         // inferred from either the luma txtp (inter) or a LUT (intra)
-        *txtp = intra ? dav1d_txtp_from_uvmode[b->uv_mode] :
+        *txtp = intra ? dav1s_txtp_from_uvmode[b->uv_mode] :
                         get_uv_inter_txtp(t_dim, *txtp);
     } else if (!f->frame_hdr->segmentation.qidx[b->seg_id]) {
         // In libaom, lossless is checked by a literal qidx == 0, but not all
@@ -367,32 +367,32 @@ static int decode_coefs(Dav1dTaskContext *const t,
         unsigned idx;
         if (intra) {
             const enum IntraPredMode y_mode_nofilt = b->y_mode == FILTER_PRED ?
-                dav1d_filter_mode_to_y_mode[b->y_angle] : b->y_mode;
+                dav1s_filter_mode_to_y_mode[b->y_angle] : b->y_mode;
             if (f->frame_hdr->reduced_txtp_set || t_dim->min == TX_16X16) {
-                idx = dav1d_msac_decode_symbol_adapt8(&ts->msac,
+                idx = dav1s_msac_decode_symbol_adapt8(&ts->msac,
                           ts->cdf.m.txtp_intra2[t_dim->min][y_mode_nofilt], 4);
-                *txtp = dav1d_tx_types_per_set[idx + 0];
+                *txtp = dav1s_tx_types_per_set[idx + 0];
             } else {
-                idx = dav1d_msac_decode_symbol_adapt8(&ts->msac,
+                idx = dav1s_msac_decode_symbol_adapt8(&ts->msac,
                           ts->cdf.m.txtp_intra1[t_dim->min][y_mode_nofilt], 6);
-                *txtp = dav1d_tx_types_per_set[idx + 5];
+                *txtp = dav1s_tx_types_per_set[idx + 5];
             }
             if (dbg)
                 printf("Post-txtp-intra[%d->%d][%d][%d->%d]: r=%d\n",
                        tx, t_dim->min, y_mode_nofilt, idx, *txtp, ts->msac.rng);
         } else {
             if (f->frame_hdr->reduced_txtp_set || t_dim->max == TX_32X32) {
-                idx = dav1d_msac_decode_bool_adapt(&ts->msac,
+                idx = dav1s_msac_decode_bool_adapt(&ts->msac,
                           ts->cdf.m.txtp_inter3[t_dim->min]);
                 *txtp = (idx - 1) & IDTX; /* idx ? DCT_DCT : IDTX */
             } else if (t_dim->min == TX_16X16) {
-                idx = dav1d_msac_decode_symbol_adapt16(&ts->msac,
+                idx = dav1s_msac_decode_symbol_adapt16(&ts->msac,
                           ts->cdf.m.txtp_inter2, 11);
-                *txtp = dav1d_tx_types_per_set[idx + 12];
+                *txtp = dav1s_tx_types_per_set[idx + 12];
             } else {
-                idx = dav1d_msac_decode_symbol_adapt16(&ts->msac,
+                idx = dav1s_msac_decode_symbol_adapt16(&ts->msac,
                           ts->cdf.m.txtp_inter1[t_dim->min], 15);
-                *txtp = dav1d_tx_types_per_set[idx + 24];
+                *txtp = dav1s_tx_types_per_set[idx + 24];
             }
             if (dbg)
                 printf("Post-txtp-inter[%d->%d][%d->%d]: r=%d\n",
@@ -404,13 +404,13 @@ static int decode_coefs(Dav1dTaskContext *const t,
     int eob;
     const int slw = imin(t_dim->lw, TX_32X32), slh = imin(t_dim->lh, TX_32X32);
     const int tx2dszctx = slw + slh;
-    const enum TxClass tx_class = dav1d_tx_type_class[*txtp];
+    const enum TxClass tx_class = dav1s_tx_type_class[*txtp];
     const int is_1d = tx_class != TX_CLASS_2D;
     switch (tx2dszctx) {
 #define case_sz(sz, bin, ns, is_1d) \
     case sz: { \
         uint16_t *const eob_bin_cdf = ts->cdf.coef.eob_bin_##bin[chroma]is_1d; \
-        eob = dav1d_msac_decode_symbol_adapt##ns(&ts->msac, eob_bin_cdf, 4 + sz); \
+        eob = dav1s_msac_decode_symbol_adapt##ns(&ts->msac, eob_bin_cdf, 4 + sz); \
         break; \
     }
     case_sz(0,   16,  8, [is_1d]);
@@ -429,11 +429,11 @@ static int decode_coefs(Dav1dTaskContext *const t,
         const int eob_bin = eob - 2;
         uint16_t *const eob_hi_bit_cdf =
             ts->cdf.coef.eob_hi_bit[t_dim->ctx][chroma][eob_bin];
-        const int eob_hi_bit = dav1d_msac_decode_bool_adapt(&ts->msac, eob_hi_bit_cdf);
+        const int eob_hi_bit = dav1s_msac_decode_bool_adapt(&ts->msac, eob_hi_bit_cdf);
         if (dbg)
             printf("Post-eob_hi_bit[%d][%d][%d][%d]: r=%d\n",
                    t_dim->ctx, chroma, eob_bin, eob_hi_bit, ts->msac.rng);
-        eob = ((eob_hi_bit | 2) << eob_bin) | dav1d_msac_decode_bools(&ts->msac, eob_bin);
+        eob = ((eob_hi_bit | 2) << eob_bin) | dav1s_msac_decode_bools(&ts->msac, eob_bin);
         if (dbg)
             printf("Post-eob[%d]: r=%d\n", eob, ts->msac.rng);
     }
@@ -450,7 +450,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
 
         /* eob */
         unsigned ctx = 1 + (eob > 2 << tx2dszctx) + (eob > 4 << tx2dszctx);
-        int eob_tok = dav1d_msac_decode_symbol_adapt4(&ts->msac, eob_cdf[ctx], 2);
+        int eob_tok = dav1s_msac_decode_symbol_adapt4(&ts->msac, eob_cdf[ctx], 2);
         int tok = eob_tok + 1;
         int level_tok = tok * 0x41;
         unsigned mag;
@@ -470,7 +470,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
                    t_dim->ctx, chroma, ctx, eob, rc, tok, ts->msac.rng); \
         if (eob_tok == 2) { \
             ctx = (tx_class == TX_CLASS_2D ? (x | y) > 1 : y != 0) ? 14 : 7; \
-            tok = dav1d_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
+            tok = dav1s_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
             level_tok = tok + (3 << 6); \
             if (dbg) \
                 printf("Post-hi_tok[%d][%d][%d][%d=%d=%d]: r=%d\n", \
@@ -499,7 +499,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
             ctx = get_lo_ctx(level, tx_class, &mag, lo_ctx_offsets, x, y, stride); \
             if (tx_class == TX_CLASS_2D) \
                 y |= x; \
-            tok = dav1d_msac_decode_symbol_adapt4(&ts->msac, lo_cdf[ctx], 3); \
+            tok = dav1s_msac_decode_symbol_adapt4(&ts->msac, lo_cdf[ctx], 3); \
             if (dbg) \
                 printf("Post-lo_tok[%d][%d][%d][%d=%d=%d]: r=%d\n", \
                        t_dim->ctx, chroma, ctx, i, rc_i, tok, ts->msac.rng); \
@@ -507,7 +507,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
                 mag &= 63; \
                 ctx = (y > (tx_class == TX_CLASS_2D) ? 14 : 7) + \
                       (mag > 12 ? 6 : (mag + 1) >> 1); \
-                tok = dav1d_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
+                tok = dav1s_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
                 if (dbg) \
                     printf("Post-hi_tok[%d][%d][%d][%d=%d=%d]: r=%d\n", \
                            imin(t_dim->ctx, 3), chroma, ctx, i, rc_i, tok, \
@@ -528,7 +528,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
         /* dc */ \
         ctx = (tx_class == TX_CLASS_2D) ? 0 : \
             get_lo_ctx(levels, tx_class, &mag, lo_ctx_offsets, 0, 0, stride); \
-        dc_tok = dav1d_msac_decode_symbol_adapt4(&ts->msac, lo_cdf[ctx], 3); \
+        dc_tok = dav1s_msac_decode_symbol_adapt4(&ts->msac, lo_cdf[ctx], 3); \
         if (dbg) \
             printf("Post-dc_lo_tok[%d][%d][%d][%d]: r=%d\n", \
                    t_dim->ctx, chroma, ctx, dc_tok, ts->msac.rng); \
@@ -538,7 +538,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
                       levels[1 * stride + 1]; \
             mag &= 63; \
             ctx = mag > 12 ? 6 : (mag + 1) >> 1; \
-            dc_tok = dav1d_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
+            dc_tok = dav1s_msac_decode_hi_tok(&ts->msac, hi_cdf[ctx]); \
             if (dbg) \
                 printf("Post-dc_hi_tok[%d][%d][0][%d]: r=%d\n", \
                        imin(t_dim->ctx, 3), chroma, dc_tok, ts->msac.rng); \
@@ -550,8 +550,8 @@ static int decode_coefs(Dav1dTaskContext *const t,
         case TX_CLASS_2D: {
             const unsigned nonsquare_tx = tx >= RTX_4X8;
             const uint8_t (*const lo_ctx_offsets)[5] =
-                dav1d_lo_ctx_offsets[nonsquare_tx + (tx & nonsquare_tx)];
-            scan = dav1d_scans[tx];
+                dav1s_lo_ctx_offsets[nonsquare_tx + (tx & nonsquare_tx)];
+            scan = dav1s_scans[tx];
             const ptrdiff_t stride = 4 << slh;
             const unsigned shift = slh + 2, shift2 = 0;
             const unsigned mask = (4 << slh) - 1;
@@ -578,13 +578,13 @@ static int decode_coefs(Dav1dTaskContext *const t,
         default: assert(0);
         }
     } else { // dc-only
-        int tok_br = dav1d_msac_decode_symbol_adapt4(&ts->msac, eob_cdf[0], 2);
+        int tok_br = dav1s_msac_decode_symbol_adapt4(&ts->msac, eob_cdf[0], 2);
         dc_tok = 1 + tok_br;
         if (dbg)
             printf("Post-dc_lo_tok[%d][%d][%d][%d]: r=%d\n",
                    t_dim->ctx, chroma, 0, dc_tok, ts->msac.rng);
         if (tok_br == 2) {
-            dc_tok = dav1d_msac_decode_hi_tok(&ts->msac, hi_cdf[0]);
+            dc_tok = dav1s_msac_decode_hi_tok(&ts->msac, hi_cdf[0]);
             if (dbg)
                 printf("Post-dc_hi_tok[%d][%d][0][%d]: r=%d\n",
                        imin(t_dim->ctx, 3), chroma, dc_tok, ts->msac.rng);
@@ -608,7 +608,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
 
     const int dc_sign_ctx = get_dc_sign_ctx(tx, a, l);
     uint16_t *const dc_sign_cdf = ts->cdf.coef.dc_sign[chroma][dc_sign_ctx];
-    const int dc_sign = dav1d_msac_decode_bool_adapt(&ts->msac, dc_sign_cdf);
+    const int dc_sign = dav1s_msac_decode_bool_adapt(&ts->msac, dc_sign_cdf);
     if (dbg)
         printf("Post-dc_sign[%d][%d][%d]: r=%d\n",
                chroma, dc_sign_ctx, dc_sign, ts->msac.rng);
@@ -639,7 +639,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
         if (rc) ac_qm: {
             const unsigned ac_dq = dq_tbl[1];
             do {
-                const int sign = dav1d_msac_decode_bool_equi(&ts->msac);
+                const int sign = dav1s_msac_decode_bool_equi(&ts->msac);
                 if (dbg)
                     printf("Post-sign[%d=%d]: r=%d\n", rc, sign, ts->msac.rng);
                 const unsigned rc_tok = cf[rc];
@@ -688,7 +688,7 @@ static int decode_coefs(Dav1dTaskContext *const t,
         if (rc) ac_noqm: {
             const unsigned ac_dq = dq_tbl[1];
             do {
-                const int sign = dav1d_msac_decode_bool_equi(&ts->msac);
+                const int sign = dav1s_msac_decode_bool_equi(&ts->msac);
                 if (dbg)
                     printf("Post-sign[%d=%d]: r=%d\n", rc, sign, ts->msac.rng);
                 const unsigned rc_tok = cf[rc];
@@ -737,7 +737,7 @@ static void read_coef_tree(Dav1dTaskContext *const t,
     const Dav1dFrameContext *const f = t->f;
     Dav1dTileState *const ts = t->ts;
     const Dav1dDSPContext *const dsp = f->dsp;
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[ytx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[ytx];
     const int txw = t_dim->w, txh = t_dim->h;
 
     /* y_off can be larger than 3 since lossless blocks use TX_4X4 but can't
@@ -746,7 +746,7 @@ static void read_coef_tree(Dav1dTaskContext *const t,
         tx_split[depth] & (1 << (y_off * 4 + x_off)))
     {
         const enum RectTxfmSize sub = t_dim->sub;
-        const TxfmInfo *const sub_t_dim = &dav1d_txfm_dimensions[sub];
+        const TxfmInfo *const sub_t_dim = &dav1s_txfm_dimensions[sub];
         const int txsw = sub_t_dim->w, txsh = sub_t_dim->h;
 
         read_coef_tree(t, bs, b, sub, depth + 1, tx_split,
@@ -790,8 +790,8 @@ static void read_coef_tree(Dav1dTaskContext *const t,
             if (DEBUG_BLOCK_INFO)
                 printf("Post-y-cf-blk[tx=%d,txtp=%d,eob=%d]: r=%d\n",
                        ytx, txtp, eob, ts->msac.rng);
-            dav1d_memset_likely_pow2(&t->a->lcoef[bx4], cf_ctx, imin(txw, f->bw - t->bx));
-            dav1d_memset_likely_pow2(&t->l.lcoef[by4], cf_ctx, imin(txh, f->bh - t->by));
+            dav1s_memset_likely_pow2(&t->a->lcoef[bx4], cf_ctx, imin(txw, f->bw - t->bx));
+            dav1s_memset_likely_pow2(&t->l.lcoef[by4], cf_ctx, imin(txh, f->bh - t->by));
 #define set_ctx(rep_macro) \
             for (int y = 0; y < txh; y++) { \
                 rep_macro(txtp_map, 0, txtp); \
@@ -821,28 +821,28 @@ static void read_coef_tree(Dav1dTaskContext *const t,
     }
 }
 
-void bytefn(dav1d_read_coef_blocks)(Dav1dTaskContext *const t,
+void bytefn(dav1s_read_coef_blocks)(Dav1dTaskContext *const t,
                                     const enum BlockSize bs, const Av1Block *const b)
 {
     const Dav1dFrameContext *const f = t->f;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int bx4 = t->bx & 31, by4 = t->by & 31;
     const int cbx4 = bx4 >> ss_hor, cby4 = by4 >> ss_ver;
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = b_dim[0], bh4 = b_dim[1];
     const int cbw4 = (bw4 + ss_hor) >> ss_hor, cbh4 = (bh4 + ss_ver) >> ss_ver;
-    const int has_chroma = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400 &&
+    const int has_chroma = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400 &&
                            (bw4 > ss_hor || t->bx & 1) &&
                            (bh4 > ss_ver || t->by & 1);
 
     if (b->skip) {
         BlockContext *const a = t->a;
-        dav1d_memset_pow2[b_dim[2]](&a->lcoef[bx4], 0x40);
-        dav1d_memset_pow2[b_dim[3]](&t->l.lcoef[by4], 0x40);
+        dav1s_memset_pow2[b_dim[2]](&a->lcoef[bx4], 0x40);
+        dav1s_memset_pow2[b_dim[3]](&t->l.lcoef[by4], 0x40);
         if (has_chroma) {
-            dav1d_memset_pow2_fn memset_cw = dav1d_memset_pow2[ulog2(cbw4)];
-            dav1d_memset_pow2_fn memset_ch = dav1d_memset_pow2[ulog2(cbh4)];
+            dav1s_memset_pow2_fn memset_cw = dav1s_memset_pow2[ulog2(cbw4)];
+            dav1s_memset_pow2_fn memset_ch = dav1s_memset_pow2[ulog2(cbh4)];
             memset_cw(&a->ccoef[0][cbx4], 0x40);
             memset_cw(&a->ccoef[1][cbx4], 0x40);
             memset_ch(&t->l.ccoef[0][cby4], 0x40);
@@ -856,8 +856,8 @@ void bytefn(dav1d_read_coef_blocks)(Dav1dTaskContext *const t,
     const int cw4 = (w4 + ss_hor) >> ss_hor, ch4 = (h4 + ss_ver) >> ss_ver;
     assert(t->frame_thread.pass == 1);
     assert(!b->skip);
-    const TxfmInfo *const uv_t_dim = &dav1d_txfm_dimensions[b->uvtx];
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[b->intra ? b->tx : b->max_ytx];
+    const TxfmInfo *const uv_t_dim = &dav1s_txfm_dimensions[b->uvtx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[b->intra ? b->tx : b->max_ytx];
     const uint16_t tx_split[2] = { b->tx_split0, b->tx_split1 };
 
     for (int init_y = 0; init_y < h4; init_y += 16) {
@@ -887,8 +887,8 @@ void bytefn(dav1d_read_coef_blocks)(Dav1dTaskContext *const t,
                                    b->tx, txtp, eob, ts->msac.rng);
                         *ts->frame_thread[1].cbi++ = eob * (1 << 5) + txtp;
                         ts->frame_thread[1].cf += imin(t_dim->w, 8) * imin(t_dim->h, 8) * 16;
-                        dav1d_memset_likely_pow2(&t->a->lcoef[bx4 + x], cf_ctx, imin(t_dim->w, f->bw - t->bx));
-                        dav1d_memset_likely_pow2(&t->l.lcoef[by4 + y], cf_ctx, imin(t_dim->h, f->bh - t->by));
+                        dav1s_memset_likely_pow2(&t->a->lcoef[bx4 + x], cf_ctx, imin(t_dim->w, f->bw - t->bx));
+                        dav1s_memset_likely_pow2(&t->l.lcoef[by4 + y], cf_ctx, imin(t_dim->h, f->bh - t->by));
                     }
                 }
                 t->bx -= x;
@@ -924,8 +924,8 @@ void bytefn(dav1d_read_coef_blocks)(Dav1dTaskContext *const t,
                         ts->frame_thread[1].cf += uv_t_dim->w * uv_t_dim->h * 16;
                         int ctw = imin(uv_t_dim->w, (f->bw - t->bx + ss_hor) >> ss_hor);
                         int cth = imin(uv_t_dim->h, (f->bh - t->by + ss_ver) >> ss_ver);
-                        dav1d_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
-                        dav1d_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
+                        dav1s_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
+                        dav1s_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
                     }
                     t->bx -= x << ss_hor;
                 }
@@ -944,8 +944,8 @@ static int mc(Dav1dTaskContext *const t,
 {
     assert((dst8 != NULL) ^ (dst16 != NULL));
     const Dav1dFrameContext *const f = t->f;
-    const int ss_ver = !!pl && f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = !!pl && f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = !!pl && f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = !!pl && f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int h_mul = 4 >> ss_hor, v_mul = 4 >> ss_ver;
     const int mvx = mv.x, mvy = mv.y;
     const int mx = mvx & (15 >> !ss_hor), my = mvy & (15 >> !ss_ver);
@@ -1058,8 +1058,8 @@ static int obmc(Dav1dTaskContext *const t,
     const Dav1dFrameContext *const f = t->f;
     /*const*/ refmvs_block **r = &t->rt.r[(t->by & 31) + 5];
     pixel *const lap = bitfn(t->scratch.lap);
-    const int ss_ver = !!pl && f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = !!pl && f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = !!pl && f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = !!pl && f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int h_mul = 4 >> ss_hor, v_mul = 4 >> ss_ver;
     int res;
 
@@ -1069,7 +1069,7 @@ static int obmc(Dav1dTaskContext *const t,
         for (int i = 0, x = 0; x < w4 && i < imin(b_dim[2], 4); ) {
             // only odd blocks are considered for overlap handling, hence +1
             const refmvs_block *const a_r = &r[-1][t->bx + x + 1];
-            const uint8_t *const a_b_dim = dav1d_block_dimensions[a_r->bs];
+            const uint8_t *const a_b_dim = dav1s_block_dimensions[a_r->bs];
             const int step4 = iclip(a_b_dim[0], 2, 16);
 
             if (a_r->ref.ref[0] > 0) {
@@ -1078,7 +1078,7 @@ static int obmc(Dav1dTaskContext *const t,
                 res = mc(t, lap, NULL, ow4 * h_mul * sizeof(pixel), ow4, (oh4 * 3 + 3) >> 2,
                          t->bx + x, t->by, pl, a_r->mv.mv[0],
                          &f->refp[a_r->ref.ref[0] - 1], a_r->ref.ref[0] - 1,
-                         dav1d_filter_2d[t->a->filter[1][bx4 + x + 1]][t->a->filter[0][bx4 + x + 1]]);
+                         dav1s_filter_2d[t->a->filter[1][bx4 + x + 1]][t->a->filter[0][bx4 + x + 1]]);
                 if (res) return res;
                 f->dsp->mc.blend_h(&dst[x * h_mul], dst_stride, lap,
                                    h_mul * ow4, v_mul * oh4);
@@ -1092,7 +1092,7 @@ static int obmc(Dav1dTaskContext *const t,
         for (int i = 0, y = 0; y < h4 && i < imin(b_dim[3], 4); ) {
             // only odd blocks are considered for overlap handling, hence +1
             const refmvs_block *const l_r = &r[y + 1][t->bx - 1];
-            const uint8_t *const l_b_dim = dav1d_block_dimensions[l_r->bs];
+            const uint8_t *const l_b_dim = dav1s_block_dimensions[l_r->bs];
             const int step4 = iclip(l_b_dim[1], 2, 16);
 
             if (l_r->ref.ref[0] > 0) {
@@ -1101,7 +1101,7 @@ static int obmc(Dav1dTaskContext *const t,
                 res = mc(t, lap, NULL, h_mul * ow4 * sizeof(pixel), ow4, oh4,
                          t->bx, t->by + y, pl, l_r->mv.mv[0],
                          &f->refp[l_r->ref.ref[0] - 1], l_r->ref.ref[0] - 1,
-                         dav1d_filter_2d[t->l.filter[1][by4 + y + 1]][t->l.filter[0][by4 + y + 1]]);
+                         dav1s_filter_2d[t->l.filter[1][by4 + y + 1]][t->l.filter[0][by4 + y + 1]]);
                 if (res) return res;
                 f->dsp->mc.blend_v(&dst[y * v_mul * PXSTRIDE(dst_stride)],
                                    dst_stride, lap, h_mul * ow4, v_mul * oh4);
@@ -1121,8 +1121,8 @@ static int warp_affine(Dav1dTaskContext *const t,
     assert((dst8 != NULL) ^ (dst16 != NULL));
     const Dav1dFrameContext *const f = t->f;
     const Dav1dDSPContext *const dsp = f->dsp;
-    const int ss_ver = !!pl && f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = !!pl && f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = !!pl && f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = !!pl && f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int h_mul = 4 >> ss_hor, v_mul = 4 >> ss_ver;
     assert(!((b_dim[0] * h_mul) & 7) && !((b_dim[1] * v_mul) & 7));
     const int32_t *const mat = wmp->matrix;
@@ -1173,7 +1173,7 @@ static int warp_affine(Dav1dTaskContext *const t,
     return 0;
 }
 
-void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize bs,
+void bytefn(dav1s_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize bs,
                                  const enum EdgeFlags intra_edge_flags,
                                  const Av1Block *const b)
 {
@@ -1181,18 +1181,18 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
     const Dav1dFrameContext *const f = t->f;
     const Dav1dDSPContext *const dsp = f->dsp;
     const int bx4 = t->bx & 31, by4 = t->by & 31;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int cbx4 = bx4 >> ss_hor, cby4 = by4 >> ss_ver;
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = b_dim[0], bh4 = b_dim[1];
     const int w4 = imin(bw4, f->bw - t->bx), h4 = imin(bh4, f->bh - t->by);
     const int cw4 = (w4 + ss_hor) >> ss_hor, ch4 = (h4 + ss_ver) >> ss_ver;
-    const int has_chroma = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400 &&
+    const int has_chroma = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400 &&
                            (bw4 > ss_hor || t->bx & 1) &&
                            (bh4 > ss_ver || t->by & 1);
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[b->tx];
-    const TxfmInfo *const uv_t_dim = &dav1d_txfm_dimensions[b->uvtx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[b->tx];
+    const TxfmInfo *const uv_t_dim = &dav1s_txfm_dimensions[b->uvtx];
 
     // coefficient coding
     pixel *const edge = bitfn(t->scratch.edge) + 128;
@@ -1260,7 +1260,7 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                         top_sb_edge += f->sb128w * 128 * (sby - 1);
                     }
                     const enum IntraPredMode m =
-                        bytefn(dav1d_prepare_intra_edges)(t->bx,
+                        bytefn(dav1s_prepare_intra_edges)(t->bx,
                                                           t->bx > ts->tiling.col_start,
                                                           t->by,
                                                           t->by > ts->tiling.row_start,
@@ -1310,8 +1310,8 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                             if (DEBUG_BLOCK_INFO)
                                 printf("Post-y-cf-blk[tx=%d,txtp=%d,eob=%d]: r=%d\n",
                                        b->tx, txtp, eob, ts->msac.rng);
-                            dav1d_memset_likely_pow2(&t->a->lcoef[bx4 + x], cf_ctx, imin(t_dim->w, f->bw - t->bx));
-                            dav1d_memset_likely_pow2(&t->l.lcoef[by4 + y], cf_ctx, imin(t_dim->h, f->bh - t->by));
+                            dav1s_memset_likely_pow2(&t->a->lcoef[bx4 + x], cf_ctx, imin(t_dim->w, f->bw - t->bx));
+                            dav1s_memset_likely_pow2(&t->l.lcoef[by4 + y], cf_ctx, imin(t_dim->h, f->bh - t->by));
                         }
                         if (eob >= 0) {
                             if (DEBUG_BLOCK_INFO && DEBUG_B_PIXELS)
@@ -1326,8 +1326,8 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                                          t_dim->w * 4, t_dim->h * 4, "recon");
                         }
                     } else if (!t->frame_thread.pass) {
-                        dav1d_memset_pow2[t_dim->lw](&t->a->lcoef[bx4 + x], 0x40);
-                        dav1d_memset_pow2[t_dim->lh](&t->l.lcoef[by4 + y], 0x40);
+                        dav1s_memset_pow2[t_dim->lw](&t->a->lcoef[bx4 + x], 0x40);
+                        dav1s_memset_pow2[t_dim->lh](&t->l.lcoef[by4 + y], 0x40);
                     }
                     dst += 4 * t_dim->w;
                 }
@@ -1371,7 +1371,7 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                     const int xstart = ts->tiling.col_start >> ss_hor;
                     const int ystart = ts->tiling.row_start >> ss_ver;
                     const enum IntraPredMode m =
-                        bytefn(dav1d_prepare_intra_edges)(xpos, xpos > xstart,
+                        bytefn(dav1s_prepare_intra_edges)(xpos, xpos > xstart,
                                                           ypos, ypos > ystart,
                                                           ts->tiling.col_end >> ss_hor,
                                                           ts->tiling.row_end >> ss_ver,
@@ -1471,7 +1471,7 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                         const int xstart = ts->tiling.col_start >> ss_hor;
                         const int ystart = ts->tiling.row_start >> ss_ver;
                         const enum IntraPredMode m =
-                            bytefn(dav1d_prepare_intra_edges)(xpos, xpos > xstart,
+                            bytefn(dav1s_prepare_intra_edges)(xpos, xpos > xstart,
                                                               ypos, ypos > ystart,
                                                               ts->tiling.col_end >> ss_hor,
                                                               ts->tiling.row_end >> ss_ver,
@@ -1526,8 +1526,8 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                                            pl, b->uvtx, txtp, eob, ts->msac.rng, x, cbx4);
                                 int ctw = imin(uv_t_dim->w, (f->bw - t->bx + ss_hor) >> ss_hor);
                                 int cth = imin(uv_t_dim->h, (f->bh - t->by + ss_ver) >> ss_ver);
-                                dav1d_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
-                                dav1d_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
+                                dav1s_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
+                                dav1s_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
                             }
                             if (eob >= 0) {
                                 if (DEBUG_BLOCK_INFO && DEBUG_B_PIXELS)
@@ -1541,8 +1541,8 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
                                              uv_t_dim->h * 4, "recon");
                             }
                         } else if (!t->frame_thread.pass) {
-                            dav1d_memset_pow2[uv_t_dim->lw](&t->a->ccoef[pl][cbx4 + x], 0x40);
-                            dav1d_memset_pow2[uv_t_dim->lh](&t->l.ccoef[pl][cby4 + y], 0x40);
+                            dav1s_memset_pow2[uv_t_dim->lw](&t->a->ccoef[pl][cbx4 + x], 0x40);
+                            dav1s_memset_pow2[uv_t_dim->lh](&t->l.ccoef[pl][cby4 + y], 0x40);
                         }
                         dst += uv_t_dim->w * 4;
                     }
@@ -1554,24 +1554,24 @@ void bytefn(dav1d_recon_b_intra)(Dav1dTaskContext *const t, const enum BlockSize
     }
 }
 
-int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize bs,
+int bytefn(dav1s_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize bs,
                                 const Av1Block *const b)
 {
     Dav1dTileState *const ts = t->ts;
     const Dav1dFrameContext *const f = t->f;
     const Dav1dDSPContext *const dsp = f->dsp;
     const int bx4 = t->bx & 31, by4 = t->by & 31;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int cbx4 = bx4 >> ss_hor, cby4 = by4 >> ss_ver;
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = b_dim[0], bh4 = b_dim[1];
     const int w4 = imin(bw4, f->bw - t->bx), h4 = imin(bh4, f->bh - t->by);
-    const int has_chroma = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400 &&
+    const int has_chroma = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400 &&
                            (bw4 > ss_hor || t->bx & 1) &&
                            (bh4 > ss_ver || t->by & 1);
-    const int chr_layout_idx = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I400 ? 0 :
-                               DAV1D_PIXEL_LAYOUT_I444 - f->cur.p.layout;
+    const int chr_layout_idx = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I400 ? 0 :
+                               DAV1S_PIXEL_LAYOUT_I444 - f->cur.p.layout;
     int res;
 
     // prediction
@@ -1599,7 +1599,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
 
         if (imin(bw4, bh4) > 1 &&
             ((b->inter_mode == GLOBALMV && f->gmv_warp_allowed[b->ref[0]]) ||
-             (b->motion_mode == MM_WARP && t->warpmv.type > DAV1D_WM_TYPE_TRANSLATION)))
+             (b->motion_mode == MM_WARP && t->warpmv.type > DAV1S_WM_TYPE_TRANSLATION)))
         {
             res = warp_affine(t, dst, NULL, f->cur.stride[0], b_dim, 0, refp,
                               b->motion_mode == MM_WARP ? &t->warpmv :
@@ -1626,7 +1626,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
                 const int sby = t->by >> f->sb_shift;
                 top_sb_edge += f->sb128w * 128 * (sby - 1);
             }
-            m = bytefn(dav1d_prepare_intra_edges)(t->bx, t->bx > ts->tiling.col_start,
+            m = bytefn(dav1s_prepare_intra_edges)(t->bx, t->bx > ts->tiling.col_start,
                                                   t->by, t->by > ts->tiling.row_start,
                                                   ts->tiling.col_end, ts->tiling.row_end,
                                                   0, dst, f->cur.stride[0], top_sb_edge,
@@ -1674,7 +1674,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
             }
             if (bw4 == 1) {
                 const enum Filter2d left_filter_2d =
-                    dav1d_filter_2d[t->l.filter[1][by4]][t->l.filter[0][by4]];
+                    dav1s_filter_2d[t->l.filter[1][by4]][t->l.filter[0][by4]];
                 for (int pl = 0; pl < 2; pl++) {
                     res = mc(t, ((pixel *) f->cur.data[1 + pl]) + uvdstoff + v_off, NULL,
                              f->cur.stride[1], bw4, bh4, t->bx - 1,
@@ -1689,7 +1689,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
             }
             if (bh4 == ss_ver) {
                 const enum Filter2d top_filter_2d =
-                    dav1d_filter_2d[t->a->filter[1][bx4]][t->a->filter[0][bx4]];
+                    dav1s_filter_2d[t->a->filter[1][bx4]][t->a->filter[0][bx4]];
                 for (int pl = 0; pl < 2; pl++) {
                     res = mc(t, ((pixel *) f->cur.data[1 + pl]) + uvdstoff + h_off, NULL,
                              f->cur.stride[1], bw4, bh4, t->bx, t->by - 1,
@@ -1711,7 +1711,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
         } else {
             if (imin(cbw4, cbh4) > 1 &&
                 ((b->inter_mode == GLOBALMV && f->gmv_warp_allowed[b->ref[0]]) ||
-                 (b->motion_mode == MM_WARP && t->warpmv.type > DAV1D_WM_TYPE_TRANSLATION)))
+                 (b->motion_mode == MM_WARP && t->warpmv.type > DAV1S_WM_TYPE_TRANSLATION)))
             {
                 for (int pl = 0; pl < 2; pl++) {
                     res = warp_affine(t, ((pixel *) f->cur.data[1 + pl]) + uvdstoff, NULL,
@@ -1755,7 +1755,7 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
                         const int sby = t->by >> f->sb_shift;
                         top_sb_edge += f->sb128w * 128 * (sby - 1);
                     }
-                    m = bytefn(dav1d_prepare_intra_edges)(t->bx >> ss_hor,
+                    m = bytefn(dav1s_prepare_intra_edges)(t->bx >> ss_hor,
                                                           (t->bx >> ss_hor) >
                                                               (ts->tiling.col_start >> ss_hor),
                                                           t->by >> ss_ver,
@@ -1881,11 +1881,11 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
     if (b->skip) {
         // reset coef contexts
         BlockContext *const a = t->a;
-        dav1d_memset_pow2[b_dim[2]](&a->lcoef[bx4], 0x40);
-        dav1d_memset_pow2[b_dim[3]](&t->l.lcoef[by4], 0x40);
+        dav1s_memset_pow2[b_dim[2]](&a->lcoef[bx4], 0x40);
+        dav1s_memset_pow2[b_dim[3]](&t->l.lcoef[by4], 0x40);
         if (has_chroma) {
-            dav1d_memset_pow2_fn memset_cw = dav1d_memset_pow2[ulog2(cbw4)];
-            dav1d_memset_pow2_fn memset_ch = dav1d_memset_pow2[ulog2(cbh4)];
+            dav1s_memset_pow2_fn memset_cw = dav1s_memset_pow2[ulog2(cbw4)];
+            dav1s_memset_pow2_fn memset_ch = dav1s_memset_pow2[ulog2(cbh4)];
             memset_cw(&a->ccoef[0][cbx4], 0x40);
             memset_cw(&a->ccoef[1][cbx4], 0x40);
             memset_ch(&t->l.ccoef[0][cby4], 0x40);
@@ -1894,8 +1894,8 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
         return 0;
     }
 
-    const TxfmInfo *const uvtx = &dav1d_txfm_dimensions[b->uvtx];
-    const TxfmInfo *const ytx = &dav1d_txfm_dimensions[b->max_ytx];
+    const TxfmInfo *const uvtx = &dav1s_txfm_dimensions[b->uvtx];
+    const TxfmInfo *const ytx = &dav1s_txfm_dimensions[b->max_ytx];
     const uint16_t tx_split[2] = { b->tx_split0, b->tx_split1 };
 
     for (int init_y = 0; init_y < bh4; init_y += 16) {
@@ -1957,8 +1957,8 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
                                        pl, b->uvtx, txtp, eob, ts->msac.rng);
                             int ctw = imin(uvtx->w, (f->bw - t->bx + ss_hor) >> ss_hor);
                             int cth = imin(uvtx->h, (f->bh - t->by + ss_ver) >> ss_ver);
-                            dav1d_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
-                            dav1d_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
+                            dav1s_memset_likely_pow2(&t->a->ccoef[pl][cbx4 + x], cf_ctx, ctw);
+                            dav1s_memset_likely_pow2(&t->l.ccoef[pl][cby4 + y], cf_ctx, cth);
                         }
                         if (eob >= 0) {
                             if (DEBUG_BLOCK_INFO && DEBUG_B_PIXELS)
@@ -1984,50 +1984,50 @@ int bytefn(dav1d_recon_b_inter)(Dav1dTaskContext *const t, const enum BlockSize 
     return 0;
 }
 
-void bytefn(dav1d_filter_sbrow_deblock_cols)(Dav1dFrameContext *const f, const int sby) {
-    if (!(f->c->inloop_filters & DAV1D_INLOOPFILTER_DEBLOCK) ||
+void bytefn(dav1s_filter_sbrow_deblock_cols)(Dav1dFrameContext *const f, const int sby) {
+    if (!(f->c->inloop_filters & DAV1S_INLOOPFILTER_DEBLOCK) ||
         (!f->frame_hdr->loopfilter.level_y[0] && !f->frame_hdr->loopfilter.level_y[1]))
     {
         return;
     }
     const int y = sby * f->sb_step * 4;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
     pixel *const p[3] = {
         f->lf.p[0] + y * PXSTRIDE(f->cur.stride[0]),
         f->lf.p[1] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
         f->lf.p[2] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver)
     };
     Av1Filter *mask = f->lf.mask + (sby >> !f->seq_hdr->sb128) * f->sb128w;
-    bytefn(dav1d_loopfilter_sbrow_cols)(f, p, mask, sby,
+    bytefn(dav1s_loopfilter_sbrow_cols)(f, p, mask, sby,
                                         f->lf.start_of_tile_row[sby]);
 }
 
-void bytefn(dav1d_filter_sbrow_deblock_rows)(Dav1dFrameContext *const f, const int sby) {
+void bytefn(dav1s_filter_sbrow_deblock_rows)(Dav1dFrameContext *const f, const int sby) {
     const int y = sby * f->sb_step * 4;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
     pixel *const p[3] = {
         f->lf.p[0] + y * PXSTRIDE(f->cur.stride[0]),
         f->lf.p[1] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
         f->lf.p[2] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver)
     };
     Av1Filter *mask = f->lf.mask + (sby >> !f->seq_hdr->sb128) * f->sb128w;
-    if (f->c->inloop_filters & DAV1D_INLOOPFILTER_DEBLOCK &&
+    if (f->c->inloop_filters & DAV1S_INLOOPFILTER_DEBLOCK &&
         (f->frame_hdr->loopfilter.level_y[0] || f->frame_hdr->loopfilter.level_y[1]))
     {
-        bytefn(dav1d_loopfilter_sbrow_rows)(f, p, mask, sby);
+        bytefn(dav1s_loopfilter_sbrow_rows)(f, p, mask, sby);
     }
     if (f->seq_hdr->cdef || f->lf.restore_planes) {
         // Store loop filtered pixels required by CDEF / LR
-        bytefn(dav1d_copy_lpf)(f, p, sby);
+        bytefn(dav1s_copy_lpf)(f, p, sby);
     }
 }
 
-void bytefn(dav1d_filter_sbrow_cdef)(Dav1dTaskContext *const tc, const int sby) {
+void bytefn(dav1s_filter_sbrow_cdef)(Dav1dTaskContext *const tc, const int sby) {
     const Dav1dFrameContext *const f = tc->f;
-    if (!(f->c->inloop_filters & DAV1D_INLOOPFILTER_CDEF)) return;
+    if (!(f->c->inloop_filters & DAV1S_INLOOPFILTER_CDEF)) return;
     const int sbsz = f->sb_step;
     const int y = sby * sbsz * 4;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
     pixel *const p[3] = {
         f->lf.p[0] + y * PXSTRIDE(f->cur.stride[0]),
         f->lf.p[1] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
@@ -2037,23 +2037,23 @@ void bytefn(dav1d_filter_sbrow_cdef)(Dav1dTaskContext *const tc, const int sby) 
     Av1Filter *mask = f->lf.mask + (sby >> !f->seq_hdr->sb128) * f->sb128w;
     const int start = sby * sbsz;
     if (sby) {
-        const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+        const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
         pixel *p_up[3] = {
             p[0] - 8 * PXSTRIDE(f->cur.stride[0]),
             p[1] - (8 * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
             p[2] - (8 * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
         };
-        bytefn(dav1d_cdef_brow)(tc, p_up, prev_mask, start - 2, start, 1, sby);
+        bytefn(dav1s_cdef_brow)(tc, p_up, prev_mask, start - 2, start, 1, sby);
     }
     const int n_blks = sbsz - 2 * (sby + 1 < f->sbh);
     const int end = imin(start + n_blks, f->bh);
-    bytefn(dav1d_cdef_brow)(tc, p, mask, start, end, 0, sby);
+    bytefn(dav1s_cdef_brow)(tc, p, mask, start, end, 0, sby);
 }
 
-void bytefn(dav1d_filter_sbrow_resize)(Dav1dFrameContext *const f, const int sby) {
+void bytefn(dav1s_filter_sbrow_resize)(Dav1dFrameContext *const f, const int sby) {
     const int sbsz = f->sb_step;
     const int y = sby * sbsz * 4;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
     const pixel *const p[3] = {
         f->lf.p[0] + y * PXSTRIDE(f->cur.stride[0]),
         f->lf.p[1] + (y * PXSTRIDE(f->cur.stride[1]) >> ss_ver),
@@ -2064,16 +2064,16 @@ void bytefn(dav1d_filter_sbrow_resize)(Dav1dFrameContext *const f, const int sby
         f->lf.sr_p[1] + (y * PXSTRIDE(f->sr_cur.p.stride[1]) >> ss_ver),
         f->lf.sr_p[2] + (y * PXSTRIDE(f->sr_cur.p.stride[1]) >> ss_ver)
     };
-    const int has_chroma = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400;
+    const int has_chroma = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400;
     for (int pl = 0; pl < 1 + 2 * has_chroma; pl++) {
-        const int ss_ver = pl && f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+        const int ss_ver = pl && f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
         const int h_start = 8 * !!sby >> ss_ver;
         const ptrdiff_t dst_stride = f->sr_cur.p.stride[!!pl];
         pixel *dst = sr_p[pl] - h_start * PXSTRIDE(dst_stride);
         const ptrdiff_t src_stride = f->cur.stride[!!pl];
         const pixel *src = p[pl] - h_start * PXSTRIDE(src_stride);
         const int h_end = 4 * (sbsz - 2 * (sby + 1 < f->sbh)) >> ss_ver;
-        const int ss_hor = pl && f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_hor = pl && f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int dst_w = (f->sr_cur.p.p.w + ss_hor) >> ss_hor;
         const int src_w = (4 * f->bw + ss_hor) >> ss_hor;
         const int img_h = (f->cur.p.h - sbsz * 4 * sby + ss_ver) >> ss_ver;
@@ -2085,30 +2085,30 @@ void bytefn(dav1d_filter_sbrow_resize)(Dav1dFrameContext *const f, const int sby
     }
 }
 
-void bytefn(dav1d_filter_sbrow_lr)(Dav1dFrameContext *const f, const int sby) {
-    if (!(f->c->inloop_filters & DAV1D_INLOOPFILTER_RESTORATION)) return;
+void bytefn(dav1s_filter_sbrow_lr)(Dav1dFrameContext *const f, const int sby) {
+    if (!(f->c->inloop_filters & DAV1S_INLOOPFILTER_RESTORATION)) return;
     const int y = sby * f->sb_step * 4;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
     pixel *const sr_p[3] = {
         f->lf.sr_p[0] + y * PXSTRIDE(f->sr_cur.p.stride[0]),
         f->lf.sr_p[1] + (y * PXSTRIDE(f->sr_cur.p.stride[1]) >> ss_ver),
         f->lf.sr_p[2] + (y * PXSTRIDE(f->sr_cur.p.stride[1]) >> ss_ver)
     };
-    bytefn(dav1d_lr_sbrow)(f, sr_p, sby);
+    bytefn(dav1s_lr_sbrow)(f, sr_p, sby);
 }
 
-void bytefn(dav1d_filter_sbrow)(Dav1dFrameContext *const f, const int sby) {
-    bytefn(dav1d_filter_sbrow_deblock_cols)(f, sby);
-    bytefn(dav1d_filter_sbrow_deblock_rows)(f, sby);
+void bytefn(dav1s_filter_sbrow)(Dav1dFrameContext *const f, const int sby) {
+    bytefn(dav1s_filter_sbrow_deblock_cols)(f, sby);
+    bytefn(dav1s_filter_sbrow_deblock_rows)(f, sby);
     if (f->seq_hdr->cdef)
-        bytefn(dav1d_filter_sbrow_cdef)(f->c->tc, sby);
+        bytefn(dav1s_filter_sbrow_cdef)(f->c->tc, sby);
     if (f->frame_hdr->width[0] != f->frame_hdr->width[1])
-        bytefn(dav1d_filter_sbrow_resize)(f, sby);
+        bytefn(dav1s_filter_sbrow_resize)(f, sby);
     if (f->lf.restore_planes)
-        bytefn(dav1d_filter_sbrow_lr)(f, sby);
+        bytefn(dav1s_filter_sbrow_lr)(f, sby);
 }
 
-void bytefn(dav1d_backup_ipred_edge)(Dav1dTaskContext *const t) {
+void bytefn(dav1s_backup_ipred_edge)(Dav1dTaskContext *const t) {
     const Dav1dFrameContext *const f = t->f;
     Dav1dTileState *const ts = t->ts;
     const int sby = t->by >> f->sb_shift;
@@ -2121,9 +2121,9 @@ void bytefn(dav1d_backup_ipred_edge)(Dav1dTaskContext *const t) {
     pixel_copy(&f->ipred_edge[0][sby_off + x_off * 4], y,
                4 * (ts->tiling.col_end - x_off));
 
-    if (f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400) {
-        const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    if (f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400) {
+        const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
 
         const ptrdiff_t uv_off = (x_off * 4 >> ss_hor) +
             (((t->by + f->sb_step) * 4 >> ss_ver) - 1) * PXSTRIDE(f->cur.stride[1]);
@@ -2134,7 +2134,7 @@ void bytefn(dav1d_backup_ipred_edge)(Dav1dTaskContext *const t) {
     }
 }
 
-void bytefn(dav1d_copy_pal_block_y)(Dav1dTaskContext *const t,
+void bytefn(dav1s_copy_pal_block_y)(Dav1dTaskContext *const t,
                                     const int bx4, const int by4,
                                     const int bw4, const int bh4)
 
@@ -2150,7 +2150,7 @@ void bytefn(dav1d_copy_pal_block_y)(Dav1dTaskContext *const t,
         memcpy(bytefn(t->al_pal)[1][by4 + y][0], pal, 8 * sizeof(pixel));
 }
 
-void bytefn(dav1d_copy_pal_block_uv)(Dav1dTaskContext *const t,
+void bytefn(dav1s_copy_pal_block_uv)(Dav1dTaskContext *const t,
                                      const int bx4, const int by4,
                                      const int bw4, const int bh4)
 
@@ -2169,13 +2169,13 @@ void bytefn(dav1d_copy_pal_block_uv)(Dav1dTaskContext *const t,
     }
 }
 
-void bytefn(dav1d_read_pal_plane)(Dav1dTaskContext *const t, Av1Block *const b,
+void bytefn(dav1s_read_pal_plane)(Dav1dTaskContext *const t, Av1Block *const b,
                                   const int pl, const int sz_ctx,
                                   const int bx4, const int by4)
 {
     Dav1dTileState *const ts = t->ts;
     const Dav1dFrameContext *const f = t->f;
-    const int pal_sz = b->pal_sz[pl] = dav1d_msac_decode_symbol_adapt8(&ts->msac,
+    const int pal_sz = b->pal_sz[pl] = dav1s_msac_decode_symbol_adapt8(&ts->msac,
                                            ts->cdf.m.pal_sz[pl][sz_ctx], 6) + 2;
     pixel cache[16], used_cache[8];
     int l_cache = pl ? t->pal_sz_uv[1][by4] : t->l.pal_sz[by4];
@@ -2220,7 +2220,7 @@ void bytefn(dav1d_read_pal_plane)(Dav1dTaskContext *const t, Av1Block *const b,
     // find reused cache entries
     int i = 0;
     for (int n = 0; n < n_cache && i < pal_sz; n++)
-        if (dav1d_msac_decode_bool_equi(&ts->msac))
+        if (dav1s_msac_decode_bool_equi(&ts->msac))
             used_cache[i++] = cache[n];
     const int n_used_cache = i;
 
@@ -2231,14 +2231,14 @@ void bytefn(dav1d_read_pal_plane)(Dav1dTaskContext *const t, Av1Block *const b,
         bytefn(t->scratch.pal)[pl];
     if (i < pal_sz) {
         const int bpc = BITDEPTH == 8 ? 8 : f->cur.p.bpc;
-        int prev = pal[i++] = dav1d_msac_decode_bools(&ts->msac, bpc);
+        int prev = pal[i++] = dav1s_msac_decode_bools(&ts->msac, bpc);
 
         if (i < pal_sz) {
-            int bits = bpc - 3 + dav1d_msac_decode_bools(&ts->msac, 2);
+            int bits = bpc - 3 + dav1s_msac_decode_bools(&ts->msac, 2);
             const int max = (1 << bpc) - 1;
 
             do {
-                const int delta = dav1d_msac_decode_bools(&ts->msac, bits);
+                const int delta = dav1s_msac_decode_bools(&ts->msac, bits);
                 prev = pal[i++] = imin(prev + delta + !pl, max);
                 if (prev + !pl >= max) {
                     for (; i < pal_sz; i++)
@@ -2275,10 +2275,10 @@ void bytefn(dav1d_read_pal_plane)(Dav1dTaskContext *const t, Av1Block *const b,
     }
 }
 
-void bytefn(dav1d_read_pal_uv)(Dav1dTaskContext *const t, Av1Block *const b,
+void bytefn(dav1s_read_pal_uv)(Dav1dTaskContext *const t, Av1Block *const b,
                                const int sz_ctx, const int bx4, const int by4)
 {
-    bytefn(dav1d_read_pal_plane)(t, b, 1, sz_ctx, bx4, by4);
+    bytefn(dav1s_read_pal_plane)(t, b, 1, sz_ctx, bx4, by4);
 
     // V pal coding
     Dav1dTileState *const ts = t->ts;
@@ -2288,18 +2288,18 @@ void bytefn(dav1d_read_pal_uv)(Dav1dTaskContext *const t, Av1Block *const b,
                             ((t->bx >> 1) + (t->by & 1))][2] :
         bytefn(t->scratch.pal)[2];
     const int bpc = BITDEPTH == 8 ? 8 : f->cur.p.bpc;
-    if (dav1d_msac_decode_bool_equi(&ts->msac)) {
-        const int bits = bpc - 4 + dav1d_msac_decode_bools(&ts->msac, 2);
-        int prev = pal[0] = dav1d_msac_decode_bools(&ts->msac, bpc);
+    if (dav1s_msac_decode_bool_equi(&ts->msac)) {
+        const int bits = bpc - 4 + dav1s_msac_decode_bools(&ts->msac, 2);
+        int prev = pal[0] = dav1s_msac_decode_bools(&ts->msac, bpc);
         const int max = (1 << bpc) - 1;
         for (int i = 1; i < b->pal_sz[1]; i++) {
-            int delta = dav1d_msac_decode_bools(&ts->msac, bits);
-            if (delta && dav1d_msac_decode_bool_equi(&ts->msac)) delta = -delta;
+            int delta = dav1s_msac_decode_bools(&ts->msac, bits);
+            if (delta && dav1s_msac_decode_bool_equi(&ts->msac)) delta = -delta;
             prev = pal[i] = (prev + delta) & max;
         }
     } else {
         for (int i = 0; i < b->pal_sz[1]; i++)
-            pal[i] = dav1d_msac_decode_bools(&ts->msac, bpc);
+            pal[i] = dav1s_msac_decode_bools(&ts->msac, bpc);
     }
     if (DEBUG_BLOCK_INFO) {
         printf("Post-pal[pl=2]: r=%d ", ts->msac.rng);

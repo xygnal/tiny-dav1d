@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,24 +24,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_LOG_H
-#define DAV1D_SRC_LOG_H
+#ifndef DAV1S_SRC_LOG_H
+#define DAV1S_SRC_LOG_H
 
 #include "config.h"
 
 #include <stdarg.h>
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include "common/attributes.h"
 
 #if CONFIG_LOG
-#define dav1d_log dav1d_log
-void dav1d_log_default_callback(void *cookie, const char *format, va_list ap);
-void dav1d_log(Dav1dContext *c, const char *format, ...) ATTR_FORMAT_PRINTF(2, 3);
+#define dav1s_log dav1s_log
+void dav1s_log_default_callback(void *cookie, const char *format, va_list ap);
+void dav1s_log(Dav1dContext *c, const char *format, ...) ATTR_FORMAT_PRINTF(2, 3);
 #else
-#define dav1d_log_default_callback NULL
-#define dav1d_log(...) do { } while(0)
+#define dav1s_log_default_callback NULL
+#define dav1s_log(...) do { } while(0)
 #endif
 
-#endif /* DAV1D_SRC_LOG_H */
+#endif /* DAV1S_SRC_LOG_H */

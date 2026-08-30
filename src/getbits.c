@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -33,7 +33,7 @@
 
 #include "src/getbits.h"
 
-void dav1d_init_get_bits(GetBits *const c, const uint8_t *const data,
+void dav1s_init_get_bits(GetBits *const c, const uint8_t *const data,
                          const size_t sz)
 {
     assert(sz);
@@ -44,7 +44,7 @@ void dav1d_init_get_bits(GetBits *const c, const uint8_t *const data,
     c->error = 0;
 }
 
-unsigned dav1d_get_bit(GetBits *const c) {
+unsigned dav1s_get_bit(GetBits *const c) {
     if (!c->bits_left) {
         if (c->ptr >= c->ptr_end) {
             c->error = 1;
@@ -89,15 +89,15 @@ type name(GetBits *const c, const int n) {      \
     return (type) ((type64) state >> (64 - n)); \
 }
 
-GET_BITS(dav1d_get_bits,  unsigned, uint64_t)
-GET_BITS(dav1d_get_sbits, int,      int64_t)
+GET_BITS(dav1s_get_bits,  unsigned, uint64_t)
+GET_BITS(dav1s_get_sbits, int,      int64_t)
 
-unsigned dav1d_get_uleb128(GetBits *const c) {
+unsigned dav1s_get_uleb128(GetBits *const c) {
     uint64_t val = 0;
     unsigned i = 0, more;
 
     do {
-        const int v = dav1d_get_bits(c, 8);
+        const int v = dav1s_get_bits(c, 8);
         more = v & 0x80;
         val |= ((uint64_t) (v & 0x7F)) << i;
         i += 7;
@@ -111,28 +111,28 @@ unsigned dav1d_get_uleb128(GetBits *const c) {
     return (unsigned) val;
 }
 
-unsigned dav1d_get_uniform(GetBits *const c, const unsigned max) {
+unsigned dav1s_get_uniform(GetBits *const c, const unsigned max) {
     // Output in range [0..max-1]
     // max must be > 1, or else nothing is read from the bitstream
     assert(max > 1);
     const int l = ulog2(max) + 1;
     assert(l > 1);
     const unsigned m = (1U << l) - max;
-    const unsigned v = dav1d_get_bits(c, l - 1);
-    return v < m ? v : (v << 1) - m + dav1d_get_bit(c);
+    const unsigned v = dav1s_get_bits(c, l - 1);
+    return v < m ? v : (v << 1) - m + dav1s_get_bit(c);
 }
 
-unsigned dav1d_get_vlc(GetBits *const c) {
-    if (dav1d_get_bit(c))
+unsigned dav1s_get_vlc(GetBits *const c) {
+    if (dav1s_get_bit(c))
         return 0;
 
     int n_bits = 0;
     do {
         if (++n_bits == 32)
             return UINT32_MAX;
-    } while (!dav1d_get_bit(c));
+    } while (!dav1s_get_bit(c));
 
-    return ((1U << n_bits) - 1) + dav1d_get_bits(c, n_bits);
+    return ((1U << n_bits) - 1) + dav1s_get_bits(c, n_bits);
 }
 
 static unsigned get_bits_subexp_u(GetBits *const c, const unsigned ref,
@@ -144,12 +144,12 @@ static unsigned get_bits_subexp_u(GetBits *const c, const unsigned ref,
         const int b = i ? 3 + i - 1 : 3;
 
         if (n < v + 3 * (1 << b)) {
-            v += dav1d_get_uniform(c, n - v + 1);
+            v += dav1s_get_uniform(c, n - v + 1);
             break;
         }
 
-        if (!dav1d_get_bit(c)) {
-            v += dav1d_get_bits(c, b);
+        if (!dav1s_get_bit(c)) {
+            v += dav1s_get_bits(c, b);
             break;
         }
 
@@ -159,6 +159,6 @@ static unsigned get_bits_subexp_u(GetBits *const c, const unsigned ref,
     return ref * 2 <= n ? inv_recenter(ref, v) : n - inv_recenter(n - ref, v);
 }
 
-int dav1d_get_bits_subexp(GetBits *const c, const int ref, const unsigned n) {
+int dav1s_get_bits_subexp(GetBits *const c, const int ref, const unsigned n) {
     return (int) get_bits_subexp_u(c, ref + (1 << n), 2 << n) - (1 << n);
 }

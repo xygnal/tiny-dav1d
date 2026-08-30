@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019, VideoLAN and dav1d authors
+ * Copyright © 2019, VideoLAN and dav1s authors
  * Copyright © 2019, Luca Barbato
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_PPC_TYPES_H
-#define DAV1D_SRC_PPC_TYPES_H
+#ifndef DAV1S_SRC_PPC_TYPES_H
+#define DAV1S_SRC_PPC_TYPES_H
 
 #include <altivec.h>
 #undef pixel
@@ -55,4 +55,4 @@
 #define u16l_to_i32(v) ((i32x4) vec_mergel((u16x8) v, vec_splat_u16(0)))
 #define i16l_to_i32(v) ((i32x4) vec_unpackl((i16x8)v))
 
-#endif /* DAV1D_SRC_PPC_TYPES_H */
+#endif /* DAV1S_SRC_PPC_TYPES_H */

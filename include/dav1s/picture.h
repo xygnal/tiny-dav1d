@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2020, VideoLAN and dav1d authors
+ * Copyright © 2018-2020, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_PICTURE_H
-#define DAV1D_PICTURE_H
+#ifndef DAV1S_PICTURE_H
+#define DAV1S_PICTURE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -41,7 +41,7 @@ extern "C" {
 /* Number of bytes to align AND pad picture memory buffers by, so that SIMD
  * implementations can over-read by a few bytes, and use aligned read/write
  * instructions. */
-#define DAV1D_PICTURE_ALIGNMENT 64
+#define DAV1S_PICTURE_ALIGNMENT 64
 
 typedef struct Dav1dPictureParameters {
     int w; ///< width (in pixels)
@@ -109,14 +109,14 @@ typedef struct Dav1dPicAllocator {
     /**
      * Allocate the picture buffer based on the Dav1dPictureParameters.
      *
-     * The data[0], data[1] and data[2] must be DAV1D_PICTURE_ALIGNMENT byte
+     * The data[0], data[1] and data[2] must be DAV1S_PICTURE_ALIGNMENT byte
      * aligned and with a pixel width/height multiple of 128 pixels. Any
-     * allocated memory area should also be padded by DAV1D_PICTURE_ALIGNMENT
+     * allocated memory area should also be padded by DAV1S_PICTURE_ALIGNMENT
      * bytes.
      * data[1] and data[2] must share the same stride[1].
      *
      * This function will be called on the main thread (the thread which calls
-     * dav1d_get_picture()).
+     * dav1s_get_picture()).
      *
      * @param  pic The picture to allocate the buffer for. The callback needs to
      *             fill the picture data[0], data[1], data[2], stride[0] and
@@ -128,14 +128,14 @@ typedef struct Dav1dPicAllocator {
      *
      * @note No fields other than data, stride and allocator_data must be filled
      *       by this callback.
-     * @return 0 on success. A negative DAV1D_ERR value on error.
+     * @return 0 on success. A negative DAV1S_ERR value on error.
      */
     int (*alloc_picture_callback)(Dav1dPicture *pic, void *cookie);
     /**
      * Release the picture buffer.
      *
      * If frame threading is used, this function may be called by the main
-     * thread (the thread which calls dav1d_get_picture()) or any of the frame
+     * thread (the thread which calls dav1s_get_picture()) or any of the frame
      * threads and thus must be thread-safe. If frame threading is not used,
      * this function will only be called on the main thread.
      *
@@ -148,10 +148,10 @@ typedef struct Dav1dPicAllocator {
 /**
  * Release reference to a picture.
  */
-DAV1D_API void dav1d_picture_unref(Dav1dPicture *p);
+DAV1S_API void dav1s_picture_unref(Dav1dPicture *p);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif /* DAV1D_PICTURE_H */
+#endif /* DAV1S_PICTURE_H */

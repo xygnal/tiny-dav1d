@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021, VideoLAN and dav1d authors
+ * Copyright © 2021, VideoLAN and dav1s authors
  * Copyright © 2021, Two Orioles, LLC
  * All rights reserved.
  *
@@ -42,18 +42,18 @@ CHECK_OFFSET(refmvs_frame, rp_stride, RMVSF_RP_STRIDE);
 CHECK_OFFSET(refmvs_frame, n_tile_threads, RMVSF_N_TILE_THREADS);
 #endif
 
-decl_load_tmvs_fn(dav1d_load_tmvs_neon);
-decl_save_tmvs_fn(dav1d_save_tmvs_neon);
-decl_splat_mv_fn(dav1d_splat_mv_neon);
+decl_load_tmvs_fn(dav1s_load_tmvs_neon);
+decl_save_tmvs_fn(dav1s_save_tmvs_neon);
+decl_splat_mv_fn(dav1s_splat_mv_neon);
 
 static ALWAYS_INLINE void refmvs_dsp_init_arm(Dav1dRefmvsDSPContext *const c) {
-    const unsigned flags = dav1d_get_cpu_flags();
+    const unsigned flags = dav1s_get_cpu_flags();
 
-    if (!(flags & DAV1D_ARM_CPU_FLAG_NEON)) return;
+    if (!(flags & DAV1S_ARM_CPU_FLAG_NEON)) return;
 
 #if ARCH_AARCH64
-    c->load_tmvs = dav1d_load_tmvs_neon;
+    c->load_tmvs = dav1s_load_tmvs_neon;
 #endif
-    c->save_tmvs = dav1d_save_tmvs_neon;
-    c->splat_mv = dav1d_splat_mv_neon;
+    c->save_tmvs = dav1s_save_tmvs_neon;
+    c->splat_mv = dav1s_splat_mv_neon;
 }

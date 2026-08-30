@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ static void sdl_render(void *cookie, const Dav1dPlaySettings *settings)
     SDL_UnlockMutex(rd_priv_ctx->lock);
 }
 
-static int sdl_update_texture(void *cookie, Dav1dPicture *dav1d_pic,
+static int sdl_update_texture(void *cookie, Dav1dPicture *dav1s_pic,
                               const Dav1dPlaySettings *settings)
 {
     Dav1dPlayRendererPrivateContext *rd_priv_ctx = cookie;
@@ -122,20 +122,20 @@ static int sdl_update_texture(void *cookie, Dav1dPicture *dav1d_pic,
 
     SDL_LockMutex(rd_priv_ctx->lock);
 
-    if (dav1d_pic == NULL) {
+    if (dav1s_pic == NULL) {
         rd_priv_ctx->tex = NULL;
         SDL_UnlockMutex(rd_priv_ctx->lock);
         return 0;
     }
 
-    int width = dav1d_pic->p.w;
-    int height = dav1d_pic->p.h;
+    int width = dav1s_pic->p.w;
+    int height = dav1s_pic->p.h;
     int tex_w = width;
     int tex_h = height;
 
-    enum Dav1dPixelLayout dav1d_layout = dav1d_pic->p.layout;
+    enum Dav1dPixelLayout dav1s_layout = dav1s_pic->p.layout;
 
-    if (DAV1D_PIXEL_LAYOUT_I420 != dav1d_layout || dav1d_pic->p.bpc != 8) {
+    if (DAV1S_PIXEL_LAYOUT_I420 != dav1s_layout || dav1s_pic->p.bpc != 8) {
         fprintf(stderr, "Unsupported pixel format, only 8bit 420 supported so far.\n");
         exit(50);
     }
@@ -156,9 +156,9 @@ static int sdl_update_texture(void *cookie, Dav1dPicture *dav1d_pic,
     }
 
     SDL_UpdateYUVTexture(texture, NULL,
-        dav1d_pic->data[0], (int)dav1d_pic->stride[0], // Y
-        dav1d_pic->data[1], (int)dav1d_pic->stride[1], // U
-        dav1d_pic->data[2], (int)dav1d_pic->stride[1]  // V
+        dav1s_pic->data[0], (int)dav1s_pic->stride[0], // Y
+        dav1s_pic->data[1], (int)dav1s_pic->stride[1], // U
+        dav1s_pic->data[2], (int)dav1s_pic->stride[1]  // V
         );
 
     rd_priv_ctx->tex = texture;

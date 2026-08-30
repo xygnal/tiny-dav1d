@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -140,8 +140,8 @@ static int copy_subcoefs(coef *coeff,
      * simd versions (e.g. dc-only) so that we get full asm coverage in this
      * test */
 
-    const enum TxClass tx_class = dav1d_tx_type_class[txtp];
-    const uint16_t *const scan = dav1d_scans[tx];
+    const enum TxClass tx_class = dav1s_tx_type_class[txtp];
+    const uint16_t *const scan = dav1s_scans[tx];
     const int sub_high = subsh > 0 ? subsh * 8 - 1 : 0;
     const int sub_low  = subsh > 1 ? sub_high - 8 : 0;
     int n, eob;
@@ -250,10 +250,10 @@ static void check_itxfm_add(Dav1dInvTxfmDSPContext *const c,
 
     static const uint8_t subsh_iters[5] = { 2, 2, 3, 5, 5 };
 
-    const int w = dav1d_txfm_dimensions[tx].w * 4;
-    const int h = dav1d_txfm_dimensions[tx].h * 4;
-    const int subsh_max = subsh_iters[imax(dav1d_txfm_dimensions[tx].lw,
-                                           dav1d_txfm_dimensions[tx].lh)];
+    const int w = dav1s_txfm_dimensions[tx].w * 4;
+    const int h = dav1s_txfm_dimensions[tx].h * 4;
+    const int subsh_max = subsh_iters[imax(dav1s_txfm_dimensions[tx].lw,
+                                           dav1s_txfm_dimensions[tx].lh)];
 #if BITDEPTH == 16
     const int bpc_min = 10, bpc_max = 12;
 #else
@@ -264,7 +264,7 @@ static void check_itxfm_add(Dav1dInvTxfmDSPContext *const c,
                  int eob HIGHBD_DECL_SUFFIX);
 
     for (int bpc = bpc_min; bpc <= bpc_max; bpc += 2) {
-        bitfn(dav1d_itx_dsp_init)(c, bpc);
+        bitfn(dav1s_itx_dsp_init)(c, bpc);
         for (enum TxfmType txtp = 0; txtp < N_TX_TYPES_PLUS_LL; txtp++)
             for (int subsh = !!txtp; subsh < subsh_max; subsh++)
                 if (check_func(c->itxfm_add[tx][txtp],

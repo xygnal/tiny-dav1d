@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -101,7 +101,7 @@ static void backup_lpf(const Dav1dFrameContext *const f,
     }
 }
 
-void bytefn(dav1d_copy_lpf)(Dav1dFrameContext *const f,
+void bytefn(dav1s_copy_lpf)(Dav1dFrameContext *const f,
                             /*const*/ pixel *const src[3], const int sby)
 {
     const int have_tt = f->c->n_tc > 1;
@@ -136,10 +136,10 @@ void bytefn(dav1d_copy_lpf)(Dav1dFrameContext *const f,
         }
     }
     if ((f->seq_hdr->cdef || restore_planes & (LR_RESTORE_U | LR_RESTORE_V)) &&
-        f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400)
+        f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400)
     {
-        const int ss_ver = f->sr_cur.p.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = f->sr_cur.p.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_ver = f->sr_cur.p.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = f->sr_cur.p.p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int h = (f->cur.p.h + ss_ver) >> ss_ver;
         const int w = f->bw << (2 - ss_hor);
         const int row_h = imin((sby + 1) << ((6 - ss_ver) + f->seq_hdr->sb128), h - 1);
@@ -310,7 +310,7 @@ static inline void filter_plane_rows_uv(const Dav1dFrameContext *const f,
     }
 }
 
-void bytefn(dav1d_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
+void bytefn(dav1s_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
                                          pixel *const p[3], Av1Filter *const lflvl,
                                          int sby, const int start_of_tile_row)
 {
@@ -321,8 +321,8 @@ void bytefn(dav1d_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
     const int sbsz = 32 >> is_sb64;
     const int sbl2 = 5 - is_sb64;
     const int halign = (f->bh + 31) & ~31;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int vmask = 16 >> ss_ver, hmask = 16 >> ss_hor;
     const unsigned vmax = 1U << vmask, hmax = 1U << hmask;
     const unsigned endy4 = starty4 + imin(f->h4 - sby * sbsz, sbsz);
@@ -349,7 +349,7 @@ void bytefn(dav1d_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
             y_hmask[imin(idx, lpf_y[y - starty4])][sidx] |= smask;
         }
 
-        if (f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400) {
+        if (f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400) {
             uint16_t (*const uv_hmask)[2] = lflvl[x].filter_uv[0][cbx4];
             for (unsigned y = starty4 >> ss_ver, uv_mask = 1 << y; y < uv_endy4;
                  y++, uv_mask <<= 1)
@@ -385,7 +385,7 @@ void bytefn(dav1d_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
                 y_vmask[imin(idx, a->tx_lpf_y[i])][sidx] |= smask;
             }
 
-            if (f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I400) {
+            if (f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I400) {
                 const unsigned cw = (w + ss_hor) >> ss_hor;
                 uint16_t (*const uv_vmask)[2] = lflvl[x].filter_uv[1][starty4 >> ss_ver];
                 for (unsigned uv_mask = 1, i = 0; i < cw; uv_mask <<= 1, i++) {
@@ -426,7 +426,7 @@ void bytefn(dav1d_loopfilter_sbrow_cols)(const Dav1dFrameContext *const f,
     }
 }
 
-void bytefn(dav1d_loopfilter_sbrow_rows)(const Dav1dFrameContext *const f,
+void bytefn(dav1s_loopfilter_sbrow_rows)(const Dav1dFrameContext *const f,
                                          pixel *const p[3], Av1Filter *const lflvl,
                                          int sby)
 {
@@ -436,8 +436,8 @@ void bytefn(dav1d_loopfilter_sbrow_rows)(const Dav1dFrameContext *const f,
     const int is_sb64 = !f->seq_hdr->sb128;
     const int starty4 = (sby & is_sb64) << 4;
     const int sbsz = 32 >> is_sb64;
-    const int ss_ver = f->cur.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = f->cur.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = f->cur.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = f->cur.p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const unsigned endy4 = starty4 + imin(f->h4 - sby * sbsz, sbsz);
     const unsigned uv_endy4 = (endy4 + ss_ver) >> ss_ver;
 

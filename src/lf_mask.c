@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -42,7 +42,7 @@ static void decomp_tx(uint8_t (*const txa)[2 /* txsz, step */][32 /* y */][32 /*
                       const int y_off, const int x_off,
                       const uint16_t *const tx_masks)
 {
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[from];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[from];
     const int is_split = (from == (int) TX_4X4 || depth > 1) ? 0 :
         (tx_masks[depth] >> (y_off * 4 + x_off)) & 1;
 
@@ -72,7 +72,7 @@ static void decomp_tx(uint8_t (*const txa)[2 /* txsz, step */][32 /* y */][32 /*
         }
         case_set_upto16(t_dim->lw);
 #undef set_ctx
-        dav1d_memset_pow2[t_dim->lw](txa[1][1][0], t_dim->h);
+        dav1s_memset_pow2[t_dim->lw](txa[1][1][0], t_dim->h);
     }
 }
 
@@ -83,7 +83,7 @@ static inline void mask_edges_inter(uint16_t (*const masks)[32][3][2],
                                     const uint16_t *const tx_masks,
                                     uint8_t *const a, uint8_t *const l)
 {
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[max_tx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[max_tx];
     int y, x;
 
     ALIGN_STK_16(uint8_t, txa, 2 /* edge */, [2 /* txsz, step */][32 /* y */][32 /* x */]);
@@ -150,7 +150,7 @@ static inline void mask_edges_intra(uint16_t (*const masks)[32][3][2],
                                     const enum RectTxfmSize tx,
                                     uint8_t *const a, uint8_t *const l)
 {
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[tx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[tx];
     const int twl4 = t_dim->lw, thl4 = t_dim->lh;
     const int twl4c = imin(2, twl4), thl4c = imin(2, thl4);
     int y, x;
@@ -193,8 +193,8 @@ static inline void mask_edges_intra(uint16_t (*const masks)[32][3][2],
         if (inner2) masks[1][by4 + y][thl4c][1] |= inner2;
     }
 
-    dav1d_memset_likely_pow2(a, thl4c, w4);
-    dav1d_memset_likely_pow2(l, twl4c, h4);
+    dav1s_memset_likely_pow2(a, thl4c, w4);
+    dav1s_memset_likely_pow2(l, twl4c, h4);
 }
 
 static void mask_edges_chroma(uint16_t (*const masks)[32][2][2],
@@ -205,7 +205,7 @@ static void mask_edges_chroma(uint16_t (*const masks)[32][2][2],
                               uint8_t *const a, uint8_t *const l,
                               const int ss_hor, const int ss_ver)
 {
-    const TxfmInfo *const t_dim = &dav1d_txfm_dimensions[tx];
+    const TxfmInfo *const t_dim = &dav1s_txfm_dimensions[tx];
     const int twl4 = t_dim->lw, thl4 = t_dim->lh;
     const int twl4c = !!twl4, thl4c = !!thl4;
     int y, x;
@@ -252,11 +252,11 @@ static void mask_edges_chroma(uint16_t (*const masks)[32][2][2],
         }
     }
 
-    dav1d_memset_likely_pow2(a, thl4c, cw4);
-    dav1d_memset_likely_pow2(l, twl4c, ch4);
+    dav1s_memset_likely_pow2(a, thl4c, cw4);
+    dav1s_memset_likely_pow2(l, twl4c, ch4);
 }
 
-void dav1d_create_lf_mask_intra(Av1Filter *const lflvl,
+void dav1s_create_lf_mask_intra(Av1Filter *const lflvl,
                                 uint8_t (*const level_cache)[4],
                                 const ptrdiff_t b4_stride,
                                 const uint8_t (*filter_level)[8][2],
@@ -269,7 +269,7 @@ void dav1d_create_lf_mask_intra(Av1Filter *const lflvl,
                                 uint8_t *const ay, uint8_t *const ly,
                                 uint8_t *const auv, uint8_t *const luv)
 {
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = imin(iw - bx, b_dim[0]);
     const int bh4 = imin(ih - by, b_dim[1]);
     const int bx4 = bx & 31;
@@ -291,8 +291,8 @@ void dav1d_create_lf_mask_intra(Av1Filter *const lflvl,
 
     if (!auv) return;
 
-    const int ss_ver = layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = layout != DAV1S_PIXEL_LAYOUT_I444;
     const int cbw4 = imin(((iw + ss_hor) >> ss_hor) - (bx >> ss_hor),
                           (b_dim[0] + ss_hor) >> ss_hor);
     const int cbh4 = imin(((ih + ss_ver) >> ss_ver) - (by >> ss_ver),
@@ -318,7 +318,7 @@ void dav1d_create_lf_mask_intra(Av1Filter *const lflvl,
                       auv, luv, ss_hor, ss_ver);
 }
 
-void dav1d_create_lf_mask_inter(Av1Filter *const lflvl,
+void dav1s_create_lf_mask_inter(Av1Filter *const lflvl,
                                 uint8_t (*const level_cache)[4],
                                 const ptrdiff_t b4_stride,
                                 const uint8_t (*filter_level)[8][2],
@@ -332,7 +332,7 @@ void dav1d_create_lf_mask_inter(Av1Filter *const lflvl,
                                 uint8_t *const ay, uint8_t *const ly,
                                 uint8_t *const auv, uint8_t *const luv)
 {
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = imin(iw - bx, b_dim[0]);
     const int bh4 = imin(ih - by, b_dim[1]);
     const int bx4 = bx & 31;
@@ -355,8 +355,8 @@ void dav1d_create_lf_mask_inter(Av1Filter *const lflvl,
 
     if (!auv) return;
 
-    const int ss_ver = layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_ver = layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = layout != DAV1S_PIXEL_LAYOUT_I444;
     const int cbw4 = imin(((iw + ss_hor) >> ss_hor) - (bx >> ss_hor),
                           (b_dim[0] + ss_hor) >> ss_hor);
     const int cbh4 = imin(((ih + ss_ver) >> ss_ver) - (by >> ss_ver),
@@ -382,7 +382,7 @@ void dav1d_create_lf_mask_inter(Av1Filter *const lflvl,
                       auv, luv, ss_hor, ss_ver);
 }
 
-void dav1d_calc_eih(Av1FilterLUT *const lim_lut, const int filter_sharpness) {
+void dav1s_calc_eih(Av1FilterLUT *const lim_lut, const int filter_sharpness) {
     // set E/I/H values from loopfilter level
     const int sharp = filter_sharpness;
     for (int level = 0; level < 64; level++) {
@@ -435,7 +435,7 @@ static inline void calc_lf_value_chroma(uint8_t (*const lflvl_values)[2],
         calc_lf_value(lflvl_values, base_lvl, lf_delta, seg_delta, mr_delta);
 }
 
-void dav1d_calc_lf_values(uint8_t (*const lflvl_values)[4][8][2],
+void dav1s_calc_lf_values(uint8_t (*const lflvl_values)[4][8][2],
                           const Dav1dFrameHeader *const hdr,
                           const int8_t lf_delta[4])
 {

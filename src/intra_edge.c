@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2023, VideoLAN and dav1d authors
+ * Copyright © 2018-2023, VideoLAN and dav1s authors
  * Copyright © 2018-2023, Two Orioles, LLC
  * All rights reserved.
  *
@@ -48,7 +48,7 @@ static struct {
     EdgeTip tip_sb64[64];
 } ALIGN(nodes, 16);
 
-const EdgeNode *dav1d_intra_edge_tree[2] = {
+const EdgeNode *dav1s_intra_edge_tree[2] = {
     (EdgeNode*)nodes.branch_sb128, (EdgeNode*)nodes.branch_sb64
 };
 
@@ -123,7 +123,7 @@ static COLD void init_mode_node(EdgeBranch *const nwc,
     }
 }
 
-COLD void dav1d_init_intra_edge_tree(void) {
+COLD void dav1s_init_intra_edge_tree(void) {
     // This function is guaranteed to be called only once
     struct ModeSelMem mem;
 

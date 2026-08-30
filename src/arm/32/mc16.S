@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Janne Grunau
  * Copyright © 2020, Martin Storsjo
  * All rights reserved.
@@ -3310,7 +3310,7 @@ function warp_filter_horz_neon
         bx              lr
 endfunc
 
-// void dav1d_warp_affine_8x8_16bpc_neon(
+// void dav1s_warp_affine_8x8_16bpc_neon(
 //         pixel *dst, const ptrdiff_t dst_stride,
 //         const pixel *src, const ptrdiff_t src_stride,
 //         const int16_t *const abcd, int mx, int my,
@@ -3467,7 +3467,7 @@ endfunc
 warp
 warp t
 
-// void dav1d_emu_edge_16bpc_neon(
+// void dav1s_emu_edge_16bpc_neon(
 //         const intptr_t bw, const intptr_t bh,
 //         const intptr_t iw, const intptr_t ih,
 //         const intptr_t x, const intptr_t y,

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_CDF_H
-#define DAV1D_SRC_CDF_H
+#ifndef DAV1S_SRC_CDF_H
+#define DAV1S_SRC_CDF_H
 
 #include <stdint.h>
 
@@ -47,7 +47,7 @@ typedef struct CdfModeContext {
     ALIGN(uint16_t cfl_sign[8], 16);
     ALIGN(uint16_t angle_delta[8][8], 16);
     ALIGN(uint16_t filter_intra[5 + 3], 16);
-    ALIGN(uint16_t seg_id[3][DAV1D_MAX_SEGMENTS], 16);
+    ALIGN(uint16_t seg_id[3][DAV1S_MAX_SEGMENTS], 16);
     ALIGN(uint16_t pal_sz[2][7][7 + 1], 16);
     ALIGN(uint16_t color_map[2][7][5][8], 16);
     ALIGN(uint16_t txsz[N_TX_SIZES - 1][3][4], 8);
@@ -70,7 +70,7 @@ typedef struct CdfModeContext {
     ALIGN(uint16_t y_mode[4][N_INTRA_PRED_MODES + 3], 32);
     ALIGN(uint16_t wedge_idx[9][16], 32);
     ALIGN(uint16_t comp_inter_mode[8][N_COMP_INTER_PRED_MODES], 16);
-    ALIGN(uint16_t filter[2][8][DAV1D_N_SWITCHABLE_FILTERS + 1], 8);
+    ALIGN(uint16_t filter[2][8][DAV1S_N_SWITCHABLE_FILTERS + 1], 8);
     ALIGN(uint16_t interintra_mode[4][4], 8);
     ALIGN(uint16_t motion_mode[N_BS_SIZES][3 + 1], 8);
     ALIGN(uint16_t skip_mode[3][2], 4);
@@ -142,13 +142,13 @@ typedef struct CdfThreadContext {
     atomic_uint *progress;
 } CdfThreadContext;
 
-void dav1d_cdf_thread_init_static(CdfThreadContext *cdf, unsigned qidx);
-int dav1d_cdf_thread_alloc(Dav1dContext *c, CdfThreadContext *cdf,
+void dav1s_cdf_thread_init_static(CdfThreadContext *cdf, unsigned qidx);
+int dav1s_cdf_thread_alloc(Dav1dContext *c, CdfThreadContext *cdf,
                            const int have_frame_mt);
-void dav1d_cdf_thread_copy(CdfContext *dst, const CdfThreadContext *src);
-void dav1d_cdf_thread_ref(CdfThreadContext *dst, CdfThreadContext *src);
-void dav1d_cdf_thread_unref(CdfThreadContext *cdf);
-void dav1d_cdf_thread_update(const Dav1dFrameHeader *hdr, CdfContext *dst,
+void dav1s_cdf_thread_copy(CdfContext *dst, const CdfThreadContext *src);
+void dav1s_cdf_thread_ref(CdfThreadContext *dst, CdfThreadContext *src);
+void dav1s_cdf_thread_unref(CdfThreadContext *cdf);
+void dav1s_cdf_thread_update(const Dav1dFrameHeader *hdr, CdfContext *dst,
                              const CdfContext *src);
 
-#endif /* DAV1D_SRC_CDF_H */
+#endif /* DAV1S_SRC_CDF_H */

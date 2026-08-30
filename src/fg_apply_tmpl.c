@@ -1,6 +1,6 @@
 /*
  * Copyright © 2018, Niklas Haas
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -30,8 +30,8 @@
 
 #include <stdint.h>
 
-#include "dav1d/common.h"
-#include "dav1d/picture.h"
+#include "dav1s/common.h"
+#include "dav1s/picture.h"
 
 #include "common/intops.h"
 #include "common/bitdepth.h"
@@ -97,7 +97,7 @@ static void generate_scaling(const int bitdepth,
 }
 
 #ifndef UNIT_TEST
-void bitfn(dav1d_prep_grain)(const Dav1dFilmGrainDSPContext *const dsp,
+void bitfn(dav1s_prep_grain)(const Dav1dFilmGrainDSPContext *const dsp,
                              Dav1dPicture *const out,
                              const Dav1dPicture *const in,
                              uint8_t scaling[3][SCALING_SIZE],
@@ -137,9 +137,9 @@ void bitfn(dav1d_prep_grain)(const Dav1dFilmGrainDSPContext *const dsp,
             memcpy(out->data[0], in->data[0], sz);
     }
 
-    if (in->p.layout != DAV1D_PIXEL_LAYOUT_I400 && !data->chroma_scaling_from_luma) {
+    if (in->p.layout != DAV1S_PIXEL_LAYOUT_I400 && !data->chroma_scaling_from_luma) {
         assert(out->stride[1] == in->stride[1]);
-        const int ss_ver = in->p.layout == DAV1D_PIXEL_LAYOUT_I420;
+        const int ss_ver = in->p.layout == DAV1S_PIXEL_LAYOUT_I420;
         const ptrdiff_t stride = out->stride[1];
         const ptrdiff_t sz = ((out->p.h + ss_ver) >> ss_ver) * stride;
         if (sz < 0) {
@@ -158,7 +158,7 @@ void bitfn(dav1d_prep_grain)(const Dav1dFilmGrainDSPContext *const dsp,
     }
 }
 
-void bitfn(dav1d_apply_grain_row)(const Dav1dFilmGrainDSPContext *const dsp,
+void bitfn(dav1s_apply_grain_row)(const Dav1dFilmGrainDSPContext *const dsp,
                                   Dav1dPicture *const out,
                                   const Dav1dPicture *const in,
                                   const uint8_t scaling[3][SCALING_SIZE],
@@ -167,10 +167,10 @@ void bitfn(dav1d_apply_grain_row)(const Dav1dFilmGrainDSPContext *const dsp,
 {
     // Synthesize grain for the affected planes
     const Dav1dFilmGrainData *const data = &out->frame_hdr->film_grain.data;
-    const int ss_y = in->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_x = in->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int ss_y = in->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_x = in->p.layout != DAV1S_PIXEL_LAYOUT_I444;
     const int cpw = (out->p.w + ss_x) >> ss_x;
-    const int is_id = out->seq_hdr->mtrx == DAV1D_MC_IDENTITY;
+    const int is_id = out->seq_hdr->mtrx == DAV1S_MC_IDENTITY;
     pixel *const luma_src =
         ((pixel *) in->data[0]) + row * FG_BLOCK_SIZE * PXSTRIDE(in->stride[0]);
 #if BITDEPTH != 8
@@ -222,7 +222,7 @@ void bitfn(dav1d_apply_grain_row)(const Dav1dFilmGrainDSPContext *const dsp,
     }
 }
 
-void bitfn(dav1d_apply_grain)(const Dav1dFilmGrainDSPContext *const dsp,
+void bitfn(dav1s_apply_grain)(const Dav1dFilmGrainDSPContext *const dsp,
                               Dav1dPicture *const out,
                               const Dav1dPicture *const in)
 {
@@ -234,8 +234,8 @@ void bitfn(dav1d_apply_grain)(const Dav1dFilmGrainDSPContext *const dsp,
 #endif
     const int rows = (out->p.h + FG_BLOCK_SIZE - 1) / FG_BLOCK_SIZE;
 
-    bitfn(dav1d_prep_grain)(dsp, out, in, scaling, grain_lut);
+    bitfn(dav1s_prep_grain)(dsp, out, in, scaling, grain_lut);
     for (int row = 0; row < rows; row++)
-        bitfn(dav1d_apply_grain_row)(dsp, out, in, scaling, grain_lut, row);
+        bitfn(dav1s_apply_grain_row)(dsp, out, in, scaling, grain_lut, row);
 }
 #endif

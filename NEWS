@@ -1,7 +1,7 @@
 Changes for 1.5.4 'Sonic':
 --------------------------
 
-1.5.4 is a minor release of dav1d, focused on optimizations and maintenance:
+1.5.4 is a minor release of dav1s, focused on optimizations and maintenance:
  - Support for OS/2, including API exports and assembly
  - Switch to external checkasm
  - Add Armv9.3-A GCS (Guarded Control Stack) support
@@ -19,7 +19,7 @@ Changes for 1.5.4 'Sonic':
 Changes for 1.5.3 'Sonic':
 --------------------------
 
-1.5.3 is a minor release of dav1d, focused on RISC-V and maintenance:
+1.5.3 is a minor release of dav1s, focused on RISC-V and maintenance:
  - Misc small optimizations
  - RISC-V assembly optimizations for ipred, emu_edge and w_mask,
    and VLEN 512 for blend functions
@@ -29,7 +29,7 @@ Changes for 1.5.3 'Sonic':
 Changes for 1.5.2 'Sonic':
 --------------------------
 
-1.5.2 is a minor release of dav1d, focused on maintenance:
+1.5.2 is a minor release of dav1s, focused on maintenance:
  - minor speed improvement in recon
  - improvements on loongarch symboles visibility and asm
  - mark C globals with small code model
@@ -41,12 +41,12 @@ Changes for 1.5.2 'Sonic':
 Changes for 1.5.1 'Sonic':
 --------------------------
 
-1.5.1 is a minor release of dav1d, focusing on optimizations and stack reduction:
+1.5.1 is a minor release of dav1s, focusing on optimizations and stack reduction:
 
  - Rewrite of the looprestoration (SGR, wiener) to reduce stack usage
  - Rewrite of {put,prep}_scaled functions
 
-Now, the required stack space for dav1d should be: 62 KB on x86_64 and
+Now, the required stack space for dav1s should be: 62 KB on x86_64 and
 58KB on arm and aarch64.
 
  - Improvements on the SSSE3 SGR
@@ -61,7 +61,7 @@ Now, the required stack space for dav1d should be: 62 KB on x86_64 and
 Changes for 1.5.0 'Sonic':
 --------------------------
 
-1.5.0 is a major release of dav1d, that:
+1.5.0 is a major release of dav1s, that:
  - WARNING: we removed some of the SSE2 optimizations, so if you care about
             systems without SSSE3, you should be careful when updating!
  - Add Arm OpenBSD run-time CPU feature
@@ -74,7 +74,7 @@ Changes for 1.5.0 'Sonic':
  - Power9: Optimized ITX till 16x4.
  - Loongarch: numerous optimizations
  - RISC-V optimizations for pal, cdef_filter, ipred, mc_blend, mc_bdir, itx
- - Allow playing videos in full-screen mode in dav1dplay
+ - Allow playing videos in full-screen mode in dav1splay
 
 
 Changes for 1.4.3 'Road Runner':
@@ -88,7 +88,7 @@ Changes for 1.4.3 'Road Runner':
 Changes for 1.4.2 'Road Runner':
 --------------------------------
 
-1.4.2 is a small release of dav1d, improving notably ARM, AVX-512 and PowerPC
+1.4.2 is a small release of dav1s, improving notably ARM, AVX-512 and PowerPC
  - AVX2 optimizations for 8-tap and new variants for 6-tap
  - AVX-512 optimizations for 8-tap and new variants for 6-tap
  - Improve entropy decoding on ARM64
@@ -103,7 +103,7 @@ Changes for 1.4.2 'Road Runner':
 Changes for 1.4.1 'Road Runner':
 --------------------------------
 
-1.4.1 is a small release of dav1d, improving notably ARM and RISC-V speed
+1.4.1 is a small release of dav1s, improving notably ARM and RISC-V speed
 
 - Optimizations for 6tap filters for NEON (ARM)
 - More RISC-V optimizations for itx (4x8, 8x4, 4x16, 16x4, 8x16, 16x8)
@@ -115,7 +115,7 @@ Changes for 1.4.1 'Road Runner':
 Changes for 1.4.0 'Road Runner':
 --------------------------------
 
-1.4.0 is a medium release of dav1d, focusing on new architecture support and optimizations
+1.4.0 is a medium release of dav1s, focusing on new architecture support and optimizations
 
 - AVX-512 optimizations for z1, z2, z3 in 8bit and high-bitdepth
 - New architecture supported: loongarch
@@ -129,11 +129,11 @@ Changes for 1.4.0 'Road Runner':
 Changes for 1.3.0 'Tundra Peregrine Falcon (Calidus)':
 ------------------------------------------------------
 
-1.3.0 is a medium release of dav1d, focus on new APIs and memory usage reduction.
+1.3.0 is a medium release of dav1s, focus on new APIs and memory usage reduction.
 
 - Reduce memory usage in numerous places
 - ABI break in Dav1dSequenceHeader, Dav1dFrameHeader, Dav1dContentLightLevel structures
-- new API function to check the API version: dav1d_version_api()
+- new API function to check the API version: dav1s_version_api()
 - Rewrite of the SGR functions for ARM64 to be faster
 - NEON implemetation of save_tmvs for ARM32 and ARM64
 - x86 palette DSP for pal_idx_finish function
@@ -142,14 +142,14 @@ Changes for 1.3.0 'Tundra Peregrine Falcon (Calidus)':
 Changes for 1.2.1 'Arctic Peregrine Falcon':
 --------------------------------------------
 
-1.2.1 is a small release of dav1d, adding more SIMD and fixes
+1.2.1 is a small release of dav1s, adding more SIMD and fixes
 
 - Fix a threading race on task_thread.init_done
 - NEON z2 8bpc and high bit-depth optimizations
 - SSSE3 z2 high bit-depth optimziations
 - Fix a desynced luma/chroma planes issue with Film Grain
 - Reduce memory consumption
-- Improve dav1d_parse_sequence_header() speed
+- Improve dav1s_parse_sequence_header() speed
 - OBU: Improve header parsing and fix potential overflows
 - OBU: Improve ITU-T T.35 parsing speed
 - Misc buildsystems, CI and headers fixes
@@ -158,7 +158,7 @@ Changes for 1.2.1 'Arctic Peregrine Falcon':
 Changes for 1.2.0 'Arctic Peregrine Falcon':
 --------------------------------------------
 
-1.2.0 is a small release of dav1d, adding more SIMD and fixes
+1.2.0 is a small release of dav1s, adding more SIMD and fixes
 
 - Improvements on attachments of props and T.35 entries on output pictures
 - NEON z1/z3 high bit-depth optimizations and improvements for 8bpc
@@ -171,9 +171,9 @@ Changes for 1.2.0 'Arctic Peregrine Falcon':
 Changes for 1.1.0 'Arctic Peregrine Falcon':
 --------------------------------------------
 
-1.1.0 is an important release of dav1d, fixing numerous bugs, and adding SIMD
+1.1.0 is an important release of dav1s, fixing numerous bugs, and adding SIMD
 
-- New function dav1d_get_frame_delay to query the decoder frame delay
+- New function dav1s_get_frame_delay to query the decoder frame delay
 - Numerous fixes for strict conformity to the specs and samples
 - NEON and AVX-512 misc fixes and improvements
 - Partial AVX2 12bpc transform implementations
@@ -187,7 +187,7 @@ Changes for 1.1.0 'Arctic Peregrine Falcon':
 Changes for 1.0.0 'Peregrine Falcon':
 -------------------------------------
 
-1.0.0 is a major release of dav1d, adding important features and bug fixes.
+1.0.0 is a major release of dav1s, adding important features and bug fixes.
 
 It notably changes, in an important way, the way threading works, by adding
 an automatic thread management.
@@ -217,7 +217,7 @@ of the project to have a proper release.
 Changes for 0.9.2 'Golden Eagle':
 ---------------------------------
 
-0.9.2 is a small update of dav1d on the 0.9.x branch:
+0.9.2 is a small update of dav1s on the 0.9.x branch:
  - x86: SSE4 optimizations of inverse transforms for 10bit for all sizes
  - x86: mc.resize optimizations with AVX2/SSSE3 for 10/12b
  - x86: SSSE3 optimizations for cdef_filter in 10/12b and mc_w_mask_422/444 in 8b
@@ -230,7 +230,7 @@ Changes for 0.9.2 'Golden Eagle':
 Changes for 0.9.1 'Golden Eagle':
 ---------------------------------
 
-0.9.1 is a middle-size revision of dav1d, adding notably 10b acceleration for SSSE3:
+0.9.1 is a middle-size revision of dav1s, adding notably 10b acceleration for SSSE3:
  - 10/12b SSSE3 optimizations for mc (avg, w_avg, mask, w_mask, emu_edge),
    prep/put_bilin, prep/put_8tap, ipred (dc/h/v, paeth, smooth, pal, filter), wiener,
    sgr (10b), warp8x8, deblock, film_grain, cfl_ac/pred for 32bit and 64bit x86 processors
@@ -243,7 +243,7 @@ Changes for 0.9.1 'Golden Eagle':
 Changes for 0.9.0 'Golden Eagle':
 ---------------------------------
 
-0.9.0 is a major version of dav1d, adding notably 10b acceleration on x64.
+0.9.0 is a major version of dav1s, adding notably 10b acceleration on x64.
 
 Details:
  - x86 (64bit) AVX2 implementation of most 10b/12b functions, which should provide
@@ -270,14 +270,14 @@ Changes for 0.8.2 'Eurasian Hobby':
  - Add seeking, pausing to the player
  - Update the player for rendering of 10b/12b
  - Misc speed improvements and fixes on all platforms
- - Add a xxh3 muxer in the dav1d application
+ - Add a xxh3 muxer in the dav1s application
 
 
 Changes for 0.8.1 'Eurasian Hobby':
 -----------------------------------
 
 0.8.1 is a minor update on 0.8.0:
- - Keep references to buffers valid after dav1d_close(). Fixes a regression
+ - Keep references to buffers valid after dav1s_close(). Fixes a regression
    caused by the picture buffer pool added in 0.8.0.
  - ARM32 optimizations for 10bit bitdepth for SGR
  - ARM32 optimizations for 16bit bitdepth for blend/w_masl/emu_edge
@@ -288,7 +288,7 @@ Changes for 0.8.1 'Eurasian Hobby':
 Changes for 0.8.0 'Eurasian Hobby':
 -----------------------------------
 
-0.8.0 is a major update for dav1d:
+0.8.0 is a major update for dav1s:
  - Improve the performance by using a picture buffer pool;
    The improvements can reach 10% on some cases on Windows.
  - Support for Apple ARM Silicon
@@ -309,13 +309,13 @@ Changes for 0.7.1 'Frigatebird':
  - AVX2 optimizations for MC scaled
  - Fix a clamping issue in motion vector projection
  - Fix an issue on some specific Haswell CPU on ipred_z AVX2 functions
- - Improvements on the dav1dplay utility player to support resizing
+ - Improvements on the dav1splay utility player to support resizing
 
 
 Changes for 0.7.0 'Frigatebird':
 ------------------------------
 
-0.7.0 is a major release for dav1d:
+0.7.0 is a major release for dav1s:
  - Faster refmv implementation gaining up to 12% speed while -25% of RAM (Single Thread)
  - 10b/12b ARM64 optimizations are mostly complete:
    - ipred (paeth, smooth, dc, pal, filter, cfl)
@@ -326,14 +326,14 @@ Changes for 0.7.0 'Frigatebird':
  - ARM64 8b improvements for cfl_ac and itxfm
  - ARM64 implementation for emu_edge in 8b/10b/12b
  - ARM32 implementation for emu_edge in 8b
- - Improvements on the dav1dplay utility player to support 10 bit,
+ - Improvements on the dav1splay utility player to support 10 bit,
    non-4:2:0 pixel formats and film grain on the GPU
 
 
 Changes for 0.6.0 'Gyrfalcon':
 ------------------------------
 
-0.6.0 is a major release for dav1d:
+0.6.0 is a major release for dav1s:
  - New ARM64 optimizations for the 10/12bit depth:
     - mc_avg, mc_w_avg, mc_mask
     - mc_put/mc_prep 8tap/bilin
@@ -469,7 +469,7 @@ Changes for 0.2.0 'Antelope':
 Changes for 0.1.0 'Gazelle':
 ----------------------------
 
-Initial release of dav1d, the fast and small AV1 decoder.
+Initial release of dav1s, the fast and small AV1 decoder.
  - Support for all features of the AV1 bitstream
  - Support for all bitdepth, 8, 10 and 12bits
  - Support for all chroma subsamplings 4:2:0, 4:2:2, 4:4:4 *and* grayscale

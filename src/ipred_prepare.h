@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_IPRED_PREPARE_H
-#define DAV1D_SRC_IPRED_PREPARE_H
+#ifndef DAV1S_SRC_IPRED_PREPARE_H
+#define DAV1S_SRC_IPRED_PREPARE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -76,7 +76,7 @@
  * they will be extended from nearby edges as defined by the av1 spec.
  */
 enum IntraPredMode
-    bytefn(dav1d_prepare_intra_edges)(int x, int have_left, int y, int have_top,
+    bytefn(dav1s_prepare_intra_edges)(int x, int have_left, int y, int have_top,
                                       int w, int h, enum EdgeFlags edge_flags,
                                       const pixel *dst, ptrdiff_t stride,
                                       const pixel *prefilter_toplevel_sb_edge,
@@ -105,4 +105,4 @@ static inline int sm_uv_flag(const BlockContext *const b, const int idx) {
             m == SMOOTH_V_PRED) ? ANGLE_SMOOTH_EDGE_FLAG : 0;
 }
 
-#endif /* DAV1D_SRC_IPRED_PREPARE_H */
+#endif /* DAV1S_SRC_IPRED_PREPARE_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2019, VideoLAN and dav1d authors
+ * Copyright © 2018-2019, VideoLAN and dav1s authors
  * Copyright © 2018-2019, Two Orioles, LLC
  * All rights reserved.
  *
@@ -30,8 +30,8 @@
 
 #include "src/levels.h"
 
-#ifndef DAV1D_SRC_ITX_1D_H
-#define DAV1D_SRC_ITX_1D_H
+#ifndef DAV1S_SRC_ITX_1D_H
+#define DAV1S_SRC_ITX_1D_H
 
 enum Tx1dType {
     DCT,
@@ -45,9 +45,9 @@ enum Tx1dType {
 void (name)(int32_t *c, ptrdiff_t stride, int min, int max)
 typedef decl_itx_1d_fn(*itx_1d_fn);
 
-EXTERN const itx_1d_fn dav1d_tx1d_fns[N_TX_SIZES][N_TX_1D_TYPES];
-EXTERN const uint8_t /* enum Tx1dType */ dav1d_tx1d_types[N_TX_TYPES][2];
+EXTERN const itx_1d_fn dav1s_tx1d_fns[N_TX_SIZES][N_TX_1D_TYPES];
+EXTERN const uint8_t /* enum Tx1dType */ dav1s_tx1d_types[N_TX_TYPES][2];
 
-void dav1d_inv_wht4_1d_c(int32_t *c, ptrdiff_t stride);
+void dav1s_inv_wht4_1d_c(int32_t *c, ptrdiff_t stride);
 
-#endif /* DAV1D_SRC_ITX_1D_H */
+#endif /* DAV1S_SRC_ITX_1D_H */

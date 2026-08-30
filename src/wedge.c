@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -83,7 +83,7 @@ static const wedge_code_type wedge_codebook_16_heqw[16] = {
     { WEDGE_OBLIQUE117, 2, 4 }, { WEDGE_OBLIQUE117, 6, 4 },
 };
 
-Dav1dMasks dav1d_masks;
+Dav1dMasks dav1s_masks;
 
 static void insert_border(uint8_t *const dst, const uint8_t *const src,
                           const int ctr)
@@ -126,7 +126,7 @@ static void copy2d(uint8_t *dst, const uint8_t *src, int sign,
     }
 }
 
-#define MASK_OFFSET(x) ((uint16_t)(((uintptr_t)(x) - (uintptr_t)&dav1d_masks) >> 3))
+#define MASK_OFFSET(x) ((uint16_t)(((uintptr_t)(x) - (uintptr_t)&dav1s_masks) >> 3))
 
 static COLD uint16_t init_chroma(uint8_t *chroma, const uint8_t *luma,
                                  const int sign, const int w, const int h,
@@ -166,16 +166,16 @@ static COLD void fill2d_16x2(const int w, const int h, const enum BlockSize bs,
 
         // not using !sign is intentional here, since 444 does not require
         // any rounding since no chroma subsampling is applied.
-        dav1d_masks.offsets[0][bs].wedge[0][n] =
-        dav1d_masks.offsets[0][bs].wedge[1][n] = MASK_OFFSET(masks_444);
+        dav1s_masks.offsets[0][bs].wedge[0][n] =
+        dav1s_masks.offsets[0][bs].wedge[1][n] = MASK_OFFSET(masks_444);
 
-        dav1d_masks.offsets[1][bs].wedge[0][n] =
+        dav1s_masks.offsets[1][bs].wedge[0][n] =
             init_chroma(&masks_422[ sign * sign_stride_422], masks_444, 0, w, h, 0);
-        dav1d_masks.offsets[1][bs].wedge[1][n] =
+        dav1s_masks.offsets[1][bs].wedge[1][n] =
             init_chroma(&masks_422[!sign * sign_stride_422], masks_444, 1, w, h, 0);
-        dav1d_masks.offsets[2][bs].wedge[0][n] =
+        dav1s_masks.offsets[2][bs].wedge[0][n] =
             init_chroma(&masks_420[ sign * sign_stride_420], masks_444, 0, w, h, 1);
-        dav1d_masks.offsets[2][bs].wedge[1][n] =
+        dav1s_masks.offsets[2][bs].wedge[1][n] =
             init_chroma(&masks_420[!sign * sign_stride_420], masks_444, 1, w, h, 1);
 
         signs >>= 1;
@@ -204,7 +204,7 @@ static COLD void build_nondc_ii_masks(uint8_t *const mask_v, const int w,
     }
 }
 
-COLD void dav1d_init_ii_wedge_masks(void) {
+COLD void dav1s_init_ii_wedge_masks(void) {
     // This function is guaranteed to be called only once
 
     enum WedgeMasterLineType {
@@ -240,9 +240,9 @@ COLD void dav1d_init_ii_wedge_masks(void) {
 #define fill(w, h, sz_422, sz_420, hvsw, signs) \
     fill2d_16x2(w, h, BS_##w##x##h - BS_32x32, \
                 master, wedge_codebook_16_##hvsw, \
-                dav1d_masks.wedge_444_##w##x##h, \
-                dav1d_masks.wedge_422_##sz_422, \
-                dav1d_masks.wedge_420_##sz_420, signs)
+                dav1s_masks.wedge_444_##w##x##h, \
+                dav1s_masks.wedge_422_##sz_422, \
+                dav1s_masks.wedge_420_##sz_420, signs)
 
     fill(32, 32, 16x32, 16x16, heqw, 0x7bfb);
     fill(32, 16, 16x16, 16x8,  hltw, 0x7beb);
@@ -255,28 +255,28 @@ COLD void dav1d_init_ii_wedge_masks(void) {
     fill( 8,  8,  4x8,   4x4,  heqw, 0x7bfb);
 #undef fill
 
-    memset(dav1d_masks.ii_dc, 32, 32 * 32);
+    memset(dav1s_masks.ii_dc, 32, 32 * 32);
     for (int c = 0; c < 3; c++) {
-        dav1d_masks.offsets[c][BS_32x32-BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_32x16-BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_16x32-BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_16x16-BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_16x8 -BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_8x16 -BS_32x32].ii[II_DC_PRED] =
-        dav1d_masks.offsets[c][BS_8x8  -BS_32x32].ii[II_DC_PRED] =
-            MASK_OFFSET(dav1d_masks.ii_dc);
+        dav1s_masks.offsets[c][BS_32x32-BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_32x16-BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_16x32-BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_16x16-BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_16x8 -BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_8x16 -BS_32x32].ii[II_DC_PRED] =
+        dav1s_masks.offsets[c][BS_8x8  -BS_32x32].ii[II_DC_PRED] =
+            MASK_OFFSET(dav1s_masks.ii_dc);
     }
 
 #define BUILD_NONDC_II_MASKS(w, h, step) \
-    build_nondc_ii_masks(dav1d_masks.ii_nondc_##w##x##h, w, h, step)
+    build_nondc_ii_masks(dav1s_masks.ii_nondc_##w##x##h, w, h, step)
 
 #define ASSIGN_NONDC_II_OFFSET(bs, w444, h444, w422, h422, w420, h420) \
-    dav1d_masks.offsets[0][bs-BS_32x32].ii[p + 1] = \
-        MASK_OFFSET(&dav1d_masks.ii_nondc_##w444##x##h444[p*w444*h444]); \
-    dav1d_masks.offsets[1][bs-BS_32x32].ii[p + 1] = \
-        MASK_OFFSET(&dav1d_masks.ii_nondc_##w422##x##h422[p*w422*h422]); \
-    dav1d_masks.offsets[2][bs-BS_32x32].ii[p + 1] = \
-        MASK_OFFSET(&dav1d_masks.ii_nondc_##w420##x##h420[p*w420*h420])
+    dav1s_masks.offsets[0][bs-BS_32x32].ii[p + 1] = \
+        MASK_OFFSET(&dav1s_masks.ii_nondc_##w444##x##h444[p*w444*h444]); \
+    dav1s_masks.offsets[1][bs-BS_32x32].ii[p + 1] = \
+        MASK_OFFSET(&dav1s_masks.ii_nondc_##w422##x##h422[p*w422*h422]); \
+    dav1s_masks.offsets[2][bs-BS_32x32].ii[p + 1] = \
+        MASK_OFFSET(&dav1s_masks.ii_nondc_##w420##x##h420[p*w420*h420])
 
     BUILD_NONDC_II_MASKS(32, 32, 1);
     BUILD_NONDC_II_MASKS(16, 32, 1);

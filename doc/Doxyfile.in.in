@@ -1,6 +1,6 @@
-PROJECT_NAME            = dav1d
+PROJECT_NAME            = dav1s
 PROJECT_NUMBER          = \@VCS_TAG\@
-PROJECT_BRIEF           = dav1d is an AV1 decoder
+PROJECT_BRIEF           = dav1s is an AV1 decoder
 OUTPUT_DIRECTORY        = @DOXYGEN_OUTPUT@
 STRIP_FROM_PATH         = @DOXYGEN_STRIP@
 OUTPUT_LANGUAGE         = English

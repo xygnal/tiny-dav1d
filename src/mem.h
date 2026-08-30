@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_MEM_H
-#define DAV1D_SRC_MEM_H
+#ifndef DAV1S_SRC_MEM_H
+#define DAV1S_SRC_MEM_H
 
 #define TRACK_HEAP_ALLOCATIONS 0
 
@@ -36,7 +36,7 @@
 #include <malloc.h>
 #endif
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include "common/attributes.h"
 
@@ -48,7 +48,7 @@ enum AllocationType {
     ALLOC_CDF,
     ALLOC_COEF,
     ALLOC_COMMON_CTX,
-    ALLOC_DAV1DDATA,
+    ALLOC_DAV1SDATA,
     ALLOC_IPRED,
     ALLOC_LF,
     ALLOC_LR,
@@ -84,9 +84,9 @@ typedef struct Dav1dMemPool {
 
 /*
  * Allocate align-byte aligned memory. The return value can be released
- * by calling the dav1d_free_aligned() function.
+ * by calling the dav1s_free_aligned() function.
  */
-static inline void *dav1d_alloc_aligned_internal(const size_t sz, const size_t align) {
+static inline void *dav1s_alloc_aligned_internal(const size_t sz, const size_t align) {
     assert(!(align & (align - 1)));
 #ifdef _WIN32
     return _aligned_malloc(sz, align);
@@ -110,7 +110,7 @@ static inline void *dav1d_alloc_aligned_internal(const size_t sz, const size_t a
 #endif
 }
 
-static inline void dav1d_free_aligned_internal(void *ptr) {
+static inline void dav1s_free_aligned_internal(void *ptr) {
 #ifdef _WIN32
     _aligned_free(ptr);
 #elif HAVE_POSIX_MEMALIGN || HAVE_MEMALIGN || HAVE_ALIGNED_ALLOC
@@ -121,32 +121,32 @@ static inline void dav1d_free_aligned_internal(void *ptr) {
 }
 
 #if TRACK_HEAP_ALLOCATIONS
-void *dav1d_malloc(enum AllocationType type, size_t sz);
-void *dav1d_realloc(enum AllocationType type, void *ptr, size_t sz);
-void *dav1d_alloc_aligned(enum AllocationType type, size_t sz, size_t align);
-void dav1d_free(void *ptr);
-void dav1d_free_aligned(void *ptr);
-void dav1d_log_alloc_stats(Dav1dContext *c);
+void *dav1s_malloc(enum AllocationType type, size_t sz);
+void *dav1s_realloc(enum AllocationType type, void *ptr, size_t sz);
+void *dav1s_alloc_aligned(enum AllocationType type, size_t sz, size_t align);
+void dav1s_free(void *ptr);
+void dav1s_free_aligned(void *ptr);
+void dav1s_log_alloc_stats(Dav1dContext *c);
 #else
-#define dav1d_mem_pool_init(type, pool) dav1d_mem_pool_init(pool)
-#define dav1d_malloc(type, sz) malloc(sz)
-#define dav1d_realloc(type, ptr, sz) realloc(ptr, sz)
-#define dav1d_alloc_aligned(type, sz, align) dav1d_alloc_aligned_internal(sz, align)
-#define dav1d_free(ptr) free(ptr)
-#define dav1d_free_aligned(ptr) dav1d_free_aligned_internal(ptr)
+#define dav1s_mem_pool_init(type, pool) dav1s_mem_pool_init(pool)
+#define dav1s_malloc(type, sz) malloc(sz)
+#define dav1s_realloc(type, ptr, sz) realloc(ptr, sz)
+#define dav1s_alloc_aligned(type, sz, align) dav1s_alloc_aligned_internal(sz, align)
+#define dav1s_free(ptr) free(ptr)
+#define dav1s_free_aligned(ptr) dav1s_free_aligned_internal(ptr)
 #endif /* TRACK_HEAP_ALLOCATIONS */
 
-void dav1d_mem_pool_push(Dav1dMemPool *pool, void *ptr);
-void *dav1d_mem_pool_pop(Dav1dMemPool *pool, size_t size);
-int dav1d_mem_pool_init(enum AllocationType type, Dav1dMemPool **pool);
-void dav1d_mem_pool_end(Dav1dMemPool *pool);
+void dav1s_mem_pool_push(Dav1dMemPool *pool, void *ptr);
+void *dav1s_mem_pool_pop(Dav1dMemPool *pool, size_t size);
+int dav1s_mem_pool_init(enum AllocationType type, Dav1dMemPool **pool);
+void dav1s_mem_pool_end(Dav1dMemPool *pool);
 
-static inline void dav1d_freep_aligned(void *ptr) {
+static inline void dav1s_freep_aligned(void *ptr) {
     void **mem = (void **) ptr;
     if (*mem) {
-        dav1d_free_aligned(*mem);
+        dav1s_free_aligned(*mem);
         *mem = NULL;
     }
 }
 
-#endif /* DAV1D_SRC_MEM_H */
+#endif /* DAV1S_SRC_MEM_H */

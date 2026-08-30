@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -162,10 +162,10 @@ static int ivf_read(IvfInputContext *const c, Dav1dData *const buf) {
     int64_t off;
     uint64_t ts;
     if (ivf_read_header(c, &sz, &off, &ts)) return -1;
-    if (!(ptr = dav1d_data_create(buf, sz))) return -1;
+    if (!(ptr = dav1s_data_create(buf, sz))) return -1;
     if (fread(ptr, sz, 1, c->f) != 1) {
         fprintf(stderr, "Failed to read frame data: %s\n", strerror(errno));
-        dav1d_data_unref(buf);
+        dav1s_data_unref(buf);
         return -1;
     }
     buf->m.offset = off;

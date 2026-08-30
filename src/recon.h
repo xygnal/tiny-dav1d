@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_RECON_H
-#define DAV1D_SRC_RECON_H
+#ifndef DAV1S_SRC_RECON_H
+#define DAV1S_SRC_RECON_H
 
 #include "src/internal.h"
 #include "src/levels.h"
@@ -69,38 +69,38 @@ typedef decl_read_pal_plane_fn(*read_pal_plane_fn);
 void (name)(Dav1dTaskContext *t, Av1Block *b, int sz_ctx, int bx4, int by4)
 typedef decl_read_pal_uv_fn(*read_pal_uv_fn);
 
-decl_recon_b_intra_fn(dav1d_recon_b_intra_8bpc);
-decl_recon_b_intra_fn(dav1d_recon_b_intra_16bpc);
+decl_recon_b_intra_fn(dav1s_recon_b_intra_8bpc);
+decl_recon_b_intra_fn(dav1s_recon_b_intra_16bpc);
 
-decl_recon_b_inter_fn(dav1d_recon_b_inter_8bpc);
-decl_recon_b_inter_fn(dav1d_recon_b_inter_16bpc);
+decl_recon_b_inter_fn(dav1s_recon_b_inter_8bpc);
+decl_recon_b_inter_fn(dav1s_recon_b_inter_16bpc);
 
-decl_filter_sbrow_fn(dav1d_filter_sbrow_8bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_16bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_deblock_cols_8bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_deblock_cols_16bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_deblock_rows_8bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_deblock_rows_16bpc);
-void dav1d_filter_sbrow_cdef_8bpc(Dav1dTaskContext *tc, int sby);
-void dav1d_filter_sbrow_cdef_16bpc(Dav1dTaskContext *tc, int sby);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_resize_8bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_resize_16bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_lr_8bpc);
-decl_filter_sbrow_fn(dav1d_filter_sbrow_lr_16bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_8bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_16bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_deblock_cols_8bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_deblock_cols_16bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_deblock_rows_8bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_deblock_rows_16bpc);
+void dav1s_filter_sbrow_cdef_8bpc(Dav1dTaskContext *tc, int sby);
+void dav1s_filter_sbrow_cdef_16bpc(Dav1dTaskContext *tc, int sby);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_resize_8bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_resize_16bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_lr_8bpc);
+decl_filter_sbrow_fn(dav1s_filter_sbrow_lr_16bpc);
 
-decl_backup_ipred_edge_fn(dav1d_backup_ipred_edge_8bpc);
-decl_backup_ipred_edge_fn(dav1d_backup_ipred_edge_16bpc);
+decl_backup_ipred_edge_fn(dav1s_backup_ipred_edge_8bpc);
+decl_backup_ipred_edge_fn(dav1s_backup_ipred_edge_16bpc);
 
-decl_read_coef_blocks_fn(dav1d_read_coef_blocks_8bpc);
-decl_read_coef_blocks_fn(dav1d_read_coef_blocks_16bpc);
+decl_read_coef_blocks_fn(dav1s_read_coef_blocks_8bpc);
+decl_read_coef_blocks_fn(dav1s_read_coef_blocks_16bpc);
 
-decl_copy_pal_block_fn(dav1d_copy_pal_block_y_8bpc);
-decl_copy_pal_block_fn(dav1d_copy_pal_block_y_16bpc);
-decl_copy_pal_block_fn(dav1d_copy_pal_block_uv_8bpc);
-decl_copy_pal_block_fn(dav1d_copy_pal_block_uv_16bpc);
-decl_read_pal_plane_fn(dav1d_read_pal_plane_8bpc);
-decl_read_pal_plane_fn(dav1d_read_pal_plane_16bpc);
-decl_read_pal_uv_fn(dav1d_read_pal_uv_8bpc);
-decl_read_pal_uv_fn(dav1d_read_pal_uv_16bpc);
+decl_copy_pal_block_fn(dav1s_copy_pal_block_y_8bpc);
+decl_copy_pal_block_fn(dav1s_copy_pal_block_y_16bpc);
+decl_copy_pal_block_fn(dav1s_copy_pal_block_uv_8bpc);
+decl_copy_pal_block_fn(dav1s_copy_pal_block_uv_16bpc);
+decl_read_pal_plane_fn(dav1s_read_pal_plane_8bpc);
+decl_read_pal_plane_fn(dav1s_read_pal_plane_16bpc);
+decl_read_pal_uv_fn(dav1s_read_pal_uv_8bpc);
+decl_read_pal_uv_fn(dav1s_read_pal_uv_16bpc);
 
-#endif /* DAV1D_SRC_RECON_H */
+#endif /* DAV1S_SRC_RECON_H */

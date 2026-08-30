@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_TESTS_CHECKASM_INTERNAL_H
-#define DAV1D_TESTS_CHECKASM_INTERNAL_H
+#ifndef DAV1S_TESTS_CHECKASM_INTERNAL_H
+#define DAV1S_TESTS_CHECKASM_INTERNAL_H
 
 #include "config.h"
 
@@ -63,4 +63,4 @@ decl_check_bitfns(void checkasm_check_mc);
     #define checkasm_check_pixel_padded_align checkasm_check_rect_padded_align
 #endif
 
-#endif /* DAV1D_TESTS_CHECKASM_INTERNAL_H */
+#endif /* DAV1S_TESTS_CHECKASM_INTERNAL_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_GETBITS_H
-#define DAV1D_SRC_GETBITS_H
+#ifndef DAV1S_SRC_GETBITS_H
+#define DAV1S_SRC_GETBITS_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -37,21 +37,21 @@ typedef struct GetBits {
     const uint8_t *ptr, *ptr_start, *ptr_end;
 } GetBits;
 
-void dav1d_init_get_bits(GetBits *c, const uint8_t *data, size_t sz);
-unsigned dav1d_get_bit(GetBits *c);
-unsigned dav1d_get_bits(GetBits *c, int n);
-int dav1d_get_sbits(GetBits *c, int n);
-unsigned dav1d_get_uleb128(GetBits *c);
+void dav1s_init_get_bits(GetBits *c, const uint8_t *data, size_t sz);
+unsigned dav1s_get_bit(GetBits *c);
+unsigned dav1s_get_bits(GetBits *c, int n);
+int dav1s_get_sbits(GetBits *c, int n);
+unsigned dav1s_get_uleb128(GetBits *c);
 
 // Output in range 0..max-1
-unsigned dav1d_get_uniform(GetBits *c, unsigned max);
-unsigned dav1d_get_vlc(GetBits *c);
-int dav1d_get_bits_subexp(GetBits *c, int ref, unsigned n);
+unsigned dav1s_get_uniform(GetBits *c, unsigned max);
+unsigned dav1s_get_vlc(GetBits *c);
+int dav1s_get_bits_subexp(GetBits *c, int ref, unsigned n);
 
 // Discard bits from the buffer until we're next byte-aligned.
-static inline void dav1d_bytealign_get_bits(GetBits *c) {
+static inline void dav1s_bytealign_get_bits(GetBits *c) {
     // bits_left is never more than 7, because it is only incremented
-    // by refill(), called by dav1d_get_bits and that never reads more
+    // by refill(), called by dav1s_get_bits and that never reads more
     // than 7 bits more than it needs.
     //
     // If this wasn't true, we would need to work out how many bits to
@@ -64,8 +64,8 @@ static inline void dav1d_bytealign_get_bits(GetBits *c) {
 }
 
 // Return the current bit position relative to the start of the buffer.
-static inline unsigned dav1d_get_bits_pos(const GetBits *c) {
+static inline unsigned dav1s_get_bits_pos(const GetBits *c) {
     return (unsigned) (c->ptr - c->ptr_start) * 8 - c->bits_left;
 }
 
-#endif /* DAV1D_SRC_GETBITS_H */
+#endif /* DAV1S_SRC_GETBITS_H */

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2018, Niklas Haas
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * Copyright © 2021, Martin Storsjo
  * All rights reserved.
@@ -44,12 +44,12 @@ CHECK_OFFSET(Dav1dFilmGrainData, uv_luma_mult, FGD_UV_LUMA_MULT);
 CHECK_OFFSET(Dav1dFilmGrainData, uv_offset, FGD_UV_OFFSET);
 CHECK_OFFSET(Dav1dFilmGrainData, clip_to_restricted_range, FGD_CLIP_TO_RESTRICTED_RANGE);
 
-void BF(dav1d_generate_grain_y, neon)(entry buf[][GRAIN_WIDTH],
+void BF(dav1s_generate_grain_y, neon)(entry buf[][GRAIN_WIDTH],
                                       const Dav1dFilmGrainData *const data
                                       HIGHBD_DECL_SUFFIX);
 
 #define GEN_GRAIN_UV(suff) \
-void BF(dav1d_generate_grain_uv_ ## suff, neon)(entry buf[][GRAIN_WIDTH], \
+void BF(dav1s_generate_grain_uv_ ## suff, neon)(entry buf[][GRAIN_WIDTH], \
                                                 const entry buf_y[][GRAIN_WIDTH], \
                                                 const Dav1dFilmGrainData *const data, \
                                                 const intptr_t uv \
@@ -61,7 +61,7 @@ GEN_GRAIN_UV(444);
 
 // Use ptrdiff_t instead of int for the last few parameters, to get the
 // same layout of parameters on the stack across platforms.
-void BF(dav1d_fgy_32x32, neon)(pixel *const dst,
+void BF(dav1s_fgy_32x32, neon)(pixel *const dst,
                                const pixel *const src,
                                const ptrdiff_t stride,
                                const uint8_t scaling[SCALING_SIZE],
@@ -110,7 +110,7 @@ static void fgy_32x32xn_neon(pixel *const dst_row, const pixel *const src_row,
         if (data->overlap_flag && bx)
             type |= 2; /* overlap x */
 
-        BF(dav1d_fgy_32x32, neon)(dst_row + bx, src_row + bx, stride,
+        BF(dav1s_fgy_32x32, neon)(dst_row + bx, src_row + bx, stride,
                                   scaling, data->scaling_shift,
                                   grain_lut, offsets, bh,
                                   data->clip_to_restricted_range, type
@@ -121,7 +121,7 @@ static void fgy_32x32xn_neon(pixel *const dst_row, const pixel *const src_row,
 // Use ptrdiff_t instead of int for the last few parameters, to get the
 // parameters on the stack with the same layout across platforms.
 #define FGUV(nm, sx, sy) \
-void BF(dav1d_fguv_32x32_##nm, neon)(pixel *const dst, \
+void BF(dav1s_fguv_32x32_##nm, neon)(pixel *const dst, \
                                      const pixel *const src, \
                                      const ptrdiff_t stride, \
                                      const uint8_t scaling[SCALING_SIZE], \
@@ -175,7 +175,7 @@ fguv_32x32xn_##nm##_neon(pixel *const dst_row, const pixel *const src_row, \
         if (data->chroma_scaling_from_luma) \
             type |= 4; \
  \
-        BF(dav1d_fguv_32x32_##nm, neon)(dst_row + bx, src_row + bx, stride, \
+        BF(dav1s_fguv_32x32_##nm, neon)(dst_row + bx, src_row + bx, stride, \
                                         scaling, data, grain_lut, \
                                         luma_row + (bx << sx), luma_stride, \
                                         offsets, bh, uv, is_id, type \
@@ -188,17 +188,17 @@ FGUV(422, 1, 0);
 FGUV(444, 0, 0);
 
 static ALWAYS_INLINE void film_grain_dsp_init_arm(Dav1dFilmGrainDSPContext *const c) {
-    const unsigned flags = dav1d_get_cpu_flags();
+    const unsigned flags = dav1s_get_cpu_flags();
 
-    if (!(flags & DAV1D_ARM_CPU_FLAG_NEON)) return;
+    if (!(flags & DAV1S_ARM_CPU_FLAG_NEON)) return;
 
-    c->generate_grain_y = BF(dav1d_generate_grain_y, neon);
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I420 - 1] = BF(dav1d_generate_grain_uv_420, neon);
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I422 - 1] = BF(dav1d_generate_grain_uv_422, neon);
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I444 - 1] = BF(dav1d_generate_grain_uv_444, neon);
+    c->generate_grain_y = BF(dav1s_generate_grain_y, neon);
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I420 - 1] = BF(dav1s_generate_grain_uv_420, neon);
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I422 - 1] = BF(dav1s_generate_grain_uv_422, neon);
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I444 - 1] = BF(dav1s_generate_grain_uv_444, neon);
 
     c->fgy_32x32xn = fgy_32x32xn_neon;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I420 - 1] = fguv_32x32xn_420_neon;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I422 - 1] = fguv_32x32xn_422_neon;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I444 - 1] = fguv_32x32xn_444_neon;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I420 - 1] = fguv_32x32xn_420_neon;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I422 - 1] = fguv_32x32xn_422_neon;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I444 - 1] = fguv_32x32xn_444_neon;
 }

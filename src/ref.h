@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,10 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_REF_H
-#define DAV1D_SRC_REF_H
+#ifndef DAV1S_SRC_REF_H
+#define DAV1S_SRC_REF_H
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include "src/mem.h"
 #include "src/thread.h"
@@ -46,14 +46,14 @@ struct Dav1dRef {
 };
 
 #if !TRACK_HEAP_ALLOCATIONS
-#define dav1d_ref_create(type, size) dav1d_ref_create(size)
+#define dav1s_ref_create(type, size) dav1s_ref_create(size)
 #endif
 
-Dav1dRef *dav1d_ref_create(enum AllocationType type, size_t size);
-Dav1dRef *dav1d_ref_create_using_pool(Dav1dMemPool *pool, size_t size);
-void dav1d_ref_dec(Dav1dRef **ref);
+Dav1dRef *dav1s_ref_create(enum AllocationType type, size_t size);
+Dav1dRef *dav1s_ref_create_using_pool(Dav1dMemPool *pool, size_t size);
+void dav1s_ref_dec(Dav1dRef **ref);
 
-static inline Dav1dRef *dav1d_ref_init(Dav1dRef *const ref, const void *const ptr,
+static inline Dav1dRef *dav1s_ref_init(Dav1dRef *const ref, const void *const ptr,
                                        void (*const free_callback)(const uint8_t *data, void *user_data),
                                        void *const user_data, const int free_ref)
 {
@@ -66,12 +66,12 @@ static inline Dav1dRef *dav1d_ref_init(Dav1dRef *const ref, const void *const pt
     return ref;
 }
 
-static inline void dav1d_ref_inc(Dav1dRef *const ref) {
+static inline void dav1s_ref_inc(Dav1dRef *const ref) {
     atomic_fetch_add_explicit(&ref->ref_cnt, 1, memory_order_relaxed);
 }
 
-static inline int dav1d_ref_is_writable(Dav1dRef *const ref) {
+static inline int dav1s_ref_is_writable(Dav1dRef *const ref) {
     return atomic_load(&ref->ref_cnt) == 1 && ref->data;
 }
 
-#endif /* DAV1D_SRC_REF_H */
+#endif /* DAV1S_SRC_REF_H */

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2018, Niklas Haas
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -60,7 +60,7 @@ static void generate_grain_y_c(entry buf[][GRAIN_WIDTH],
     for (int y = 0; y < GRAIN_HEIGHT; y++) {
         for (int x = 0; x < GRAIN_WIDTH; x++) {
             const int value = get_random_number(11, &seed);
-            buf[y][x] = round2(dav1d_gaussian_sequence[ value ], shift);
+            buf[y][x] = round2(dav1s_gaussian_sequence[ value ], shift);
         }
     }
 
@@ -103,7 +103,7 @@ generate_grain_uv_c(entry buf[][GRAIN_WIDTH],
     for (int y = 0; y < chromaH; y++) {
         for (int x = 0; x < chromaW; x++) {
             const int value = get_random_number(11, &seed);
-            buf[y][x] = round2(dav1d_gaussian_sequence[ value ], shift);
+            buf[y][x] = round2(dav1s_gaussian_sequence[ value ], shift);
         }
     }
 
@@ -422,16 +422,16 @@ fguv_ss_fn(444, 0, 0);
 #endif
 #endif
 
-COLD void bitfn(dav1d_film_grain_dsp_init)(Dav1dFilmGrainDSPContext *const c) {
+COLD void bitfn(dav1s_film_grain_dsp_init)(Dav1dFilmGrainDSPContext *const c) {
     c->generate_grain_y = generate_grain_y_c;
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I420 - 1] = generate_grain_uv_420_c;
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I422 - 1] = generate_grain_uv_422_c;
-    c->generate_grain_uv[DAV1D_PIXEL_LAYOUT_I444 - 1] = generate_grain_uv_444_c;
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I420 - 1] = generate_grain_uv_420_c;
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I422 - 1] = generate_grain_uv_422_c;
+    c->generate_grain_uv[DAV1S_PIXEL_LAYOUT_I444 - 1] = generate_grain_uv_444_c;
 
     c->fgy_32x32xn = fgy_32x32xn_c;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I420 - 1] = fguv_32x32xn_420_c;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I422 - 1] = fguv_32x32xn_422_c;
-    c->fguv_32x32xn[DAV1D_PIXEL_LAYOUT_I444 - 1] = fguv_32x32xn_444_c;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I420 - 1] = fguv_32x32xn_420_c;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I422 - 1] = fguv_32x32xn_422_c;
+    c->fguv_32x32xn[DAV1S_PIXEL_LAYOUT_I444 - 1] = fguv_32x32xn_444_c;
 
 #if HAVE_ASM
 #if ARCH_AARCH64 || ARCH_ARM

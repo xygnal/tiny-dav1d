@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,12 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_INTERNAL_H
-#define DAV1D_SRC_INTERNAL_H
+#ifndef DAV1S_SRC_INTERNAL_H
+#define DAV1S_SRC_INTERNAL_H
 
 #include <stdatomic.h>
 
-#include "dav1d/data.h"
+#include "dav1s/data.h"
 
 typedef struct Dav1dFrameContext Dav1dFrameContext;
 typedef struct Dav1dTileState Dav1dTileState;
@@ -75,19 +75,19 @@ struct Dav1dTileGroup {
 };
 
 enum TaskType {
-    DAV1D_TASK_TYPE_INIT,
-    DAV1D_TASK_TYPE_INIT_CDF,
-    DAV1D_TASK_TYPE_TILE_ENTROPY,
-    DAV1D_TASK_TYPE_ENTROPY_PROGRESS,
-    DAV1D_TASK_TYPE_TILE_RECONSTRUCTION,
-    DAV1D_TASK_TYPE_DEBLOCK_COLS,
-    DAV1D_TASK_TYPE_DEBLOCK_ROWS,
-    DAV1D_TASK_TYPE_CDEF,
-    DAV1D_TASK_TYPE_SUPER_RESOLUTION,
-    DAV1D_TASK_TYPE_LOOP_RESTORATION,
-    DAV1D_TASK_TYPE_RECONSTRUCTION_PROGRESS,
-    DAV1D_TASK_TYPE_FG_PREP,
-    DAV1D_TASK_TYPE_FG_APPLY,
+    DAV1S_TASK_TYPE_INIT,
+    DAV1S_TASK_TYPE_INIT_CDF,
+    DAV1S_TASK_TYPE_TILE_ENTROPY,
+    DAV1S_TASK_TYPE_ENTROPY_PROGRESS,
+    DAV1S_TASK_TYPE_TILE_RECONSTRUCTION,
+    DAV1S_TASK_TYPE_DEBLOCK_COLS,
+    DAV1S_TASK_TYPE_DEBLOCK_ROWS,
+    DAV1S_TASK_TYPE_CDEF,
+    DAV1S_TASK_TYPE_SUPER_RESOLUTION,
+    DAV1S_TASK_TYPE_LOOP_RESTORATION,
+    DAV1S_TASK_TYPE_RECONSTRUCTION_PROGRESS,
+    DAV1S_TASK_TYPE_FG_PREP,
+    DAV1S_TASK_TYPE_FG_APPLY,
 };
 
 struct Dav1dContext {
@@ -265,7 +265,7 @@ struct Dav1dFrameContext {
     pixel *ipred_edge[3];
     ptrdiff_t b4_stride;
     int w4, h4, bw, bh, sb128w, sb128h, sbh, sb_shift, sb_step, sr_sb128w;
-    uint16_t dq[DAV1D_MAX_SEGMENTS][3 /* plane */][2 /* dc/ac */];
+    uint16_t dq[DAV1S_MAX_SEGMENTS][3 /* plane */][2 /* dc/ac */];
     const uint8_t *qm[N_RECT_TX_SIZES][3 /* plane */];
     BlockContext *a;
     int a_sz /* w*tile_rows */;
@@ -372,7 +372,7 @@ struct Dav1dTileState {
     // each entry is one tile-sbrow; middle index is refidx
     int (*lowest_pixel)[7][2];
 
-    uint16_t dqmem[DAV1D_MAX_SEGMENTS][3 /* plane */][2 /* dc/ac */];
+    uint16_t dqmem[DAV1S_MAX_SEGMENTS][3 /* plane */][2 /* dc/ac */];
     const uint16_t (*dq)[3][2];
     int last_qidx;
 
@@ -468,4 +468,4 @@ struct Dav1dTaskContext {
     } task_thread;
 };
 
-#endif /* DAV1D_SRC_INTERNAL_H */
+#endif /* DAV1S_SRC_INTERNAL_H */

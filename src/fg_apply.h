@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,10 +25,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_FG_APPLY_H
-#define DAV1D_SRC_FG_APPLY_H
+#ifndef DAV1S_SRC_FG_APPLY_H
+#define DAV1S_SRC_FG_APPLY_H
 
-#include "dav1d/picture.h"
+#include "dav1s/picture.h"
 
 #include "common/bitdepth.h"
 
@@ -40,19 +40,19 @@
 # define array_decl(type, name, sz) void *name
 #endif
 
-bitfn_decls(void dav1d_apply_grain,
+bitfn_decls(void dav1s_apply_grain,
             const Dav1dFilmGrainDSPContext *const dsp,
             Dav1dPicture *const out, const Dav1dPicture *const in);
-bitfn_decls(void dav1d_prep_grain,
+bitfn_decls(void dav1s_prep_grain,
             const Dav1dFilmGrainDSPContext *const dsp,
             Dav1dPicture *const out, const Dav1dPicture *const in,
             array_decl(uint8_t, scaling, [3][SCALING_SIZE]),
             array_decl(entry, grain_lut, [3][GRAIN_HEIGHT+1][GRAIN_WIDTH]));
-bitfn_decls(void dav1d_apply_grain_row,
+bitfn_decls(void dav1s_apply_grain_row,
             const Dav1dFilmGrainDSPContext *const dsp,
             Dav1dPicture *const out, const Dav1dPicture *const in,
             array_decl(const uint8_t, scaling, [3][SCALING_SIZE]),
             array_decl(const entry, grain_lut, [3][GRAIN_HEIGHT+1][GRAIN_WIDTH]),
             const int row);
 
-#endif /* DAV1D_SRC_FG_APPLY_H */
+#endif /* DAV1S_SRC_FG_APPLY_H */

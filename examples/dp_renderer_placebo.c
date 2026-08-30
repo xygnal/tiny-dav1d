@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@
 #include <assert.h>
 
 #include <libplacebo/renderer.h>
-#include <libplacebo/utils/dav1d.h>
+#include <libplacebo/utils/dav1s.h>
 
 #if HAVE_PLACEBO_VULKAN
 # include <libplacebo/vulkan.h>
@@ -356,19 +356,19 @@ static void placebo_render(void *cookie, const Dav1dPlaySettings *settings)
     SDL_UnlockMutex(rd_priv_ctx->lock);
 }
 
-static int placebo_upload_image(void *cookie, Dav1dPicture *dav1d_pic,
+static int placebo_upload_image(void *cookie, Dav1dPicture *dav1s_pic,
                                 const Dav1dPlaySettings *settings)
 {
     Dav1dPlayRendererPrivateContext *p = cookie;
     assert(p != NULL);
     int ret = 0;
 
-    if (!dav1d_pic)
+    if (!dav1s_pic)
         return ret;
 
     SDL_LockMutex(p->lock);
-    if (!pl_upload_dav1dpicture(p->gpu, &p->image, p->plane_tex, pl_dav1d_upload_params(
-        .picture = dav1d_pic,
+    if (!pl_upload_dav1spicture(p->gpu, &p->image, p->plane_tex, pl_dav1s_upload_params(
+        .picture = dav1s_pic,
         .film_grain = settings->gpugrain,
         .gpu_allocated = settings->zerocopy,
         .asynchronous = true,
@@ -388,7 +388,7 @@ static int placebo_alloc_pic(Dav1dPicture *const pic, void *cookie)
     assert(rd_priv_ctx != NULL);
 
     SDL_LockMutex(rd_priv_ctx->lock);
-    int ret = pl_allocate_dav1dpicture(pic, (void *) rd_priv_ctx->gpu);
+    int ret = pl_allocate_dav1spicture(pic, (void *) rd_priv_ctx->gpu);
     SDL_UnlockMutex(rd_priv_ctx->lock);
     return ret;
 }
@@ -399,7 +399,7 @@ static void placebo_release_pic(Dav1dPicture *pic, void *cookie)
     assert(rd_priv_ctx != NULL);
 
     SDL_LockMutex(rd_priv_ctx->lock);
-    pl_release_dav1dpicture(pic, (void *) rd_priv_ctx->gpu);
+    pl_release_dav1spicture(pic, (void *) rd_priv_ctx->gpu);
     SDL_UnlockMutex(rd_priv_ctx->lock);
 }
 

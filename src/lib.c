@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -35,8 +35,8 @@
 #include <dlfcn.h>
 #endif
 
-#include "dav1d/dav1d.h"
-#include "dav1d/data.h"
+#include "dav1s/dav1s.h"
+#include "dav1s/data.h"
 
 #include "common/validate.h"
 
@@ -51,39 +51,39 @@
 #include "src/wedge.h"
 
 static COLD void init_internal(void) {
-    dav1d_init_cpu();
-    dav1d_init_ii_wedge_masks();
-    dav1d_init_intra_edge_tree();
-    dav1d_init_qm_tables();
-    dav1d_init_thread();
+    dav1s_init_cpu();
+    dav1s_init_ii_wedge_masks();
+    dav1s_init_intra_edge_tree();
+    dav1s_init_qm_tables();
+    dav1s_init_thread();
 }
 
-COLD const char *dav1d_version(void) {
-    return DAV1D_VERSION;
+COLD const char *dav1s_version(void) {
+    return DAV1S_VERSION;
 }
 
-COLD unsigned dav1d_version_api(void) {
-    return (DAV1D_API_VERSION_MAJOR << 16) |
-           (DAV1D_API_VERSION_MINOR <<  8) |
-           (DAV1D_API_VERSION_PATCH <<  0);
+COLD unsigned dav1s_version_api(void) {
+    return (DAV1S_API_VERSION_MAJOR << 16) |
+           (DAV1S_API_VERSION_MINOR <<  8) |
+           (DAV1S_API_VERSION_PATCH <<  0);
 }
 
-COLD void dav1d_default_settings(Dav1dSettings *const s) {
+COLD void dav1s_default_settings(Dav1dSettings *const s) {
     s->n_threads = 0;
     s->max_frame_delay = 0;
     s->apply_grain = 1;
     s->allocator.cookie = NULL;
-    s->allocator.alloc_picture_callback = dav1d_default_picture_alloc;
-    s->allocator.release_picture_callback = dav1d_default_picture_release;
+    s->allocator.alloc_picture_callback = dav1s_default_picture_alloc;
+    s->allocator.release_picture_callback = dav1s_default_picture_release;
     s->logger.cookie = NULL;
-    s->logger.callback = dav1d_log_default_callback;
+    s->logger.callback = dav1s_log_default_callback;
     s->operating_point = 0;
     s->all_layers = 1; // just until the tests are adjusted
     s->frame_size_limit = 0;
     s->strict_std_compliance = 0;
     s->output_invisible_frames = 0;
-    s->inloop_filters = DAV1D_INLOOPFILTER_ALL;
-    s->decode_frame_type = DAV1D_DECODEFRAMETYPE_ALL;
+    s->inloop_filters = DAV1S_INLOOPFILTER_ALL;
+    s->decode_frame_type = DAV1S_DECODEFRAMETYPE_ALL;
 }
 
 static void close_internal(Dav1dContext **const c_out, int flush);
@@ -120,49 +120,49 @@ static COLD void get_num_threads(Dav1dContext *const c, const Dav1dSettings *con
         7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, /* 37-49 */
     };
     *n_tc = s->n_threads ? s->n_threads :
-        iclip(dav1d_num_logical_processors(c), 1, DAV1D_MAX_THREADS);
+        iclip(dav1s_num_logical_processors(c), 1, DAV1S_MAX_THREADS);
     *n_fc = s->max_frame_delay ? umin(s->max_frame_delay, *n_tc) :
             *n_tc < 50 ? fc_lut[*n_tc - 1] : 8; // min(8, ceil(sqrt(n)))
 }
 
-COLD int dav1d_get_frame_delay(const Dav1dSettings *const s) {
+COLD int dav1s_get_frame_delay(const Dav1dSettings *const s) {
     unsigned n_tc, n_fc;
-    validate_input_or_ret(s != NULL, DAV1D_ERR(EINVAL));
+    validate_input_or_ret(s != NULL, DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->n_threads >= 0 &&
-                          s->n_threads <= DAV1D_MAX_THREADS, DAV1D_ERR(EINVAL));
+                          s->n_threads <= DAV1S_MAX_THREADS, DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->max_frame_delay >= 0 &&
-                          s->max_frame_delay <= DAV1D_MAX_FRAME_DELAY, DAV1D_ERR(EINVAL));
+                          s->max_frame_delay <= DAV1S_MAX_FRAME_DELAY, DAV1S_ERR(EINVAL));
 
     get_num_threads(NULL, s, &n_tc, &n_fc);
     return n_fc;
 }
 
-COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
+COLD int dav1s_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
     static pthread_once_t initted = PTHREAD_ONCE_INIT;
     pthread_once(&initted, init_internal);
 
-    validate_input_or_ret(c_out != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(s != NULL, DAV1D_ERR(EINVAL));
+    validate_input_or_ret(c_out != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(s != NULL, DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->n_threads >= 0 &&
-                          s->n_threads <= DAV1D_MAX_THREADS, DAV1D_ERR(EINVAL));
+                          s->n_threads <= DAV1S_MAX_THREADS, DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->max_frame_delay >= 0 &&
-                          s->max_frame_delay <= DAV1D_MAX_FRAME_DELAY, DAV1D_ERR(EINVAL));
+                          s->max_frame_delay <= DAV1S_MAX_FRAME_DELAY, DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->allocator.alloc_picture_callback != NULL,
-                          DAV1D_ERR(EINVAL));
+                          DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->allocator.release_picture_callback != NULL,
-                          DAV1D_ERR(EINVAL));
+                          DAV1S_ERR(EINVAL));
     validate_input_or_ret(s->operating_point >= 0 &&
-                          s->operating_point <= 31, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(s->decode_frame_type >= DAV1D_DECODEFRAMETYPE_ALL &&
-                          s->decode_frame_type <= DAV1D_DECODEFRAMETYPE_KEY, DAV1D_ERR(EINVAL));
+                          s->operating_point <= 31, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(s->decode_frame_type >= DAV1S_DECODEFRAMETYPE_ALL &&
+                          s->decode_frame_type <= DAV1S_DECODEFRAMETYPE_KEY, DAV1S_ERR(EINVAL));
 
     pthread_attr_t thread_attr;
-    if (pthread_attr_init(&thread_attr)) return DAV1D_ERR(ENOMEM);
+    if (pthread_attr_init(&thread_attr)) return DAV1S_ERR(ENOMEM);
     size_t stack_size = 1024 * 1024 + get_stack_size_internal(&thread_attr);
 
     pthread_attr_setstacksize(&thread_attr, stack_size);
 
-    Dav1dContext *const c = *c_out = dav1d_alloc_aligned(ALLOC_COMMON_CTX, sizeof(*c), 64);
+    Dav1dContext *const c = *c_out = dav1s_alloc_aligned(ALLOC_COMMON_CTX, sizeof(*c), 64);
     if (!c) goto error;
     memset(c, 0, sizeof(*c));
 
@@ -177,38 +177,38 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
     c->inloop_filters = s->inloop_filters;
     c->decode_frame_type = s->decode_frame_type;
 
-    dav1d_data_props_set_defaults(&c->cached_error_props);
+    dav1s_data_props_set_defaults(&c->cached_error_props);
 
-    if (dav1d_mem_pool_init(ALLOC_OBU_HDR, &c->seq_hdr_pool) ||
-        dav1d_mem_pool_init(ALLOC_OBU_HDR, &c->frame_hdr_pool) ||
-        dav1d_mem_pool_init(ALLOC_SEGMAP, &c->segmap_pool) ||
-        dav1d_mem_pool_init(ALLOC_REFMVS, &c->refmvs_pool) ||
-        dav1d_mem_pool_init(ALLOC_PIC_CTX, &c->pic_ctx_pool) ||
-        dav1d_mem_pool_init(ALLOC_CDF, &c->cdf_pool))
+    if (dav1s_mem_pool_init(ALLOC_OBU_HDR, &c->seq_hdr_pool) ||
+        dav1s_mem_pool_init(ALLOC_OBU_HDR, &c->frame_hdr_pool) ||
+        dav1s_mem_pool_init(ALLOC_SEGMAP, &c->segmap_pool) ||
+        dav1s_mem_pool_init(ALLOC_REFMVS, &c->refmvs_pool) ||
+        dav1s_mem_pool_init(ALLOC_PIC_CTX, &c->pic_ctx_pool) ||
+        dav1s_mem_pool_init(ALLOC_CDF, &c->cdf_pool))
     {
         goto error;
     }
 
-    if (c->allocator.alloc_picture_callback   == dav1d_default_picture_alloc &&
-        c->allocator.release_picture_callback == dav1d_default_picture_release)
+    if (c->allocator.alloc_picture_callback   == dav1s_default_picture_alloc &&
+        c->allocator.release_picture_callback == dav1s_default_picture_release)
     {
         if (c->allocator.cookie) goto error;
-        if (dav1d_mem_pool_init(ALLOC_PIC, &c->picture_pool)) goto error;
+        if (dav1s_mem_pool_init(ALLOC_PIC, &c->picture_pool)) goto error;
         c->allocator.cookie = c->picture_pool;
-    } else if (c->allocator.alloc_picture_callback   == dav1d_default_picture_alloc ||
-               c->allocator.release_picture_callback == dav1d_default_picture_release)
+    } else if (c->allocator.alloc_picture_callback   == dav1s_default_picture_alloc ||
+               c->allocator.release_picture_callback == dav1s_default_picture_release)
     {
         goto error;
     }
 
     /* On 32-bit systems extremely large frame sizes can cause overflows in
-     * dav1d_decode_frame() malloc size calculations. Prevent that from occuring
+     * dav1s_decode_frame() malloc size calculations. Prevent that from occuring
      * by enforcing a maximum frame size limit, chosen to roughly correspond to
      * the largest size possible to decode without exhausting virtual memory. */
     if (sizeof(size_t) < 8 && s->frame_size_limit - 1 >= 8192 * 8192) {
         c->frame_size_limit = 8192 * 8192;
         if (s->frame_size_limit)
-            dav1d_log(c, "Frame size limit reduced from %u to %u.\n",
+            dav1s_log(c, "Frame size limit reduced from %u to %u.\n",
                       s->frame_size_limit, c->frame_size_limit);
     }
 
@@ -217,11 +217,11 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
 
     get_num_threads(c, s, &c->n_tc, &c->n_fc);
 
-    c->fc = dav1d_alloc_aligned(ALLOC_THREAD_CTX, sizeof(*c->fc) * c->n_fc, 32);
+    c->fc = dav1s_alloc_aligned(ALLOC_THREAD_CTX, sizeof(*c->fc) * c->n_fc, 32);
     if (!c->fc) goto error;
     memset(c->fc, 0, sizeof(*c->fc) * c->n_fc);
 
-    c->tc = dav1d_alloc_aligned(ALLOC_THREAD_CTX, sizeof(*c->tc) * c->n_tc, 64);
+    c->tc = dav1s_alloc_aligned(ALLOC_THREAD_CTX, sizeof(*c->tc) * c->n_tc, 64);
     if (!c->tc) goto error;
     memset(c->tc, 0, sizeof(*c->tc) * c->n_tc);
     if (c->n_tc > 1) {
@@ -244,7 +244,7 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
     if (c->n_fc > 1) {
         const size_t out_delayed_sz = sizeof(*c->frame_thread.out_delayed) * c->n_fc;
         c->frame_thread.out_delayed =
-            dav1d_malloc(ALLOC_THREAD_CTX, out_delayed_sz);
+            dav1s_malloc(ALLOC_THREAD_CTX, out_delayed_sz);
         if (!c->frame_thread.out_delayed) goto error;
         memset(c->frame_thread.out_delayed, 0, out_delayed_sz);
     }
@@ -279,7 +279,7 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
                 pthread_mutex_destroy(&t->task_thread.td.lock);
                 goto error;
             }
-            if (pthread_create(&t->task_thread.td.thread, &thread_attr, dav1d_worker_task, t)) {
+            if (pthread_create(&t->task_thread.td.thread, &thread_attr, dav1s_worker_task, t)) {
                 pthread_cond_destroy(&t->task_thread.td.cond);
                 pthread_mutex_destroy(&t->task_thread.td.lock);
                 goto error;
@@ -287,8 +287,8 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
             t->task_thread.td.inited = 1;
         }
     }
-    dav1d_pal_dsp_init(&c->pal_dsp);
-    dav1d_refmvs_dsp_init(&c->refmvs_dsp);
+    dav1s_pal_dsp_init(&c->pal_dsp);
+    dav1s_refmvs_dsp_init(&c->refmvs_dsp);
 
     pthread_attr_destroy(&thread_attr);
 
@@ -297,7 +297,7 @@ COLD int dav1d_open(Dav1dContext **const c_out, const Dav1dSettings *const s) {
 error:
     if (c) close_internal(c_out, 0);
     pthread_attr_destroy(&thread_attr);
-    return DAV1D_ERR(ENOMEM);
+    return DAV1S_ERR(ENOMEM);
 }
 
 static int has_grain(const Dav1dPicture *const pic)
@@ -315,16 +315,16 @@ static int output_image(Dav1dContext *const c, Dav1dPicture *const out)
     Dav1dThreadPicture *const in = (c->all_layers || !c->max_spatial_id)
                                    ? &c->out : &c->cache;
     if (!c->apply_grain || !has_grain(&in->p)) {
-        dav1d_picture_move_ref(out, &in->p);
-        dav1d_thread_picture_unref(in);
+        dav1s_picture_move_ref(out, &in->p);
+        dav1s_thread_picture_unref(in);
         goto end;
     }
 
-    res = dav1d_apply_grain(c, out, &in->p);
-    dav1d_thread_picture_unref(in);
+    res = dav1s_apply_grain(c, out, &in->p);
+    dav1s_thread_picture_unref(in);
 end:
     if (!c->all_layers && c->max_spatial_id && c->out.p.data[0]) {
-        dav1d_thread_picture_move_ref(in, &c->out);
+        dav1s_thread_picture_move_ref(in, &c->out);
     }
     return res;
 }
@@ -336,13 +336,13 @@ static int output_picture_ready(Dav1dContext *const c, const int drain) {
             if (c->max_spatial_id == c->cache.p.frame_hdr->spatial_id ||
                 c->out.flags & PICTURE_FLAG_NEW_TEMPORAL_UNIT)
                 return 1;
-            dav1d_thread_picture_unref(&c->cache);
-            dav1d_thread_picture_move_ref(&c->cache, &c->out);
+            dav1s_thread_picture_unref(&c->cache);
+            dav1s_thread_picture_move_ref(&c->cache, &c->out);
             return 0;
         } else if (c->cache.p.data[0] && drain) {
             return 1;
         } else if (c->out.p.data[0]) {
-            dav1d_thread_picture_move_ref(&c->cache, &c->out);
+            dav1s_thread_picture_move_ref(&c->cache, &c->out);
             return 0;
         }
     }
@@ -383,8 +383,8 @@ static int drain_picture(Dav1dContext *const c, Dav1dPicture *const out) {
         const int error = f->task_thread.retval;
         if (error) {
             f->task_thread.retval = 0;
-            dav1d_data_props_copy(&c->cached_error_props, &out_delayed->p.m);
-            dav1d_thread_picture_unref(out_delayed);
+            dav1s_data_props_copy(&c->cached_error_props, &out_delayed->p.m);
+            dav1s_thread_picture_unref(out_delayed);
             return error;
         }
         if (out_delayed->p.data[0]) {
@@ -394,10 +394,10 @@ static int drain_picture(Dav1dContext *const c, Dav1dPicture *const out) {
             if ((out_delayed->visible || c->output_invisible_frames) &&
                 progress != FRAME_ERROR)
             {
-                dav1d_thread_picture_ref(&c->out, out_delayed);
-                c->event_flags |= dav1d_picture_get_event_flags(out_delayed);
+                dav1s_thread_picture_ref(&c->out, out_delayed);
+                c->event_flags |= dav1s_picture_get_event_flags(out_delayed);
             }
-            dav1d_thread_picture_unref(out_delayed);
+            dav1s_thread_picture_unref(out_delayed);
             if (output_picture_ready(c, 0))
                 return output_image(c, out);
         }
@@ -406,7 +406,7 @@ static int drain_picture(Dav1dContext *const c, Dav1dPicture *const out) {
     if (output_picture_ready(c, 1))
         return output_image(c, out);
 
-    return DAV1D_ERR(EAGAIN);
+    return DAV1S_ERR(EAGAIN);
 }
 
 static int gen_picture(Dav1dContext *const c)
@@ -417,14 +417,14 @@ static int gen_picture(Dav1dContext *const c)
         return 0;
 
     while (in->sz > 0) {
-        const ptrdiff_t res = dav1d_parse_obus(c, in);
+        const ptrdiff_t res = dav1s_parse_obus(c, in);
         if (res < 0) {
-            dav1d_data_unref_internal(in);
+            dav1s_data_unref_internal(in);
         } else {
             assert((size_t)res <= in->sz);
             in->sz -= res;
             in->data += res;
-            if (!in->sz) dav1d_data_unref_internal(in);
+            if (!in->sz) dav1s_data_unref_internal(in);
         }
         if (output_picture_ready(c, 0))
             break;
@@ -435,30 +435,30 @@ static int gen_picture(Dav1dContext *const c)
     return 0;
 }
 
-int dav1d_send_data(Dav1dContext *const c, Dav1dData *const in)
+int dav1s_send_data(Dav1dContext *const c, Dav1dData *const in)
 {
-    validate_input_or_ret(c != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(in != NULL, DAV1D_ERR(EINVAL));
+    validate_input_or_ret(c != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(in != NULL, DAV1S_ERR(EINVAL));
 
     if (in->data) {
-        validate_input_or_ret(in->sz > 0 && in->sz <= SIZE_MAX / 2, DAV1D_ERR(EINVAL));
+        validate_input_or_ret(in->sz > 0 && in->sz <= SIZE_MAX / 2, DAV1S_ERR(EINVAL));
         c->drain = 0;
     }
     if (c->in.data)
-        return DAV1D_ERR(EAGAIN);
-    dav1d_data_ref(&c->in, in);
+        return DAV1S_ERR(EAGAIN);
+    dav1s_data_ref(&c->in, in);
 
     int res = gen_picture(c);
     if (!res)
-        dav1d_data_unref_internal(in);
+        dav1s_data_unref_internal(in);
 
     return res;
 }
 
-int dav1d_get_picture(Dav1dContext *const c, Dav1dPicture *const out)
+int dav1s_get_picture(Dav1dContext *const c, Dav1dPicture *const out)
 {
-    validate_input_or_ret(c != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(out != NULL, DAV1D_ERR(EINVAL));
+    validate_input_or_ret(c != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(out != NULL, DAV1S_ERR(EINVAL));
 
     const int drain = c->drain;
     c->drain = 1;
@@ -479,37 +479,37 @@ int dav1d_get_picture(Dav1dContext *const c, Dav1dPicture *const out)
     if (c->n_fc > 1 && drain)
         return drain_picture(c, out);
 
-    return DAV1D_ERR(EAGAIN);
+    return DAV1S_ERR(EAGAIN);
 }
 
-int dav1d_apply_grain(Dav1dContext *const c, Dav1dPicture *const out,
+int dav1s_apply_grain(Dav1dContext *const c, Dav1dPicture *const out,
                       const Dav1dPicture *const in)
 {
-    validate_input_or_ret(c != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(out != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(in != NULL, DAV1D_ERR(EINVAL));
+    validate_input_or_ret(c != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(out != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(in != NULL, DAV1S_ERR(EINVAL));
 
     if (!has_grain(in)) {
-        dav1d_picture_ref(out, in);
+        dav1s_picture_ref(out, in);
         return 0;
     }
 
-    int res = dav1d_picture_alloc_copy(c, out, in->p.w, in);
+    int res = dav1s_picture_alloc_copy(c, out, in->p.w, in);
     if (res < 0) goto error;
 
     if (c->n_tc > 1) {
-        dav1d_task_delayed_fg(c, out, in);
+        dav1s_task_delayed_fg(c, out, in);
     } else {
         switch (out->p.bpc) {
 #if CONFIG_8BPC
         case 8:
-            dav1d_apply_grain_8bpc(&c->dsp[0].fg, out, in);
+            dav1s_apply_grain_8bpc(&c->dsp[0].fg, out, in);
             break;
 #endif
 #if CONFIG_16BPC
         case 10:
         case 12:
-            dav1d_apply_grain_16bpc(&c->dsp[(out->p.bpc >> 1) - 4].fg, out, in);
+            dav1s_apply_grain_16bpc(&c->dsp[(out->p.bpc >> 1) - 4].fg, out, in);
             break;
 #endif
         default: abort();
@@ -519,40 +519,40 @@ int dav1d_apply_grain(Dav1dContext *const c, Dav1dPicture *const out,
     return 0;
 
 error:
-    dav1d_picture_unref_internal(out);
+    dav1s_picture_unref_internal(out);
     return res;
 }
 
-void dav1d_flush(Dav1dContext *const c) {
-    dav1d_data_unref_internal(&c->in);
+void dav1s_flush(Dav1dContext *const c) {
+    dav1s_data_unref_internal(&c->in);
     if (c->out.p.frame_hdr)
-        dav1d_thread_picture_unref(&c->out);
+        dav1s_thread_picture_unref(&c->out);
     if (c->cache.p.frame_hdr)
-        dav1d_thread_picture_unref(&c->cache);
+        dav1s_thread_picture_unref(&c->cache);
 
     c->drain = 0;
     c->cached_error = 0;
 
     for (int i = 0; i < 8; i++) {
         if (c->refs[i].p.p.frame_hdr)
-            dav1d_thread_picture_unref(&c->refs[i].p);
-        dav1d_ref_dec(&c->refs[i].segmap);
-        dav1d_ref_dec(&c->refs[i].refmvs);
-        dav1d_cdf_thread_unref(&c->cdf[i]);
+            dav1s_thread_picture_unref(&c->refs[i].p);
+        dav1s_ref_dec(&c->refs[i].segmap);
+        dav1s_ref_dec(&c->refs[i].refmvs);
+        dav1s_cdf_thread_unref(&c->cdf[i]);
     }
     c->frame_hdr = NULL;
     c->seq_hdr = NULL;
-    dav1d_ref_dec(&c->seq_hdr_ref);
+    dav1s_ref_dec(&c->seq_hdr_ref);
 
     c->mastering_display = NULL;
     c->content_light = NULL;
     c->itut_t35 = NULL;
     c->n_itut_t35 = 0;
-    dav1d_ref_dec(&c->mastering_display_ref);
-    dav1d_ref_dec(&c->content_light_ref);
-    dav1d_ref_dec(&c->itut_t35_ref);
+    dav1s_ref_dec(&c->mastering_display_ref);
+    dav1s_ref_dec(&c->content_light_ref);
+    dav1s_ref_dec(&c->itut_t35_ref);
 
-    dav1d_data_props_unref_internal(&c->cached_error_props);
+    dav1s_data_props_unref_internal(&c->cached_error_props);
 
     if (c->n_fc == 1 && c->n_tc == 1) return;
     atomic_store(c->flush, 1);
@@ -585,13 +585,13 @@ void dav1d_flush(Dav1dContext *const c) {
         for (unsigned n = 0, next = c->frame_thread.next; n < c->n_fc; n++, next++) {
             if (next == c->n_fc) next = 0;
             Dav1dFrameContext *const f = &c->fc[next];
-            dav1d_decode_frame_exit(f, -1);
+            dav1s_decode_frame_exit(f, -1);
             f->n_tile_data = 0;
             f->task_thread.retval = 0;
             f->task_thread.error = 0;
             Dav1dThreadPicture *out_delayed = &c->frame_thread.out_delayed[next];
             if (out_delayed->p.frame_hdr) {
-                dav1d_thread_picture_unref(out_delayed);
+                dav1s_thread_picture_unref(out_delayed);
             }
         }
         c->frame_thread.next = 0;
@@ -599,10 +599,10 @@ void dav1d_flush(Dav1dContext *const c) {
     atomic_store(c->flush, 0);
 }
 
-COLD void dav1d_close(Dav1dContext **const c_out) {
+COLD void dav1s_close(Dav1dContext **const c_out) {
     validate_input(c_out != NULL);
 #if TRACK_HEAP_ALLOCATIONS
-    dav1d_log_alloc_stats(*c_out);
+    dav1s_log_alloc_stats(*c_out);
 #endif
     close_internal(c_out, 1);
 }
@@ -611,7 +611,7 @@ static COLD void close_internal(Dav1dContext **const c_out, int flush) {
     Dav1dContext *const c = *c_out;
     if (!c) return;
 
-    if (flush) dav1d_flush(c);
+    if (flush) dav1s_flush(c);
 
     if (c->tc) {
         struct TaskThreadData *ttd = &c->task_thread;
@@ -632,7 +632,7 @@ static COLD void close_internal(Dav1dContext **const c_out, int flush) {
             pthread_cond_destroy(&ttd->cond);
             pthread_mutex_destroy(&ttd->lock);
         }
-        dav1d_free_aligned(c->tc);
+        dav1s_free_aligned(c->tc);
     }
 
     for (unsigned n = 0; c->fc && n < c->n_fc; n++) {
@@ -640,123 +640,123 @@ static COLD void close_internal(Dav1dContext **const c_out, int flush) {
 
         // clean-up threading stuff
         if (c->n_fc > 1) {
-            dav1d_free(f->tile_thread.lowest_pixel_mem);
-            dav1d_free(f->frame_thread.b);
-            dav1d_free_aligned(f->frame_thread.cbi);
-            dav1d_free_aligned(f->frame_thread.pal_idx);
-            dav1d_free_aligned(f->frame_thread.cf);
-            dav1d_free(f->frame_thread.tile_start_off);
-            dav1d_free_aligned(f->frame_thread.pal);
+            dav1s_free(f->tile_thread.lowest_pixel_mem);
+            dav1s_free(f->frame_thread.b);
+            dav1s_free_aligned(f->frame_thread.cbi);
+            dav1s_free_aligned(f->frame_thread.pal_idx);
+            dav1s_free_aligned(f->frame_thread.cf);
+            dav1s_free(f->frame_thread.tile_start_off);
+            dav1s_free_aligned(f->frame_thread.pal);
         }
         if (c->n_tc > 1) {
             pthread_mutex_destroy(&f->task_thread.pending_tasks.lock);
             pthread_cond_destroy(&f->task_thread.cond);
             pthread_mutex_destroy(&f->task_thread.lock);
         }
-        dav1d_free(f->frame_thread.frame_progress);
-        dav1d_free(f->task_thread.tasks);
-        dav1d_free(f->task_thread.tile_tasks[0]);
-        dav1d_free_aligned(f->ts);
-        dav1d_free_aligned(f->ipred_edge[0]);
-        dav1d_free(f->a);
-        dav1d_free(f->tile);
-        dav1d_free(f->lf.mask);
-        dav1d_free(f->lf.level);
-        dav1d_free(f->lf.lr_mask);
-        dav1d_free(f->lf.tx_lpf_right_edge[0]);
-        dav1d_free(f->lf.start_of_tile_row);
-        dav1d_free_aligned(f->rf.r);
-        dav1d_free_aligned(f->lf.cdef_line_buf);
-        dav1d_free_aligned(f->lf.lr_line_buf);
+        dav1s_free(f->frame_thread.frame_progress);
+        dav1s_free(f->task_thread.tasks);
+        dav1s_free(f->task_thread.tile_tasks[0]);
+        dav1s_free_aligned(f->ts);
+        dav1s_free_aligned(f->ipred_edge[0]);
+        dav1s_free(f->a);
+        dav1s_free(f->tile);
+        dav1s_free(f->lf.mask);
+        dav1s_free(f->lf.level);
+        dav1s_free(f->lf.lr_mask);
+        dav1s_free(f->lf.tx_lpf_right_edge[0]);
+        dav1s_free(f->lf.start_of_tile_row);
+        dav1s_free_aligned(f->rf.r);
+        dav1s_free_aligned(f->lf.cdef_line_buf);
+        dav1s_free_aligned(f->lf.lr_line_buf);
     }
-    dav1d_free_aligned(c->fc);
+    dav1s_free_aligned(c->fc);
     if (c->n_fc > 1 && c->frame_thread.out_delayed) {
         for (unsigned n = 0; n < c->n_fc; n++)
             if (c->frame_thread.out_delayed[n].p.frame_hdr)
-                dav1d_thread_picture_unref(&c->frame_thread.out_delayed[n]);
-        dav1d_free(c->frame_thread.out_delayed);
+                dav1s_thread_picture_unref(&c->frame_thread.out_delayed[n]);
+        dav1s_free(c->frame_thread.out_delayed);
     }
     for (int n = 0; n < c->n_tile_data; n++)
-        dav1d_data_unref_internal(&c->tile[n].data);
-    dav1d_free(c->tile);
+        dav1s_data_unref_internal(&c->tile[n].data);
+    dav1s_free(c->tile);
     for (int n = 0; n < 8; n++) {
-        dav1d_cdf_thread_unref(&c->cdf[n]);
+        dav1s_cdf_thread_unref(&c->cdf[n]);
         if (c->refs[n].p.p.frame_hdr)
-            dav1d_thread_picture_unref(&c->refs[n].p);
-        dav1d_ref_dec(&c->refs[n].refmvs);
-        dav1d_ref_dec(&c->refs[n].segmap);
+            dav1s_thread_picture_unref(&c->refs[n].p);
+        dav1s_ref_dec(&c->refs[n].refmvs);
+        dav1s_ref_dec(&c->refs[n].segmap);
     }
-    dav1d_ref_dec(&c->seq_hdr_ref);
-    dav1d_ref_dec(&c->frame_hdr_ref);
+    dav1s_ref_dec(&c->seq_hdr_ref);
+    dav1s_ref_dec(&c->frame_hdr_ref);
 
-    dav1d_ref_dec(&c->mastering_display_ref);
-    dav1d_ref_dec(&c->content_light_ref);
-    dav1d_ref_dec(&c->itut_t35_ref);
+    dav1s_ref_dec(&c->mastering_display_ref);
+    dav1s_ref_dec(&c->content_light_ref);
+    dav1s_ref_dec(&c->itut_t35_ref);
 
-    dav1d_mem_pool_end(c->seq_hdr_pool);
-    dav1d_mem_pool_end(c->frame_hdr_pool);
-    dav1d_mem_pool_end(c->segmap_pool);
-    dav1d_mem_pool_end(c->refmvs_pool);
-    dav1d_mem_pool_end(c->cdf_pool);
-    dav1d_mem_pool_end(c->picture_pool);
-    dav1d_mem_pool_end(c->pic_ctx_pool);
+    dav1s_mem_pool_end(c->seq_hdr_pool);
+    dav1s_mem_pool_end(c->frame_hdr_pool);
+    dav1s_mem_pool_end(c->segmap_pool);
+    dav1s_mem_pool_end(c->refmvs_pool);
+    dav1s_mem_pool_end(c->cdf_pool);
+    dav1s_mem_pool_end(c->picture_pool);
+    dav1s_mem_pool_end(c->pic_ctx_pool);
 
-    dav1d_freep_aligned(c_out);
+    dav1s_freep_aligned(c_out);
 }
 
-int dav1d_get_event_flags(Dav1dContext *const c, enum Dav1dEventFlags *const flags) {
-    validate_input_or_ret(c != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(flags != NULL, DAV1D_ERR(EINVAL));
+int dav1s_get_event_flags(Dav1dContext *const c, enum Dav1dEventFlags *const flags) {
+    validate_input_or_ret(c != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(flags != NULL, DAV1S_ERR(EINVAL));
 
     *flags = c->event_flags;
     c->event_flags = 0;
     return 0;
 }
 
-int dav1d_get_decode_error_data_props(Dav1dContext *const c, Dav1dDataProps *const out) {
-    validate_input_or_ret(c != NULL, DAV1D_ERR(EINVAL));
-    validate_input_or_ret(out != NULL, DAV1D_ERR(EINVAL));
+int dav1s_get_decode_error_data_props(Dav1dContext *const c, Dav1dDataProps *const out) {
+    validate_input_or_ret(c != NULL, DAV1S_ERR(EINVAL));
+    validate_input_or_ret(out != NULL, DAV1S_ERR(EINVAL));
 
-    dav1d_data_props_unref_internal(out);
+    dav1s_data_props_unref_internal(out);
     *out = c->cached_error_props;
-    dav1d_data_props_set_defaults(&c->cached_error_props);
+    dav1s_data_props_set_defaults(&c->cached_error_props);
 
     return 0;
 }
 
-void dav1d_picture_unref(Dav1dPicture *const p) {
-    dav1d_picture_unref_internal(p);
+void dav1s_picture_unref(Dav1dPicture *const p) {
+    dav1s_picture_unref_internal(p);
 }
 
-uint8_t *dav1d_data_create(Dav1dData *const buf, const size_t sz) {
-    return dav1d_data_create_internal(buf, sz);
+uint8_t *dav1s_data_create(Dav1dData *const buf, const size_t sz) {
+    return dav1s_data_create_internal(buf, sz);
 }
 
-int dav1d_data_wrap(Dav1dData *const buf, const uint8_t *const ptr,
+int dav1s_data_wrap(Dav1dData *const buf, const uint8_t *const ptr,
                     const size_t sz,
                     void (*const free_callback)(const uint8_t *data,
                                                 void *user_data),
                     void *const user_data)
 {
-    return dav1d_data_wrap_internal(buf, ptr, sz, free_callback, user_data);
+    return dav1s_data_wrap_internal(buf, ptr, sz, free_callback, user_data);
 }
 
-int dav1d_data_wrap_user_data(Dav1dData *const buf,
+int dav1s_data_wrap_user_data(Dav1dData *const buf,
                               const uint8_t *const user_data,
                               void (*const free_callback)(const uint8_t *user_data,
                                                           void *cookie),
                               void *const cookie)
 {
-    return dav1d_data_wrap_user_data_internal(buf,
+    return dav1s_data_wrap_user_data_internal(buf,
                                               user_data,
                                               free_callback,
                                               cookie);
 }
 
-void dav1d_data_unref(Dav1dData *const buf) {
-    dav1d_data_unref_internal(buf);
+void dav1s_data_unref(Dav1dData *const buf) {
+    dav1s_data_unref_internal(buf);
 }
 
-void dav1d_data_props_unref(Dav1dDataProps *const props) {
-    dav1d_data_props_unref_internal(props);
+void dav1s_data_props_unref(Dav1dDataProps *const props) {
+    dav1s_data_props_unref_internal(props);
 }

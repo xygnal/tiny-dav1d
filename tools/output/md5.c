@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -220,9 +220,9 @@ static int md5_write(MD5Context *const md5, Dav1dPicture *const p) {
         yptr += p->stride[0];
     }
 
-    if (p->p.layout != DAV1D_PIXEL_LAYOUT_I400) {
-        const int ss_ver = p->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = p->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    if (p->p.layout != DAV1S_PIXEL_LAYOUT_I400) {
+        const int ss_ver = p->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = p->p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int cw = (w + ss_hor) >> ss_hor;
         const int ch = (h + ss_ver) >> ss_ver;
         for (int pl = 1; pl <= 2; pl++) {
@@ -244,7 +244,7 @@ static int md5_write(MD5Context *const md5, Dav1dPicture *const p) {
         }
     }
 
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
 
     return 0;
 }

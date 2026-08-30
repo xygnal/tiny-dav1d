@@ -1,4 +1,4 @@
-# Copyright © 2019, VideoLAN and dav1d authors
+# Copyright © 2019, VideoLAN and dav1s authors
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -22,15 +22,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-dav1d_api_headers = [
+dav1s_api_headers = [
     'common.h',
     'data.h',
-    'dav1d.h',
+    'dav1s.h',
     'headers.h',
     'picture.h',
     'version.h',
 ]
 
 # install headers
-install_headers(dav1d_api_headers,
-                subdir : 'dav1d')
+install_headers(dav1s_api_headers,
+                subdir : 'dav1s')

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * Copyright © 2019, James Almer <jamrial@gmail.com>
  * All rights reserved.
@@ -26,12 +26,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_INPUT_PARSE_H
-#define DAV1D_INPUT_PARSE_H
+#ifndef DAV1S_INPUT_PARSE_H
+#define DAV1S_INPUT_PARSE_H
 
 #include <limits.h>
 
-#include "dav1d/headers.h"
+#include "dav1s/headers.h"
 
 static int leb128(FILE *const f, size_t *const len) {
     uint64_t val = 0;
@@ -108,4 +108,4 @@ static inline int parse_obu_header(const uint8_t *buf, int buf_size,
     return buf_size + 1 + extension_flag;
 }
 
-#endif /* DAV1D_INPUT_PARSE_H */
+#endif /* DAV1S_INPUT_PARSE_H */

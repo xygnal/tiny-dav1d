@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_INPUT_DEMUXER_H
-#define DAV1D_INPUT_DEMUXER_H
+#ifndef DAV1S_INPUT_DEMUXER_H
+#define DAV1S_INPUT_DEMUXER_H
 
 #include "data.h"
 
@@ -43,4 +43,4 @@ typedef struct Demuxer {
     void (*close)(DemuxerPriv *ctx);
 } Demuxer;
 
-#endif /* DAV1D_INPUT_DEMUXER_H */
+#endif /* DAV1S_INPUT_DEMUXER_H */

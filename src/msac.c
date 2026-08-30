@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -57,18 +57,18 @@ static inline void ctx_refill(MsacContext *const s) {
     s->buf_pos = buf_pos;
 }
 
-int dav1d_msac_decode_subexp(MsacContext *const s, const int ref,
+int dav1s_msac_decode_subexp(MsacContext *const s, const int ref,
                              const int n, unsigned k)
 {
     assert(n >> k == 8);
 
     unsigned a = 0;
-    if (dav1d_msac_decode_bool_equi(s)) {
-        if (dav1d_msac_decode_bool_equi(s))
-            k += dav1d_msac_decode_bool_equi(s) + 1;
+    if (dav1s_msac_decode_bool_equi(s)) {
+        if (dav1s_msac_decode_bool_equi(s))
+            k += dav1s_msac_decode_bool_equi(s) + 1;
         a = 1 << k;
     }
-    const unsigned v = dav1d_msac_decode_bools(s, k) + a;
+    const unsigned v = dav1s_msac_decode_bools(s, k) + a;
     return ref * 2 <= n ? inv_recenter(ref, v) :
                           n - 1 - inv_recenter(n - 1 - ref, v);
 }
@@ -96,7 +96,7 @@ static inline void ctx_norm(MsacContext *const s, const ec_win dif,
         ctx_refill(s);
 }
 
-unsigned dav1d_msac_decode_bool_equi_c(MsacContext *const s) {
+unsigned dav1s_msac_decode_bool_equi_c(MsacContext *const s) {
     const unsigned r = s->rng;
     ec_win dif = s->dif;
     assert((dif >> (EC_WIN_SIZE - 16)) < r);
@@ -114,7 +114,7 @@ unsigned dav1d_msac_decode_bool_equi_c(MsacContext *const s) {
 /* Decode a single binary value.
  * f: The probability that the bit is one
  * Return: The value decoded (0 or 1). */
-unsigned dav1d_msac_decode_bool_c(MsacContext *const s, const unsigned f) {
+unsigned dav1s_msac_decode_bool_c(MsacContext *const s, const unsigned f) {
     const unsigned r = s->rng;
     ec_win dif = s->dif;
     assert((dif >> (EC_WIN_SIZE - 16)) < r);
@@ -129,7 +129,7 @@ unsigned dav1d_msac_decode_bool_c(MsacContext *const s, const unsigned f) {
 
 /* Decodes a symbol given an inverse cumulative distribution function (CDF)
  * table in Q15. */
-unsigned dav1d_msac_decode_symbol_adapt_c(MsacContext *const s,
+unsigned dav1s_msac_decode_symbol_adapt_c(MsacContext *const s,
                                           uint16_t *const cdf,
                                           const size_t n_symbols)
 {
@@ -165,10 +165,10 @@ unsigned dav1d_msac_decode_symbol_adapt_c(MsacContext *const s,
     return val;
 }
 
-unsigned dav1d_msac_decode_bool_adapt_c(MsacContext *const s,
+unsigned dav1s_msac_decode_bool_adapt_c(MsacContext *const s,
                                         uint16_t *const cdf)
 {
-    const unsigned bit = dav1d_msac_decode_bool(s, *cdf);
+    const unsigned bit = dav1s_msac_decode_bool(s, *cdf);
 
     if (s->allow_update_cdf) {
         // update_cdf() specialized for boolean CDFs
@@ -184,24 +184,24 @@ unsigned dav1d_msac_decode_bool_adapt_c(MsacContext *const s,
     return bit;
 }
 
-unsigned dav1d_msac_decode_hi_tok_c(MsacContext *const s, uint16_t *const cdf) {
-    unsigned tok_br = dav1d_msac_decode_symbol_adapt4(s, cdf, 3);
+unsigned dav1s_msac_decode_hi_tok_c(MsacContext *const s, uint16_t *const cdf) {
+    unsigned tok_br = dav1s_msac_decode_symbol_adapt4(s, cdf, 3);
     unsigned tok = 3 + tok_br;
     if (tok_br == 3) {
-        tok_br = dav1d_msac_decode_symbol_adapt4(s, cdf, 3);
+        tok_br = dav1s_msac_decode_symbol_adapt4(s, cdf, 3);
         tok = 6 + tok_br;
         if (tok_br == 3) {
-            tok_br = dav1d_msac_decode_symbol_adapt4(s, cdf, 3);
+            tok_br = dav1s_msac_decode_symbol_adapt4(s, cdf, 3);
             tok = 9 + tok_br;
             if (tok_br == 3)
-                tok = 12 + dav1d_msac_decode_symbol_adapt4(s, cdf, 3);
+                tok = 12 + dav1s_msac_decode_symbol_adapt4(s, cdf, 3);
         }
     }
     return tok;
 }
 #endif
 
-void dav1d_msac_init(MsacContext *const s, const uint8_t *const data,
+void dav1s_msac_init(MsacContext *const s, const uint8_t *const data,
                      const size_t sz, const int disable_cdf_update_flag)
 {
     s->buf_pos = data;
@@ -213,7 +213,7 @@ void dav1d_msac_init(MsacContext *const s, const uint8_t *const data,
     ctx_refill(s);
 
 #if ARCH_X86_64 && HAVE_ASM
-    s->symbol_adapt16 = dav1d_msac_decode_symbol_adapt_c;
+    s->symbol_adapt16 = dav1s_msac_decode_symbol_adapt_c;
 
     msac_init_x86(s);
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_IPRED_H
-#define DAV1D_SRC_IPRED_H
+#ifndef DAV1S_SRC_IPRED_H
+#define DAV1S_SRC_IPRED_H
 
 #include <stddef.h>
 
@@ -38,7 +38,7 @@
  * Intra prediction.
  * - a is the angle (in degrees) for directional intra predictors. For other
  *   modes, it is ignored;
- * - topleft is the same as the argument given to dav1d_prepare_intra_edges(),
+ * - topleft is the same as the argument given to dav1s_prepare_intra_edges(),
  *   see ipred_prepare.h for more detailed documentation.
  */
 #define decl_angular_ipred_fn(name) \
@@ -89,6 +89,6 @@ typedef struct Dav1dIntraPredDSPContext {
     pal_pred_fn pal_pred;
 } Dav1dIntraPredDSPContext;
 
-bitfn_decls(void dav1d_intra_pred_dsp_init, Dav1dIntraPredDSPContext *c);
+bitfn_decls(void dav1s_intra_pred_dsp_init, Dav1dIntraPredDSPContext *c);
 
-#endif /* DAV1D_SRC_IPRED_H */
+#endif /* DAV1S_SRC_IPRED_H */

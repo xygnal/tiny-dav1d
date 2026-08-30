@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * Copyright © 2020, Two Orioles, LLC
  * All rights reserved.
  *
@@ -30,7 +30,7 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include "dav1d/common.h"
+#include "dav1s/common.h"
 
 #include "common/intops.h"
 
@@ -102,7 +102,7 @@ static int scan_row(refmvs_candidate *const mvstack, int *const cnt,
 {
     const refmvs_block *cand_b = b;
     const enum BlockSize first_cand_bs = cand_b->bs;
-    const uint8_t *const first_cand_b_dim = dav1d_block_dimensions[first_cand_bs];
+    const uint8_t *const first_cand_b_dim = dav1s_block_dimensions[first_cand_bs];
     int cand_bw4 = first_cand_b_dim[0];
     int len = imax(step, imin(bw4, cand_bw4));
 
@@ -127,7 +127,7 @@ static int scan_row(refmvs_candidate *const mvstack, int *const cnt,
         x += len;
         if (x >= w4) return 1;
         cand_b = &b[x];
-        cand_bw4 = dav1d_block_dimensions[cand_b->bs][0];
+        cand_bw4 = dav1s_block_dimensions[cand_b->bs][0];
         assert(cand_bw4 < bw4);
         len = imax(step, cand_bw4);
     }
@@ -141,7 +141,7 @@ static int scan_col(refmvs_candidate *const mvstack, int *const cnt,
 {
     const refmvs_block *cand_b = &b[0][bx4];
     const enum BlockSize first_cand_bs = cand_b->bs;
-    const uint8_t *const first_cand_b_dim = dav1d_block_dimensions[first_cand_bs];
+    const uint8_t *const first_cand_b_dim = dav1s_block_dimensions[first_cand_bs];
     int cand_bh4 = first_cand_b_dim[1];
     int len = imax(step, imin(bh4, cand_bh4));
 
@@ -166,7 +166,7 @@ static int scan_col(refmvs_candidate *const mvstack, int *const cnt,
         y += len;
         if (y >= h4) return 1;
         cand_b = &b[y][bx4];
-        cand_bh4 = dav1d_block_dimensions[cand_b->bs][1];
+        cand_bh4 = dav1s_block_dimensions[cand_b->bs][1];
         assert(cand_bh4 < bh4);
         len = imax(step, cand_bh4);
     }
@@ -331,10 +331,10 @@ static void add_single_extended_candidate(refmvs_candidate mvstack[8], int *cons
  * wide) of 4x4-resolution refmvs_block entries for spatial MV referencing.
  * mvrefs_tile[] keeps a list of 35 (32 + 3 above) pointers into this memory,
  * and each sbrow, the bottom entries (y=27/29/31) are exchanged with the top
- * (-5/-3/-1) pointers by calling dav1d_refmvs_tile_sbrow_init() at the start
+ * (-5/-3/-1) pointers by calling dav1s_refmvs_tile_sbrow_init() at the start
  * of each tile/sbrow.
  *
- * For temporal MV referencing, we call dav1d_refmvs_save_tmvs() at the end of
+ * For temporal MV referencing, we call dav1s_refmvs_save_tmvs() at the end of
  * each tile/sbrow (when tile column threading is enabled), or at the start of
  * each interleaved sbrow (i.e. once for all tile columns together, when tile
  * column threading is disabled). This will copy the 4x4-resolution spatial MVs
@@ -345,7 +345,7 @@ static void add_single_extended_candidate(refmvs_candidate mvstack[8], int *cons
  * their respective position in the current frame.
  */
 
-void dav1d_refmvs_find(const refmvs_tile *const rt,
+void dav1s_refmvs_find(const refmvs_tile *const rt,
                        refmvs_candidate mvstack[8], int *const cnt,
                        int *const ctx,
                        const union refmvs_refpair ref, const enum BlockSize bs,
@@ -353,7 +353,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
                        const int by4, const int bx4)
 {
     const refmvs_frame *const rf = rt->rf;
-    const uint8_t *const b_dim = dav1d_block_dimensions[bs];
+    const uint8_t *const b_dim = dav1s_block_dimensions[bs];
     const int bw4 = b_dim[0], w4 = imin(imin(bw4, 16), rt->tile_col.end - bx4);
     const int bh4 = b_dim[1], h4 = imin(imin(bh4, 16), rt->tile_row.end - by4);
     mv gmv[2], tgmv[2];
@@ -364,7 +364,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
     if (ref.ref[0] > 0) {
         tgmv[0] = get_gmv_2d(&rf->frm_hdr->gmv[ref.ref[0] - 1],
                              bx4, by4, bw4, bh4, rf->frm_hdr);
-        gmv[0] = rf->frm_hdr->gmv[ref.ref[0] - 1].type > DAV1D_WM_TYPE_TRANSLATION ?
+        gmv[0] = rf->frm_hdr->gmv[ref.ref[0] - 1].type > DAV1S_WM_TYPE_TRANSLATION ?
                  tgmv[0] : (mv) { .n = INVALID_MV };
     } else {
         tgmv[0] = (mv) { .n = 0 };
@@ -373,7 +373,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
     if (ref.ref[1] > 0) {
         tgmv[1] = get_gmv_2d(&rf->frm_hdr->gmv[ref.ref[1] - 1],
                              bx4, by4, bw4, bh4, rf->frm_hdr);
-        gmv[1] = rf->frm_hdr->gmv[ref.ref[1] - 1].type > DAV1D_WM_TYPE_TRANSLATION ?
+        gmv[1] = rf->frm_hdr->gmv[ref.ref[1] - 1].type > DAV1S_WM_TYPE_TRANSLATION ?
                  tgmv[1] : (mv) { .n = INVALID_MV };
     }
 
@@ -536,7 +536,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
                 const refmvs_block *const cand_b = &b_top[x];
                 add_compound_extended_candidate(same, same_count, cand_b,
                                                 sign0, sign1, ref, rf->sign_bias);
-                x += dav1d_block_dimensions[cand_b->bs][0];
+                x += dav1s_block_dimensions[cand_b->bs][0];
             }
 
             // non-self references in left
@@ -544,7 +544,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
                 const refmvs_block *const cand_b = &b_left[y][bx4 - 1];
                 add_compound_extended_candidate(same, same_count, cand_b,
                                                 sign0, sign1, ref, rf->sign_bias);
-                y += dav1d_block_dimensions[cand_b->bs][1];
+                y += dav1s_block_dimensions[cand_b->bs][1];
             }
 
             refmvs_candidate *const diff = &same[2];
@@ -617,14 +617,14 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
         if (n_rows != ~0U) for (int x = 0; x < sz4 && *cnt < 2;) {
             const refmvs_block *const cand_b = &b_top[x];
             add_single_extended_candidate(mvstack, cnt, cand_b, sign, rf->sign_bias);
-            x += dav1d_block_dimensions[cand_b->bs][0];
+            x += dav1s_block_dimensions[cand_b->bs][0];
         }
 
         // non-self references in left
         if (n_cols != ~0U) for (int y = 0; y < sz4 && *cnt < 2;) {
             const refmvs_block *const cand_b = &b_left[y][bx4 - 1];
             add_single_extended_candidate(mvstack, cnt, cand_b, sign, rf->sign_bias);
-            y += dav1d_block_dimensions[cand_b->bs][1];
+            y += dav1s_block_dimensions[cand_b->bs][1];
         }
     }
     assert(*cnt <= 8);
@@ -650,7 +650,7 @@ void dav1d_refmvs_find(const refmvs_tile *const rt,
     *ctx = (refmv_ctx << 4) | (globalmv_ctx << 3) | newmv_ctx;
 }
 
-void dav1d_refmvs_tile_sbrow_init(refmvs_tile *const rt, const refmvs_frame *const rf,
+void dav1s_refmvs_tile_sbrow_init(refmvs_tile *const rt, const refmvs_frame *const rf,
                                   const int tile_col_start4, const int tile_col_end4,
                                   const int tile_row_start4, const int tile_row_end4,
                                   const int sby, int tile_row_idx, const int pass)
@@ -771,7 +771,7 @@ static void save_tmvs_c(refmvs_temporal_block *rp, const ptrdiff_t stride,
 
         for (int x = col_start8; x < col_end8;) {
             const refmvs_block *const cand_b = &b[x * 2 + 1];
-            const int bw8 = (dav1d_block_dimensions[cand_b->bs][0] + 1) >> 1;
+            const int bw8 = (dav1s_block_dimensions[cand_b->bs][0] + 1) >> 1;
 
             if (cand_b->ref.ref[1] > 0 && ref_sign[cand_b->ref.ref[1] - 1] &&
                 (abs(cand_b->mv.mv[1].y) | abs(cand_b->mv.mv[1].x)) < 4096)
@@ -801,7 +801,7 @@ static void save_tmvs_c(refmvs_temporal_block *rp, const ptrdiff_t stride,
     }
 }
 
-int dav1d_refmvs_init_frame(refmvs_frame *const rf,
+int dav1s_refmvs_init_frame(refmvs_frame *const rf,
                             const Dav1dSequenceHeader *const seq_hdr,
                             const Dav1dFrameHeader *const frm_hdr,
                             const uint8_t ref_poc[7],
@@ -830,11 +830,11 @@ int dav1d_refmvs_init_frame(refmvs_frame *const rf,
         const size_t rp_proj_sz = sizeof(*rf->rp_proj) * 16 * n_blocks;
         /* Note that sizeof(*rf->r) == 12, but it's accessed using 16-byte unaligned
          * loads in save_tmvs() asm which can overread 4 bytes into rp_proj. */
-        dav1d_free_aligned(rf->r);
-        rf->r = dav1d_alloc_aligned(ALLOC_REFMVS, r_sz + rp_proj_sz, 64);
+        dav1s_free_aligned(rf->r);
+        rf->r = dav1s_alloc_aligned(ALLOC_REFMVS, r_sz + rp_proj_sz, 64);
         if (!rf->r) {
             rf->n_blocks = 0;
-            return DAV1D_ERR(ENOMEM);
+            return DAV1S_ERR(ENOMEM);
         }
 
         rf->rp_proj = (refmvs_temporal_block*)((uintptr_t)rf->r + r_sz);
@@ -922,7 +922,7 @@ static void splat_mv_c(refmvs_block **rr, const refmvs_block *const rmv,
 #endif
 #endif
 
-COLD void dav1d_refmvs_dsp_init(Dav1dRefmvsDSPContext *const c)
+COLD void dav1s_refmvs_dsp_init(Dav1dRefmvsDSPContext *const c)
 {
     c->load_tmvs = load_tmvs_c;
     c->save_tmvs = save_tmvs_c;

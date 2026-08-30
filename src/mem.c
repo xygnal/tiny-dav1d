@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020, VideoLAN and dav1d authors
+ * Copyright © 2020, VideoLAN and dav1s authors
  * Copyright © 2020, Two Orioles, LLC
  * All rights reserved.
  *
@@ -95,43 +95,43 @@ static void *track_free(char *const ptr) {
     return ptr - d->align;
 }
 
-static void dav1d_track_reuse(const enum AllocationType type) {
+static void dav1s_track_reuse(const enum AllocationType type) {
     pthread_mutex_lock(&track_alloc_mutex);
     tracked_allocs[type].num_reuses++;
     pthread_mutex_unlock(&track_alloc_mutex);
 }
 
-void *dav1d_malloc(const enum AllocationType type, const size_t sz) {
+void *dav1s_malloc(const enum AllocationType type, const size_t sz) {
     void *const ptr = malloc(sz + DEFAULT_ALIGN);
     return track_alloc(type, ptr, sz, DEFAULT_ALIGN);
 }
 
-void *dav1d_alloc_aligned(const enum AllocationType type,
+void *dav1s_alloc_aligned(const enum AllocationType type,
                           const size_t sz, const size_t align)
 {
-    void *const ptr = dav1d_alloc_aligned_internal(sz + align, align);
+    void *const ptr = dav1s_alloc_aligned_internal(sz + align, align);
     return track_alloc(type, ptr, sz, align);
 }
 
-void *dav1d_realloc(const enum AllocationType type,
+void *dav1s_realloc(const enum AllocationType type,
                     void *ptr, const size_t sz)
 {
     if (!ptr)
-        return dav1d_malloc(type, sz);
+        return dav1s_malloc(type, sz);
     ptr = realloc((char*)ptr - DEFAULT_ALIGN, sz + DEFAULT_ALIGN);
     if (ptr)
         ptr = track_free((char*)ptr + DEFAULT_ALIGN);
     return track_alloc(type, ptr, sz, DEFAULT_ALIGN);
 }
 
-void dav1d_free(void *ptr) {
+void dav1s_free(void *ptr) {
     if (ptr)
         free(track_free(ptr));
 }
 
-void dav1d_free_aligned(void *ptr) {
+void dav1s_free_aligned(void *ptr) {
     if (ptr) {
-        dav1d_free_aligned_internal(track_free(ptr));
+        dav1s_free_aligned_internal(track_free(ptr));
     }
 }
 
@@ -151,14 +151,14 @@ static COLD int format_tsep(char *const s, const size_t n, const size_t value) {
     return len + snprintf(s + len, n - len, " %03u", (unsigned)(value % 1000));
 }
 
-COLD void dav1d_log_alloc_stats(Dav1dContext *const c) {
+COLD void dav1s_log_alloc_stats(Dav1dContext *const c) {
     static const char *const type_names[N_ALLOC_TYPES] = {
         [ALLOC_BLOCK     ] = "Block data",
         [ALLOC_CDEF      ] = "CDEF line buffers",
         [ALLOC_CDF       ] = "CDF contexts",
         [ALLOC_COEF      ] = "Coefficient data",
         [ALLOC_COMMON_CTX] = "Common context data",
-        [ALLOC_DAV1DDATA ] = "Dav1dData",
+        [ALLOC_DAV1SDATA ] = "Dav1dData",
         [ALLOC_IPRED     ] = "Intra pred edges",
         [ALLOC_LF        ] = "Loopfilter data",
         [ALLOC_LR        ] = "Looprestoration data",
@@ -198,7 +198,7 @@ COLD void dav1d_log_alloc_stats(Dav1dContext *const c) {
     char total_sz_buf[32];
     const int sz_len = 4 + format_tsep(total_sz_buf, sizeof(total_sz_buf), total_sz);
 
-    dav1d_log(c, "\n Type                    Allocs    Reuses    Share    Peak size\n"
+    dav1s_log(c, "\n Type                    Allocs    Reuses    Share    Peak size\n"
                  "---------------------------------------------------------------------\n");
     for (int i = N_ALLOC_TYPES - 1; i >= 0; i--) {
         const AllocStats *const s = &data[i].stats;
@@ -206,11 +206,11 @@ COLD void dav1d_log_alloc_stats(Dav1dContext *const c) {
             const double share = s->peak_sz * inv_total_share;
             char sz_buf[32];
             format_tsep(sz_buf, sizeof(sz_buf), s->peak_sz);
-            dav1d_log(c, " %-20s%10u%10u%8.1f%%%*s\n", type_names[data[i].type],
+            dav1s_log(c, " %-20s%10u%10u%8.1f%%%*s\n", type_names[data[i].type],
                       s->num_allocs, s->num_reuses, share, sz_len, sz_buf);
         }
     }
-    dav1d_log(c, "---------------------------------------------------------------------\n"
+    dav1s_log(c, "---------------------------------------------------------------------\n"
                  "%31u%10u             %s\n",
                  total_allocs, total_reuses, total_sz_buf);
 }
@@ -218,10 +218,10 @@ COLD void dav1d_log_alloc_stats(Dav1dContext *const c) {
 
 static COLD void mem_pool_destroy(Dav1dMemPool *const pool) {
     pthread_mutex_destroy(&pool->lock);
-    dav1d_free(pool);
+    dav1s_free(pool);
 }
 
-void dav1d_mem_pool_push(Dav1dMemPool *const pool, void *const ptr) {
+void dav1s_mem_pool_push(Dav1dMemPool *const pool, void *const ptr) {
     pthread_mutex_lock(&pool->lock);
     Dav1dMemPoolBuffer *const buf = (Dav1dMemPoolBuffer*)((uintptr_t)ptr - 64);
     const int ref_cnt = --pool->ref_cnt;
@@ -232,12 +232,12 @@ void dav1d_mem_pool_push(Dav1dMemPool *const pool, void *const ptr) {
         assert(ref_cnt > 0);
     } else {
         pthread_mutex_unlock(&pool->lock);
-        dav1d_free_aligned(buf);
+        dav1s_free_aligned(buf);
         if (!ref_cnt) mem_pool_destroy(pool);
     }
 }
 
-void *dav1d_mem_pool_pop(Dav1dMemPool *const pool, const size_t size) {
+void *dav1s_mem_pool_pop(Dav1dMemPool *const pool, const size_t size) {
     pthread_mutex_lock(&pool->lock);
     Dav1dMemPoolBuffer *buf = pool->buf;
     pool->ref_cnt++;
@@ -247,16 +247,16 @@ void *dav1d_mem_pool_pop(Dav1dMemPool *const pool, const size_t size) {
         pthread_mutex_unlock(&pool->lock);
         if (buf->size != size) {
             /* Reallocate if the size has changed */
-            dav1d_free_aligned(buf);
+            dav1s_free_aligned(buf);
             goto alloc;
         }
 #if TRACK_HEAP_ALLOCATIONS
-        dav1d_track_reuse(pool->type);
+        dav1s_track_reuse(pool->type);
 #endif
     } else {
         pthread_mutex_unlock(&pool->lock);
 alloc:
-        buf = dav1d_alloc_aligned(pool->type, size + 64, 64);
+        buf = dav1s_alloc_aligned(pool->type, size + 64, 64);
         if (!buf) {
             pthread_mutex_lock(&pool->lock);
             const int ref_cnt = --pool->ref_cnt;
@@ -270,10 +270,10 @@ alloc:
     return (void*)((uintptr_t)buf + 64);
 }
 
-COLD int dav1d_mem_pool_init(const enum AllocationType type,
+COLD int dav1s_mem_pool_init(const enum AllocationType type,
                              Dav1dMemPool **const ppool)
 {
-    Dav1dMemPool *const pool = dav1d_malloc(ALLOC_COMMON_CTX,
+    Dav1dMemPool *const pool = dav1s_malloc(ALLOC_COMMON_CTX,
                                             sizeof(Dav1dMemPool));
     if (pool) {
         if (!pthread_mutex_init(&pool->lock, NULL)) {
@@ -286,13 +286,13 @@ COLD int dav1d_mem_pool_init(const enum AllocationType type,
             *ppool = pool;
             return 0;
         }
-        dav1d_free(pool);
+        dav1s_free(pool);
     }
     *ppool = NULL;
-    return DAV1D_ERR(ENOMEM);
+    return DAV1S_ERR(ENOMEM);
 }
 
-COLD void dav1d_mem_pool_end(Dav1dMemPool *const pool) {
+COLD void dav1s_mem_pool_end(Dav1dMemPool *const pool) {
     if (pool) {
         pthread_mutex_lock(&pool->lock);
         Dav1dMemPoolBuffer *buf = pool->buf;
@@ -304,7 +304,7 @@ COLD void dav1d_mem_pool_end(Dav1dMemPool *const pool) {
         while (buf) {
             void *const ptr = buf;
             buf = buf->next;
-            dav1d_free_aligned(ptr);
+            dav1s_free_aligned(ptr);
         }
         if (!ref_cnt) mem_pool_destroy(pool);
     }

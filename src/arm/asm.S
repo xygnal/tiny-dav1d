@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Janne Grunau
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_ARM_ASM_S
-#define DAV1D_SRC_ARM_ASM_S
+#ifndef DAV1S_SRC_ARM_ASM_S
+#define DAV1S_SRC_ARM_ASM_S
 
 #include "config.h"
 
@@ -175,7 +175,7 @@ DISABLE_SVE2
 #error Pointer authentication defines no valid key!
 #endif
 #if ((__ARM_FEATURE_PAC_DEFAULT & (1 << 2)) != 0) // authentication of leaf functions
-#error Authentication of leaf functions is enabled but not supported in dav1d!
+#error Authentication of leaf functions is enabled but not supported in dav1s!
 #endif
 #define GNU_PROPERTY_AARCH64_PAC (1 << 1)
 
@@ -250,7 +250,7 @@ DISABLE_SVE2
 #endif
 
 #ifndef PRIVATE_PREFIX
-#define PRIVATE_PREFIX dav1d_
+#define PRIVATE_PREFIX dav1s_
 #endif
 
 #define PASTE(a,b) a ## b
@@ -364,4 +364,4 @@ EXTERN\name:
 #define X(x) CONCAT(EXTERN, x)
 
 
-#endif /* DAV1D_SRC_ARM_ASM_S */
+#endif /* DAV1S_SRC_ARM_ASM_S */

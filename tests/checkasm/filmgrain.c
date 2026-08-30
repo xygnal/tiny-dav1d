@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019, VideoLAN and dav1d authors
+ * Copyright © 2019, VideoLAN and dav1s authors
  * Copyright © 2019, Two Orioles, LLC
  * All rights reserved.
  *
@@ -41,9 +41,9 @@
 #endif
 
 static const char ss_name[][4] = {
-    [DAV1D_PIXEL_LAYOUT_I420 - 1] = "420",
-    [DAV1D_PIXEL_LAYOUT_I422 - 1] = "422",
-    [DAV1D_PIXEL_LAYOUT_I444 - 1] = "444",
+    [DAV1S_PIXEL_LAYOUT_I420 - 1] = "420",
+    [DAV1S_PIXEL_LAYOUT_I422 - 1] = "422",
+    [DAV1S_PIXEL_LAYOUT_I444 - 1] = "444",
 };
 
 static void check_gen_grny(const Dav1dFilmGrainDSPContext *const dsp) {
@@ -93,8 +93,8 @@ static void check_gen_grnuv(const Dav1dFilmGrainDSPContext *const dsp) {
 
     for (int layout_idx = 0; layout_idx < 3; layout_idx++) {
         const enum Dav1dPixelLayout layout = layout_idx + 1;
-        const int ss_x = layout != DAV1D_PIXEL_LAYOUT_I444;
-        const int ss_y = layout == DAV1D_PIXEL_LAYOUT_I420;
+        const int ss_x = layout != DAV1S_PIXEL_LAYOUT_I444;
+        const int ss_y = layout == DAV1S_PIXEL_LAYOUT_I420;
 
         for (int i = 0; i < 4; i++) {
             if (check_func(dsp->generate_grain_uv[layout_idx],
@@ -257,8 +257,8 @@ static void check_fguv_sbrow(const Dav1dFilmGrainDSPContext *const dsp) {
 
     for (int layout_idx = 0; layout_idx < 3; layout_idx++) {
         const enum Dav1dPixelLayout layout = layout_idx + 1;
-        const int ss_x = layout != DAV1D_PIXEL_LAYOUT_I444;
-        const int ss_y = layout == DAV1D_PIXEL_LAYOUT_I420;
+        const int ss_x = layout != DAV1S_PIXEL_LAYOUT_I444;
+        const int ss_y = layout == DAV1S_PIXEL_LAYOUT_I420;
         const ptrdiff_t stride = c_dst_stride;
 
         for (int csfl = 0; csfl <= 1; csfl++) {
@@ -392,7 +392,7 @@ static void check_fguv_sbrow(const Dav1dFilmGrainDSPContext *const dsp) {
 void bitfn(checkasm_check_filmgrain)(void) {
     Dav1dFilmGrainDSPContext c;
 
-    bitfn(dav1d_film_grain_dsp_init)(&c);
+    bitfn(dav1s_film_grain_dsp_init)(&c);
 
     check_gen_grny(&c);
     check_gen_grnuv(&c);

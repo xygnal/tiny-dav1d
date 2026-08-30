@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -29,7 +29,7 @@
 
 #include "src/dequant_tables.h"
 
-const uint16_t dav1d_dq_tbl[3][QINDEX_RANGE][2] = {
+const uint16_t dav1s_dq_tbl[3][QINDEX_RANGE][2] = {
     {
         {    4,    4, }, {    8,    8, }, {    8,    9, }, {    9,   10, },
         {   10,   11, }, {   11,   12, }, {   12,   13, }, {   12,   14, },

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021, VideoLAN and dav1d authors
+ * Copyright © 2021, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -250,7 +250,7 @@ static void check_save_tmvs(const Dav1dRefmvsDSPContext *const c) {
         for (int i = row_start8; i < row_end8; i++)
             for (int j = col_start8; j < col_end8;) {
                 int bs = rnd() % N_BS_SIZES;
-                while (j + ((dav1d_block_dimensions[bs][0] + 1) >> 1) > col_end8)
+                while (j + ((dav1s_block_dimensions[bs][0] + 1) >> 1) > col_end8)
                     bs++;
                 rr[i * 2][j * 2 + 1] = (refmvs_block) {
                     .mv.mv[0].x = gen_mv(14, 10),
@@ -260,7 +260,7 @@ static void check_save_tmvs(const Dav1dRefmvsDSPContext *const c) {
                     .ref.ref = { (rnd() % 9) - 1, (rnd() % 9) - 1 },
                     .bs = bs
                 };
-                for (int k = 0; k < (dav1d_block_dimensions[bs][0] + 1) >> 1; k++, j++) {
+                for (int k = 0; k < (dav1s_block_dimensions[bs][0] + 1) >> 1; k++, j++) {
                     c_rp[i * 128 + j].mv.n = 0xdeadbeef;
                     c_rp[i * 128 + j].ref = 0xdd;
                 }
@@ -286,7 +286,7 @@ static void check_save_tmvs(const Dav1dRefmvsDSPContext *const c) {
                 }
 
         for (int bs = BS_4x4; bs < N_BS_SIZES; bs++) {
-            const int bw8 = (dav1d_block_dimensions[bs][0] + 1) >> 1;
+            const int bw8 = (dav1s_block_dimensions[bs][0] + 1) >> 1;
             for (int i = 0; i < 16; i++)
                 for (int j = 0; j < 128; j += bw8) {
                     rr[i * 2][j * 2 + 1].ref.ref[0] = (rnd() % 9) - 1;
@@ -345,7 +345,7 @@ static void check_splat_mv(const Dav1dRefmvsDSPContext *const c) {
 
 void checkasm_check_refmvs(void) {
     Dav1dRefmvsDSPContext c;
-    dav1d_refmvs_dsp_init(&c);
+    dav1s_refmvs_dsp_init(&c);
 
     check_load_tmvs(&c);
     check_save_tmvs(&c);

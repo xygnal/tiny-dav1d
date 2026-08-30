@@ -1,12 +1,12 @@
-![dav1d logo](doc/dav1d_logo.png)
+![dav1s logo](doc/dav1s_logo.png)
 
-# dav1d
+# dav1s
 
-**dav1d** is an **AV1** cross-platform **d**ecoder, open-source, and focused on speed and correctness.
+**dav1s** is an **AV1** cross-platform **d**ecoder, open-source, and focused on speed and correctness.
 
 It is now battle-tested and production-ready and can be used everywhere.
 
-The canonical repository URL for this repo is https://code.videolan.org/videolan/dav1d
+The canonical repository URL for this repo is https://code.videolan.org/videolan/dav1s
 
 This project was partially funded by the *Alliance for Open Media*/**AOM**.
 
@@ -20,7 +20,7 @@ In the future, this project will host simple tools or simple wrappings *(like, f
 
 ## License
 
-**dav1d** is released under a very liberal license, a contrario from the other VideoLAN projects, so that it can be embedded anywhere, including non-open-source software; or even drivers, to allow the creation of hybrid decoders.
+**dav1s** is released under a very liberal license, a contrario from the other VideoLAN projects, so that it can be embedded anywhere, including non-open-source software; or even drivers, to allow the creation of hybrid decoders.
 
 The reasoning behind this decision is the same as for libvorbis, see [RMS on vorbis](https://lwn.net/2001/0301/a/rms-ov-license.php3).
 
@@ -43,7 +43,7 @@ The plan is the following:
 12. Improve threading.
 
 ### On-going
-13. Improve C code base with [various tweaks](https://code.videolan.org/videolan/dav1d/wikis/task-list),
+13. Improve C code base with [various tweaks](https://code.videolan.org/videolan/dav1s/wikis/task-list),
 14. Accelerate for less common architectures, like PPC, SSE2, RISC-V or AVX-512.
 
 ### After
@@ -62,7 +62,7 @@ Our contributions guidelines are quite strict. We want to build a coherent codeb
 
 Notably, the codebase is in pure C and asm.
 
-We are on IRC, on the **#dav1d** channel on [*Libera.chat*](http://libera.chat/). If you do not have an IRC Client at hand, use [IRC Web Interface](https://web.libera.chat/#dav1d).
+We are on IRC, on the **#dav1s** channel on [*Libera.chat*](http://libera.chat/). If you do not have an IRC Client at hand, use [IRC Web Interface](https://web.libera.chat/#dav1s).
 
 See the [contributions document](CONTRIBUTING.md).
 
@@ -116,20 +116,20 @@ meson setup .. --cross-file=../package/crossfiles/i686-linux32.meson
 2. Run `meson setup .. -Denable_docs=true` to configure meson to generate docs from the build directory.
 3. Run `ninja doc/html` to build the docs
 
-The result can be found in `build/doc/html/`. An online version built from master can be found [here](https://videolan.videolan.me/dav1d/).
+The result can be found in `build/doc/html/`. An online version built from master can be found [here](https://videolan.videolan.me/dav1s/).
 
 # Run tests
 
-1. In the root directory, run `git clone https://code.videolan.org/videolan/dav1d-test-data.git tests/dav1d-test-data` to fetch the test data repository
+1. In the root directory, run `git clone https://code.videolan.org/videolan/dav1s-test-data.git tests/dav1s-test-data` to fetch the test data repository
 2. During meson configuration, specify `-Dtestdata_tests=true`
 3. Run `meson test -v` after compiling
 
 ## Decoder conformance tests (optional but encouraged)
 
 1. Download the argon conformance bitstreams from https://streams.videolan.org/argon/
-2. Extract into dav1d directory by running `tar -xvf argon.tar.zst`
-3. Execute tests with `tests/dav1d_argon.bash -d build/tools/dav1d -a argon`
-4. Expected outcome is `2763 files successfully verified in XXmYYs (dav1d 1.x.y-zz-gHHHHHHH filmgrain=1 cpumask=-1)`
+2. Extract into dav1s directory by running `tar -xvf argon.tar.zst`
+3. Execute tests with `tests/dav1s_argon.bash -d build/tools/dav1s -a argon`
+4. Expected outcome is `2763 files successfully verified in XXmYYs (dav1s 1.x.y-zz-gHHHHHHH filmgrain=1 cpumask=-1)`
 
 # Support
 
@@ -145,7 +145,7 @@ These companies can provide support and integration help, should you need it.
 - We believe that libaom is a very good library. It was however developed for research purposes during AV1 design.
 We think that an implementation written from scratch can achieve faster decoding, in the same way that *ffvp9* was faster than *libvpx*.
 
-## Is dav1d a recursive acronym?
+## Is dav1s a recursive acronym?
 
 - Yes.
 

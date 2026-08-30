@@ -1,5 +1,5 @@
 /*
- * Copyright © 2022, VideoLAN and dav1d authors
+ * Copyright © 2022, VideoLAN and dav1s authors
  * Copyright © 2022, Nathan Egge
  * All rights reserved.
  *
@@ -25,17 +25,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_RISCV_CPU_H
-#define DAV1D_SRC_RISCV_CPU_H
+#ifndef DAV1S_SRC_RISCV_CPU_H
+#define DAV1S_SRC_RISCV_CPU_H
 
 enum CpuFlags {
-    DAV1D_RISCV_CPU_FLAG_V = 1 << 0,
+    DAV1S_RISCV_CPU_FLAG_V = 1 << 0,
 };
 
-unsigned dav1d_get_cpu_flags_riscv(void);
+unsigned dav1s_get_cpu_flags_riscv(void);
 
-int dav1d_get_vlenb(void);
+int dav1s_get_vlenb(void);
 
-#define dav1d_get_vlen() (dav1d_get_vlenb()*8)
+#define dav1s_get_vlen() (dav1s_get_vlenb()*8)
 
-#endif /* DAV1D_SRC_RISCV_CPU_H */
+#endif /* DAV1S_SRC_RISCV_CPU_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018-2021, Two Orioles, LLC
  * All rights reserved.
  *
@@ -47,12 +47,12 @@ static int xxh3_open(xxh3Context *const xxh3, const char *const file,
                     const unsigned fps[2])
 {
     xxh3->state = XXH3_createState();
-    if (!xxh3->state) return DAV1D_ERR(ENOMEM);
+    if (!xxh3->state) return DAV1S_ERR(ENOMEM);
     XXH_errorcode err = XXH3_128bits_reset(xxh3->state);
     if (err != XXH_OK) {
         XXH3_freeState(xxh3->state);
         xxh3->state = NULL;
-        return DAV1D_ERR(ENOMEM);
+        return DAV1S_ERR(ENOMEM);
     }
 
     if (!strcmp(file, "-")) {
@@ -77,9 +77,9 @@ static int xxh3_write(xxh3Context *const xxh3, Dav1dPicture *const p) {
         yptr += p->stride[0];
     }
 
-    if (p->p.layout != DAV1D_PIXEL_LAYOUT_I400) {
-        const int ss_ver = p->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = p->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    if (p->p.layout != DAV1S_PIXEL_LAYOUT_I400) {
+        const int ss_ver = p->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = p->p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int cw = (w + ss_hor) >> ss_hor;
         const int ch = (h + ss_ver) >> ss_ver;
         for (int pl = 1; pl <= 2; pl++) {
@@ -92,7 +92,7 @@ static int xxh3_write(xxh3Context *const xxh3, Dav1dPicture *const p) {
         }
     }
 
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
 
     return 0;
 }

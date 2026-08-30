@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_COMMON_DUMP_H
-#define DAV1D_COMMON_DUMP_H
+#ifndef DAV1S_COMMON_DUMP_H
+#define DAV1S_COMMON_DUMP_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -89,4 +89,4 @@ static inline void ac_dump(const int16_t *buf, int w, int h, const char *what)
     }
 }
 
-#endif /* DAV1D_COMMON_DUMP_H */
+#endif /* DAV1S_COMMON_DUMP_H */

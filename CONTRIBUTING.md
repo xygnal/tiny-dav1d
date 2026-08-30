@@ -1,11 +1,11 @@
-# dav1d contribution guide
+# dav1s contribution guide
 
 ## CoC
 The [VideoLAN Code of Conduct](https://wiki.videolan.org/CoC) applies fully to this project.
 
 ## ToDo
 
-The todo list can be found [on the wiki](https://code.videolan.org/videolan/dav1d/wikis/task-list).
+The todo list can be found [on the wiki](https://code.videolan.org/videolan/dav1s/wikis/task-list).
 
 ## Codebase language
 
@@ -44,7 +44,7 @@ Please read [How to Write a Git Commit Message](https://chris.beams.io/posts/git
 
 - Code,
 - [Compile](https://xkcd.com/303/),
-- Check your [code style](https://code.videolan.org/videolan/dav1d/wikis/Coding-style),
+- Check your [code style](https://code.videolan.org/videolan/dav1s/wikis/Coding-style),
 - Test,
 - Try,
 - Submit patches through merge requests,

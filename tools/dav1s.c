@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -51,13 +51,13 @@
 #include <mach/mach_time.h>
 #endif
 
-#include "dav1d/dav1d.h"
+#include "dav1s/dav1s.h"
 
 #include "input/input.h"
 
 #include "output/output.h"
 
-#include "dav1d_cli_parse.h"
+#include "dav1s_cli_parse.h"
 
 static uint64_t get_time_nanos(void) {
 #ifdef _WIN32
@@ -145,9 +145,9 @@ static int picture_alloc(Dav1dPicture *const p, void *const _) {
     const int hbd = p->p.bpc > 8;
     const int aligned_w = (p->p.w + 127) & ~127;
     const int aligned_h = (p->p.h + 127) & ~127;
-    const int has_chroma = p->p.layout != DAV1D_PIXEL_LAYOUT_I400;
-    const int ss_ver = p->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-    const int ss_hor = p->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+    const int has_chroma = p->p.layout != DAV1S_PIXEL_LAYOUT_I400;
+    const int ss_ver = p->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+    const int ss_hor = p->p.layout != DAV1S_PIXEL_LAYOUT_I444;
     ptrdiff_t y_stride = aligned_w << hbd;
     ptrdiff_t uv_stride = has_chroma ? y_stride >> ss_hor : 0;
     /* Due to how mapping of addresses to sets works in most L1 and L2 cache
@@ -156,20 +156,20 @@ static int picture_alloc(Dav1dPicture *const p, void *const _) {
      * causing evictions of previous rows resulting in a reduction in cache
      * hit rate. Avoid that by slightly padding the stride when necessary. */
     if (!(y_stride & 1023))
-        y_stride += DAV1D_PICTURE_ALIGNMENT;
+        y_stride += DAV1S_PICTURE_ALIGNMENT;
     if (!(uv_stride & 1023) && has_chroma)
-        uv_stride += DAV1D_PICTURE_ALIGNMENT;
+        uv_stride += DAV1S_PICTURE_ALIGNMENT;
     p->stride[0] = -y_stride;
     p->stride[1] = -uv_stride;
     const size_t y_sz = y_stride * aligned_h;
     const size_t uv_sz = uv_stride * (aligned_h >> ss_ver);
     const size_t pic_size = y_sz + 2 * uv_sz;
 
-    uint8_t *const buf = malloc(pic_size + DAV1D_PICTURE_ALIGNMENT * 2);
-    if (!buf) return DAV1D_ERR(ENOMEM);
+    uint8_t *const buf = malloc(pic_size + DAV1S_PICTURE_ALIGNMENT * 2);
+    if (!buf) return DAV1S_ERR(ENOMEM);
     p->allocator_data = buf;
 
-    const ptrdiff_t align_m1 = DAV1D_PICTURE_ALIGNMENT - 1;
+    const ptrdiff_t align_m1 = DAV1S_PICTURE_ALIGNMENT - 1;
     uint8_t *const data = (uint8_t *)(((ptrdiff_t)buf + align_m1) & ~align_m1);
     p->data[0] = data + y_sz - y_stride;
     p->data[1] = has_chroma ? data + y_sz + uv_sz * 1 - uv_stride : NULL;
@@ -201,18 +201,18 @@ int main(const int argc, char *const *const argv) {
     uint64_t nspf, tfirst, elapsed = 0;
     double i_fps;
     FILE *frametimes = NULL;
-    const unsigned version = dav1d_version_api();
-    const int major = DAV1D_API_MAJOR(version);
-    const int minor = DAV1D_API_MINOR(version);
-    const int patch = DAV1D_API_PATCH(version);
+    const unsigned version = dav1s_version_api();
+    const int major = DAV1S_API_MAJOR(version);
+    const int minor = DAV1S_API_MINOR(version);
+    const int patch = DAV1S_API_PATCH(version);
 
-    if (DAV1D_API_VERSION_MAJOR != major ||
-        DAV1D_API_VERSION_MINOR  > minor) {
+    if (DAV1S_API_VERSION_MAJOR != major ||
+        DAV1S_API_VERSION_MINOR  > minor) {
         fprintf(stderr, "Version mismatch (library: %d.%d.%d, executable: %d.%d.%d)\n",
                 major, minor, patch,
-                DAV1D_API_VERSION_MAJOR,
-                DAV1D_API_VERSION_MINOR,
-                DAV1D_API_VERSION_PATCH);
+                DAV1S_API_VERSION_MAJOR,
+                DAV1S_API_VERSION_MINOR,
+                DAV1S_API_VERSION_PATCH);
         return EXIT_FAILURE;
     }
 
@@ -233,17 +233,17 @@ int main(const int argc, char *const *const argv) {
             input_close(in);
             return EXIT_FAILURE;
         }
-        if (i < cli_settings.skip) dav1d_data_unref(&data);
+        if (i < cli_settings.skip) dav1s_data_unref(&data);
     }
 
     if (!cli_settings.quiet)
-        fprintf(stderr, "dav1d %s - by VideoLAN\n", dav1d_version());
+        fprintf(stderr, "dav1s %s - by VideoLAN\n", dav1s_version());
 
     // skip frames until a sequence header is found
     if (cli_settings.skip) {
         Dav1dSequenceHeader seq;
         unsigned seq_skip = 0;
-        while (dav1d_parse_sequence_header(&seq, data.data, data.sz)) {
+        while (dav1s_parse_sequence_header(&seq, data.data, data.sz)) {
             if ((res = input_read(in, &data)) < 0) {
                 input_close(in);
                 return EXIT_FAILURE;
@@ -259,7 +259,7 @@ int main(const int argc, char *const *const argv) {
     if (cli_settings.limit != 0 && cli_settings.limit < total)
         total = cli_settings.limit;
 
-    if ((res = dav1d_open(&c, &lib_settings)))
+    if ((res = dav1s_open(&c, &lib_settings)))
         return EXIT_FAILURE;
 
     if (cli_settings.frametimes)
@@ -295,20 +295,20 @@ int main(const int argc, char *const *const argv) {
         if ((res = signal_terminate)) break;
 
         memset(&p, 0, sizeof(p));
-        if ((res = dav1d_send_data(c, &data)) < 0) {
-            if (res != DAV1D_ERR(EAGAIN)) {
-                dav1d_data_unref(&data);
+        if ((res = dav1s_send_data(c, &data)) < 0) {
+            if (res != DAV1S_ERR(EAGAIN)) {
+                dav1s_data_unref(&data);
                 fprintf(stderr, "Error decoding frame: %s\n",
-                        strerror(DAV1D_ERR(res)));
-                if (res != DAV1D_ERR(EINVAL)) break;
+                        strerror(DAV1S_ERR(res)));
+                if (res != DAV1S_ERR(EINVAL)) break;
             }
         }
 
-        if ((res = dav1d_get_picture(c, &p)) < 0) {
-            if (res != DAV1D_ERR(EAGAIN)) {
+        if ((res = dav1s_get_picture(c, &p)) < 0) {
+            if (res != DAV1S_ERR(EAGAIN)) {
                 fprintf(stderr, "Error decoding frame: %s\n",
-                        strerror(DAV1D_ERR(res)));
-                if (res != DAV1D_ERR(EINVAL)) break;
+                        strerror(DAV1S_ERR(res)));
+                if (res != DAV1S_ERR(EINVAL)) break;
             }
             res = 0;
         } else {
@@ -336,17 +336,17 @@ int main(const int argc, char *const *const argv) {
             break;
     } while (data.sz > 0 || !input_read(in, &data));
 
-    if (data.sz > 0) dav1d_data_unref(&data);
+    if (data.sz > 0) dav1s_data_unref(&data);
 
     // flush
     if (res == 0) while (!cli_settings.limit || n_out < cli_settings.limit) {
         if ((res = signal_terminate)) break;
 
-        if ((res = dav1d_get_picture(c, &p)) < 0) {
-            if (res != DAV1D_ERR(EAGAIN)) {
+        if ((res = dav1s_get_picture(c, &p)) < 0) {
+            if (res != DAV1S_ERR(EAGAIN)) {
                 fprintf(stderr, "Error decoding frame: %s\n",
-                        strerror(DAV1D_ERR(res)));
-                if (res != DAV1D_ERR(EINVAL)) break;
+                        strerror(DAV1S_ERR(res)));
+                if (res != DAV1S_ERR(EINVAL)) break;
             } else {
                 res = 0;
                 break;
@@ -387,7 +387,7 @@ int main(const int argc, char *const *const argv) {
         fprintf(stderr, "No data decoded\n");
         res = 1;
     }
-    dav1d_close(&c);
+    dav1s_close(&c);
 
     return (res == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

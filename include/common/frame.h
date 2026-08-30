@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021, VideoLAN and dav1d authors
+ * Copyright © 2021, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_COMMON_FRAME_H
-#define DAV1D_COMMON_FRAME_H
+#ifndef DAV1S_COMMON_FRAME_H
+#define DAV1S_COMMON_FRAME_H
 
 /*
  * Checks whether Dav1dFrameType == INTER || == SWITCH
@@ -42,4 +42,4 @@
 #define IS_KEY_OR_INTRA(frame_header) \
     (!IS_INTER_OR_SWITCH(frame_header))
 
-#endif /* DAV1D_COMMON_FRAME_H */
+#endif /* DAV1S_COMMON_FRAME_H */

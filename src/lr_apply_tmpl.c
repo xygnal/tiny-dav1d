@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -40,7 +40,7 @@ static void lr_stripe(const Dav1dFrameContext *const f, pixel *p,
 {
     const Dav1dDSPContext *const dsp = f->dsp;
     const int chroma = !!plane;
-    const int ss_ver = chroma & (f->sr_cur.p.p.layout == DAV1D_PIXEL_LAYOUT_I420);
+    const int ss_ver = chroma & (f->sr_cur.p.p.layout == DAV1S_PIXEL_LAYOUT_I420);
     const ptrdiff_t stride = f->sr_cur.p.stride[chroma];
     const int sby = (y + (y ? 8 << ss_ver : 0)) >> (6 - ss_ver + f->seq_hdr->sb128);
     const int have_tt = f->c->n_tc > 1;
@@ -52,7 +52,7 @@ static void lr_stripe(const Dav1dFrameContext *const f, pixel *p,
 
     looprestorationfilter_fn lr_fn;
     LooprestorationParams params;
-    if (lr->type == DAV1D_RESTORATION_WIENER) {
+    if (lr->type == DAV1S_RESTORATION_WIENER) {
         int16_t (*const filter)[8] = params.filter;
         filter[0][0] = filter[0][6] = lr->filter_h[0];
         filter[0][1] = filter[0][5] = lr->filter_h[1];
@@ -71,9 +71,9 @@ static void lr_stripe(const Dav1dFrameContext *const f, pixel *p,
 
         lr_fn = dsp->lr.wiener[!(filter[0][0] | filter[1][0])];
     } else {
-        assert(lr->type >= DAV1D_RESTORATION_SGRPROJ);
-        const int sgr_idx = lr->type - DAV1D_RESTORATION_SGRPROJ;
-        const uint16_t *const sgr_params = dav1d_sgr_params[sgr_idx];
+        assert(lr->type >= DAV1S_RESTORATION_SGRPROJ);
+        const int sgr_idx = lr->type - DAV1S_RESTORATION_SGRPROJ;
+        const uint16_t *const sgr_params = dav1s_sgr_params[sgr_idx];
         params.sgr.s0 = sgr_params[0];
         params.sgr.s1 = sgr_params[1];
         params.sgr.w0 = lr->sgr_weights[0];
@@ -108,8 +108,8 @@ static void lr_sbrow(const Dav1dFrameContext *const f, pixel *p, const int y,
                      const int w, const int h, const int row_h, const int plane)
 {
     const int chroma = !!plane;
-    const int ss_ver = chroma & (f->sr_cur.p.p.layout == DAV1D_PIXEL_LAYOUT_I420);
-    const int ss_hor = chroma & (f->sr_cur.p.p.layout != DAV1D_PIXEL_LAYOUT_I444);
+    const int ss_ver = chroma & (f->sr_cur.p.p.layout == DAV1S_PIXEL_LAYOUT_I420);
+    const int ss_hor = chroma & (f->sr_cur.p.p.layout != DAV1S_PIXEL_LAYOUT_I444);
     const ptrdiff_t p_stride = f->sr_cur.p.stride[chroma];
 
     const int unit_size_log2 = f->frame_hdr->restoration.unit_size[!!plane];
@@ -142,7 +142,7 @@ static void lr_sbrow(const Dav1dFrameContext *const f, pixel *p, const int y,
     const int sb_idx = (aligned_unit_pos >> 7) * f->sr_sb128w;
     const int unit_idx = ((aligned_unit_pos >> 6) & 1) << 1;
     lr[0] = &f->lf.lr_mask[sb_idx].lr[plane][unit_idx];
-    int restore = lr[0]->type != DAV1D_RESTORATION_NONE;
+    int restore = lr[0]->type != DAV1S_RESTORATION_NONE;
     int x = 0, bit = 0;
     const int backup_h = row_h - y;
     for (; x + max_unit_size <= w; p += unit_size, edges |= LR_HAVE_LEFT, bit ^= 1) {
@@ -150,7 +150,7 @@ static void lr_sbrow(const Dav1dFrameContext *const f, pixel *p, const int y,
         const int next_u_idx = unit_idx + ((next_x >> (shift_hor - 1)) & 1);
         lr[!bit] =
             &f->lf.lr_mask[sb_idx + (next_x >> shift_hor)].lr[plane][next_u_idx];
-        const int restore_next = lr[!bit]->type != DAV1D_RESTORATION_NONE;
+        const int restore_next = lr[!bit]->type != DAV1S_RESTORATION_NONE;
         if (restore_next)
             backup4xU(pre_lr_border[bit], p + unit_size - 4, p_stride, backup_h);
         if (restore)
@@ -166,7 +166,7 @@ static void lr_sbrow(const Dav1dFrameContext *const f, pixel *p, const int y,
     }
 }
 
-void bytefn(dav1d_lr_sbrow)(Dav1dFrameContext *const f, pixel *const dst[3],
+void bytefn(dav1s_lr_sbrow)(Dav1dFrameContext *const f, pixel *const dst[3],
                             const int sby)
 {
     const int offset_y = 8 * !!sby;
@@ -185,8 +185,8 @@ void bytefn(dav1d_lr_sbrow)(Dav1dFrameContext *const f, pixel *const dst[3],
                  h, row_h, 0);
     }
     if (restore_planes & (LR_RESTORE_U | LR_RESTORE_V)) {
-        const int ss_ver = f->sr_cur.p.p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = f->sr_cur.p.p.layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_ver = f->sr_cur.p.p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = f->sr_cur.p.p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int h = (f->sr_cur.p.p.h + ss_ver) >> ss_ver;
         const int w = (f->sr_cur.p.p.w + ss_hor) >> ss_hor;
         const int next_row_y = (sby + 1) << ((6 - ss_ver) + sb128);

@@ -1,4 +1,4 @@
-name: dav1d
+name: dav1s
 base: core18
 version: git
 version-script: git describe HEAD --always
@@ -10,12 +10,12 @@ grade: stable
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 apps:
-  dav1d:
-    command: usr/bin/dav1d
+  dav1s:
+    command: usr/bin/dav1s
     plugs: [ 'home' ]
 
 parts:
-  dav1d:
+  dav1s:
     plugin: meson
     source: ../../
     build-packages: [ 'nasm' ]

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_COMMON_INTOPS_H
-#define DAV1D_COMMON_INTOPS_H
+#ifndef DAV1S_COMMON_INTOPS_H
+#define DAV1S_COMMON_INTOPS_H
 
 #include <stdint.h>
 
@@ -81,4 +81,4 @@ static inline unsigned inv_recenter(const unsigned r, const unsigned v) {
         return r - ((v + 1) >> 1);
 }
 
-#endif /* DAV1D_COMMON_INTOPS_H */
+#endif /* DAV1S_COMMON_INTOPS_H */

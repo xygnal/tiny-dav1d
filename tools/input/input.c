@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -71,7 +71,7 @@ int input_open(DemuxerContext **const c_out,
         }
         if (!demuxers[i]) {
             fprintf(stderr, "Failed to find demuxer named \"%s\"\n", name);
-            return DAV1D_ERR(ENOPROTOOPT);
+            return DAV1S_ERR(ENOPROTOOPT);
         }
     } else {
         int probe_sz = 0;
@@ -80,20 +80,20 @@ int input_open(DemuxerContext **const c_out,
         uint8_t *const probe_data = malloc(probe_sz);
         if (!probe_data) {
             fprintf(stderr, "Failed to allocate memory\n");
-            return DAV1D_ERR(ENOMEM);
+            return DAV1S_ERR(ENOMEM);
         }
         FILE *f = fopen(filename, "rb");
         if (!f) {
             free(probe_data);
             fprintf(stderr, "Failed to open input file %s: %s\n", filename, strerror(errno));
-            return errno ? DAV1D_ERR(errno) : DAV1D_ERR(EIO);
+            return errno ? DAV1S_ERR(errno) : DAV1S_ERR(EIO);
         }
         res = !!fread(probe_data, 1, probe_sz, f);
         fclose(f);
         if (!res) {
             free(probe_data);
             fprintf(stderr, "Failed to read probe data\n");
-            return errno ? DAV1D_ERR(errno) : DAV1D_ERR(EIO);
+            return errno ? DAV1S_ERR(errno) : DAV1S_ERR(EIO);
         }
 
         for (i = 0; demuxers[i]; i++) {
@@ -107,13 +107,13 @@ int input_open(DemuxerContext **const c_out,
             fprintf(stderr,
                     "Failed to probe demuxer for file %s\n",
                     filename);
-            return DAV1D_ERR(ENOPROTOOPT);
+            return DAV1S_ERR(ENOPROTOOPT);
         }
     }
 
     if (!(c = calloc(1, offsetof(DemuxerContext, priv_data) + impl->priv_data_size))) {
         fprintf(stderr, "Failed to allocate memory\n");
-        return DAV1D_ERR(ENOMEM);
+        return DAV1S_ERR(ENOMEM);
     }
     c->impl = impl;
     c->data = (DemuxerPriv *) c->priv_data;

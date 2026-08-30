@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -73,7 +73,7 @@ static const struct {
 };
 
 enum IntraPredMode
-bytefn(dav1d_prepare_intra_edges)(const int x, const int have_left,
+bytefn(dav1s_prepare_intra_edges)(const int x, const int have_left,
                                   const int y, const int have_top,
                                   const int w, const int h,
                                   const enum EdgeFlags edge_flags,

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DAV1D="tools/dav1d"
+DAV1S="tools/dav1s"
 ARGON_DIR='.'
 FILMGRAIN=1
 CPUMASK=-1
@@ -13,19 +13,19 @@ FAIL_FAST=0
 usage() {
     NAME=$(basename "$0")
     {
-        printf "Usage:   %s [-d dav1d] [-a argondir] [-g \$filmgrain] [-c \$cpumask] [-t threads] [-j jobs] [DIRECTORY]...\n" "$NAME"
-        printf "Example: %s -d /path/to/dav1d -a /path/to/argon/ -g 0 -c avx2 profile0_core\n" "$NAME"
-        printf "Used to verify that dav1d can decode the Argon AV1 test vectors correctly.\n\n"
+        printf "Usage:   %s [-d dav1s] [-a argondir] [-g \$filmgrain] [-c \$cpumask] [-t threads] [-j jobs] [DIRECTORY]...\n" "$NAME"
+        printf "Example: %s -d /path/to/dav1s -a /path/to/argon/ -g 0 -c avx2 profile0_core\n" "$NAME"
+        printf "Used to verify that dav1s can decode the Argon AV1 test vectors correctly.\n\n"
         printf " DIRECTORY one or more dirs in the argon folder to check against\n"
         printf "             (default: everything except large scale tiles and stress files)\n"
         printf " -f        fail fast\n"
-        printf " -d dav1d  path to dav1d executable (default: tools/dav1d)\n"
+        printf " -d dav1s  path to dav1s executable (default: tools/dav1s)\n"
         printf " -a dir    path to argon dir (default: 'tests/argon' if found; '.' otherwise)\n"
         printf " -g \$num   enable filmgrain (default: 1)\n"
         printf " -c \$mask  use restricted cpumask (default: -1)\n"
-        printf " -t \$num   number of threads per dav1d (default: 1)\n"
-        printf " -j \$num   number of parallel dav1d processes (default: 0)\n"
-        printf " -w tool   execute dav1d with a wrapper tool\n\n"
+        printf " -t \$num   number of threads per dav1s (default: 1)\n"
+        printf " -j \$num   number of parallel dav1s processes (default: 0)\n"
+        printf " -w tool   execute dav1s with a wrapper tool\n\n"
     } >&2
     exit 1
 }
@@ -91,7 +91,7 @@ while getopts ":d:a:g:c:t:j:w:f" opt; do
             FAIL_FAST=1
             ;;
         d)
-            DAV1D="$OPTARG"
+            DAV1S="$OPTARG"
             ;;
         a)
             ARGON_DIR="$OPTARG"
@@ -143,7 +143,7 @@ else
     mapfile -t dirs < <(printf "${ARGON_DIR}/%s\n" "$@" | sort -u)
 fi
 
-ver_info="dav1d $("$DAV1D" --filmgrain "$FILMGRAIN" --cpumask "$CPUMASK" --threads "$THREADS" -v 2>&1) filmgrain=$FILMGRAIN cpumask=$CPUMASK" || error "Error! Can't run $DAV1D"
+ver_info="dav1s $("$DAV1S" --filmgrain "$FILMGRAIN" --cpumask "$CPUMASK" --threads "$THREADS" -v 2>&1) filmgrain=$FILMGRAIN cpumask=$CPUMASK" || error "Error! Can't run $DAV1S"
 files=()
 
 for d in "${dirs[@]}"; do
@@ -170,7 +170,7 @@ for i in "${!files[@]}"; do
     md5=${md5/ */}
 
     printf '\033[1K\r[%3d%% %*d/%d] Verifying %s' "$(((i+1)*100/num_files))" "${#num_files}" "$((i+1))" "$num_files" "${f#"$ARGON_DIR"/}"
-    cmd=($WRAP "$DAV1D" -i "$f" --filmgrain "$FILMGRAIN" --verify "$md5" --cpumask "$CPUMASK" --threads "$THREADS" -q)
+    cmd=($WRAP "$DAV1S" -i "$f" --filmgrain "$FILMGRAIN" --verify "$md5" --cpumask "$CPUMASK" --threads "$THREADS" -q)
     if [ "$JOBS" -gt 1 ]; then
         "${cmd[@]}" 2>/dev/null &
         p=$!

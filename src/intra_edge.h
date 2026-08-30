@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2023, VideoLAN and dav1d authors
+ * Copyright © 2018-2023, VideoLAN and dav1s authors
  * Copyright © 2018-2023, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_INTRA_EDGE_H
-#define DAV1D_SRC_INTRA_EDGE_H
+#ifndef DAV1S_SRC_INTRA_EDGE_H
+#define DAV1S_SRC_INTRA_EDGE_H
 
 #include <stdint.h>
 
@@ -66,8 +66,8 @@ typedef struct EdgeBranch {
 } EdgeBranch;
 
 /* Tree to keep track of which edges are available. */
-EXTERN const EdgeNode *dav1d_intra_edge_tree[2 /* BL_128X128, BL_64X64 */];
+EXTERN const EdgeNode *dav1s_intra_edge_tree[2 /* BL_128X128, BL_64X64 */];
 
-void dav1d_init_intra_edge_tree(void);
+void dav1s_init_intra_edge_tree(void);
 
-#endif /* DAV1D_SRC_INTRA_EDGE_H */
+#endif /* DAV1S_SRC_INTRA_EDGE_H */

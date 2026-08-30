@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -60,21 +60,21 @@ static int y4m2_open(Y4m2OutputContext *const c, const char *const file,
 
 static int write_header(Y4m2OutputContext *const c, const Dav1dPicture *const p) {
     static const char *const ss_names[][3] = {
-        [DAV1D_PIXEL_LAYOUT_I400] = { "mono", "mono10", "mono12" },
-        [DAV1D_PIXEL_LAYOUT_I420] = { NULL,   "420p10", "420p12" },
-        [DAV1D_PIXEL_LAYOUT_I422] = { "422",  "422p10", "422p12" },
-        [DAV1D_PIXEL_LAYOUT_I444] = { "444",  "444p10", "444p12" }
+        [DAV1S_PIXEL_LAYOUT_I400] = { "mono", "mono10", "mono12" },
+        [DAV1S_PIXEL_LAYOUT_I420] = { NULL,   "420p10", "420p12" },
+        [DAV1S_PIXEL_LAYOUT_I422] = { "422",  "422p10", "422p12" },
+        [DAV1S_PIXEL_LAYOUT_I444] = { "444",  "444p10", "444p12" }
     };
 
     static const char *const chr_names_8bpc_i420[] = {
-        [DAV1D_CHR_UNKNOWN] = "420jpeg",
-        [DAV1D_CHR_VERTICAL] = "420mpeg2",
-        [DAV1D_CHR_COLOCATED] = "420"
+        [DAV1S_CHR_UNKNOWN] = "420jpeg",
+        [DAV1S_CHR_VERTICAL] = "420mpeg2",
+        [DAV1S_CHR_COLOCATED] = "420"
     };
 
     const char *const ss_name =
-        p->p.layout == DAV1D_PIXEL_LAYOUT_I420 && p->p.bpc == 8 ?
-        chr_names_8bpc_i420[p->seq_hdr->chr > 2 ? DAV1D_CHR_UNKNOWN : p->seq_hdr->chr] :
+        p->p.layout == DAV1S_PIXEL_LAYOUT_I420 && p->p.bpc == 8 ?
+        chr_names_8bpc_i420[p->seq_hdr->chr > 2 ? DAV1S_CHR_UNKNOWN : p->seq_hdr->chr] :
         ss_names[p->p.layout][p->seq_hdr->hbd];
 
     const unsigned fw = p->p.w;
@@ -110,10 +110,10 @@ static int y4m2_write(Y4m2OutputContext *const c, Dav1dPicture *const p) {
         ptr += p->stride[0];
     }
 
-    if (p->p.layout != DAV1D_PIXEL_LAYOUT_I400) {
+    if (p->p.layout != DAV1S_PIXEL_LAYOUT_I400) {
         // u/v
-        const int ss_ver = p->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = p->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_ver = p->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = p->p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int cw = (p->p.w + ss_hor) >> ss_hor;
         const int ch = (p->p.h + ss_ver) >> ss_ver;
         for (int pl = 1; pl <= 2; pl++) {
@@ -126,11 +126,11 @@ static int y4m2_write(Y4m2OutputContext *const c, Dav1dPicture *const p) {
         }
     }
 
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
     return 0;
 
 error:
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
     fprintf(stderr, "Failed to write frame data: %s\n", strerror(errno));
     return -1;
 }

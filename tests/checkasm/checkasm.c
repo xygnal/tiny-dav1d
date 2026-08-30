@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -63,34 +63,34 @@ static const CheckasmTest tests[] = {
 /* List of cpu flags to check */
 static const CheckasmCpuInfo flags[] = {
 #if ARCH_X86
-    { "SSE2",               "sse2",      DAV1D_X86_CPU_FLAG_SSE2 },
-    { "SSSE3",              "ssse3",     DAV1D_X86_CPU_FLAG_SSSE3 },
-    { "SSE4.1",             "sse4",      DAV1D_X86_CPU_FLAG_SSE41 },
-    { "AVX2",               "avx2",      DAV1D_X86_CPU_FLAG_AVX2 },
-    { "AVX-512 (Ice Lake)", "avx512icl", DAV1D_X86_CPU_FLAG_AVX512ICL },
+    { "SSE2",               "sse2",      DAV1S_X86_CPU_FLAG_SSE2 },
+    { "SSSE3",              "ssse3",     DAV1S_X86_CPU_FLAG_SSSE3 },
+    { "SSE4.1",             "sse4",      DAV1S_X86_CPU_FLAG_SSE41 },
+    { "AVX2",               "avx2",      DAV1S_X86_CPU_FLAG_AVX2 },
+    { "AVX-512 (Ice Lake)", "avx512icl", DAV1S_X86_CPU_FLAG_AVX512ICL },
 #elif ARCH_AARCH64 || ARCH_ARM
-    { "NEON",               "neon",      DAV1D_ARM_CPU_FLAG_NEON },
-    { "DOTPROD",            "dotprod",   DAV1D_ARM_CPU_FLAG_DOTPROD },
-    { "I8MM",               "i8mm",      DAV1D_ARM_CPU_FLAG_I8MM },
+    { "NEON",               "neon",      DAV1S_ARM_CPU_FLAG_NEON },
+    { "DOTPROD",            "dotprod",   DAV1S_ARM_CPU_FLAG_DOTPROD },
+    { "I8MM",               "i8mm",      DAV1S_ARM_CPU_FLAG_I8MM },
 #if ARCH_AARCH64
-    { "SVE",                "sve",       DAV1D_ARM_CPU_FLAG_SVE },
-    { "SVE2",               "sve2",      DAV1D_ARM_CPU_FLAG_SVE2 },
+    { "SVE",                "sve",       DAV1S_ARM_CPU_FLAG_SVE },
+    { "SVE2",               "sve2",      DAV1S_ARM_CPU_FLAG_SVE2 },
 #endif /* ARCH_AARCH64 */
 #elif ARCH_LOONGARCH
-    { "LSX",                "lsx",       DAV1D_LOONGARCH_CPU_FLAG_LSX },
-    { "LASX",               "lasx",      DAV1D_LOONGARCH_CPU_FLAG_LASX },
+    { "LSX",                "lsx",       DAV1S_LOONGARCH_CPU_FLAG_LSX },
+    { "LASX",               "lasx",      DAV1S_LOONGARCH_CPU_FLAG_LASX },
 #elif ARCH_PPC64LE
-    { "VSX",                "vsx",       DAV1D_PPC_CPU_FLAG_VSX },
-    { "PWR9",               "pwr9",      DAV1D_PPC_CPU_FLAG_PWR9 },
+    { "VSX",                "vsx",       DAV1S_PPC_CPU_FLAG_VSX },
+    { "PWR9",               "pwr9",      DAV1S_PPC_CPU_FLAG_PWR9 },
 #elif ARCH_RISCV
-    { "RVV",                "rvv",       DAV1D_RISCV_CPU_FLAG_V },
+    { "RVV",                "rvv",       DAV1S_RISCV_CPU_FLAG_V },
 #endif
     { 0 }
 };
 
 static void set_cpu_flags(CheckasmCpu flags)
 {
-    dav1d_set_cpu_flags_mask((unsigned) flags);
+    dav1s_set_cpu_flags_mask((unsigned) flags);
 }
 
 int main(int argc, const char *argv[])
@@ -106,8 +106,8 @@ int main(int argc, const char *argv[])
         .set_cpu_flags  = set_cpu_flags,
     };
 
-    dav1d_init_cpu();
-    cfg.cpu = dav1d_get_cpu_flags();
+    dav1s_init_cpu();
+    cfg.cpu = dav1s_get_cpu_flags();
 
     return checkasm_main(&cfg, argc, argv);
 }

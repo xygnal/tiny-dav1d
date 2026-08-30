@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019, VideoLAN and dav1d authors
+ * Copyright © 2019, VideoLAN and dav1s authors
  * Copyright © 2019, Two Orioles, LLC
  * All rights reserved.
  *
@@ -116,7 +116,7 @@ static void msac_dump(unsigned c_res, unsigned a_res,
     {                                                                      \
         for (int cdf_update = 0; cdf_update <= 1; cdf_update++) {          \
             for (int ns = n_min; ns <= n_max; ns++) {                      \
-                dav1d_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);         \
+                dav1s_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);         \
                 s_a = s_c;                                                 \
                 randomize_cdf(cdf[0], ns);                                 \
                 memcpy(cdf[1], cdf[0], sizeof(*cdf));                      \
@@ -157,7 +157,7 @@ static void check_decode_bool_adapt(MsacDSPContext *const c, uint8_t *const buf)
     if (check_func(c->decode_bool_adapt, "msac_decode_bool_adapt")) {
         uint16_t cdf[2][2];
         for (int cdf_update = 0; cdf_update <= 1; cdf_update++) {
-            dav1d_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);
+            dav1s_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);
             s_a = s_c;
             cdf[0][0] = cdf[1][0] = rnd() % 32767 + 1;
             cdf[0][1] = cdf[1][1] = 0;
@@ -182,7 +182,7 @@ static void check_decode_bool_equi(MsacDSPContext *const c, uint8_t *const buf) 
 
     declare_func(unsigned, MsacContext *s);
     if (check_func(c->decode_bool_equi, "msac_decode_bool_equi")) {
-        dav1d_msac_init(&s_c, buf, BUF_SIZE, 1);
+        dav1s_msac_init(&s_c, buf, BUF_SIZE, 1);
         s_a = s_c;
         while (s_c.cnt >= 0) {
             unsigned c_res = call_ref(&s_c);
@@ -201,7 +201,7 @@ static void check_decode_bool(MsacDSPContext *const c, uint8_t *const buf) {
 
     declare_func(unsigned, MsacContext *s, unsigned f);
     if (check_func(c->decode_bool, "msac_decode_bool")) {
-        dav1d_msac_init(&s_c, buf, BUF_SIZE, 1);
+        dav1s_msac_init(&s_c, buf, BUF_SIZE, 1);
         s_a = s_c;
         while (s_c.cnt >= 0) {
             const unsigned f = rnd() & 0x7fff;
@@ -231,7 +231,7 @@ static void check_decode_hi_tok(MsacDSPContext *const c, uint8_t *const buf) {
     declare_func(unsigned, MsacContext *s, uint16_t *cdf);
     if (check_func(c->decode_hi_tok, "msac_decode_hi_tok")) {
         for (int cdf_update = 0; cdf_update <= 1; cdf_update++) {
-            dav1d_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);
+            dav1s_msac_init(&s_c, buf, BUF_SIZE, !cdf_update);
             s_a = s_c;
             randomize_cdf(cdf[0], 3);
             memcpy(cdf[1], cdf[0], sizeof(*cdf));
@@ -255,48 +255,48 @@ static void check_decode_hi_tok(MsacDSPContext *const c, uint8_t *const buf) {
 
 void checkasm_check_msac(void) {
     MsacDSPContext c;
-    c.decode_symbol_adapt4  = dav1d_msac_decode_symbol_adapt_c;
-    c.decode_symbol_adapt8  = dav1d_msac_decode_symbol_adapt_c;
-    c.decode_symbol_adapt16 = dav1d_msac_decode_symbol_adapt_c;
-    c.decode_bool_adapt     = dav1d_msac_decode_bool_adapt_c;
-    c.decode_bool_equi      = dav1d_msac_decode_bool_equi_c;
-    c.decode_bool           = dav1d_msac_decode_bool_c;
-    c.decode_hi_tok         = dav1d_msac_decode_hi_tok_c;
+    c.decode_symbol_adapt4  = dav1s_msac_decode_symbol_adapt_c;
+    c.decode_symbol_adapt8  = dav1s_msac_decode_symbol_adapt_c;
+    c.decode_symbol_adapt16 = dav1s_msac_decode_symbol_adapt_c;
+    c.decode_bool_adapt     = dav1s_msac_decode_bool_adapt_c;
+    c.decode_bool_equi      = dav1s_msac_decode_bool_equi_c;
+    c.decode_bool           = dav1s_msac_decode_bool_c;
+    c.decode_hi_tok         = dav1s_msac_decode_hi_tok_c;
 
 #if (ARCH_AARCH64 || ARCH_ARM) && HAVE_ASM
-    if (dav1d_get_cpu_flags() & DAV1D_ARM_CPU_FLAG_NEON) {
-        c.decode_symbol_adapt4  = dav1d_msac_decode_symbol_adapt4_neon;
-        c.decode_symbol_adapt8  = dav1d_msac_decode_symbol_adapt8_neon;
-        c.decode_symbol_adapt16 = dav1d_msac_decode_symbol_adapt16_neon;
-        c.decode_bool_adapt     = dav1d_msac_decode_bool_adapt_neon;
-        c.decode_bool_equi      = dav1d_msac_decode_bool_equi_neon;
-        c.decode_bool           = dav1d_msac_decode_bool_neon;
-        c.decode_hi_tok         = dav1d_msac_decode_hi_tok_neon;
+    if (dav1s_get_cpu_flags() & DAV1S_ARM_CPU_FLAG_NEON) {
+        c.decode_symbol_adapt4  = dav1s_msac_decode_symbol_adapt4_neon;
+        c.decode_symbol_adapt8  = dav1s_msac_decode_symbol_adapt8_neon;
+        c.decode_symbol_adapt16 = dav1s_msac_decode_symbol_adapt16_neon;
+        c.decode_bool_adapt     = dav1s_msac_decode_bool_adapt_neon;
+        c.decode_bool_equi      = dav1s_msac_decode_bool_equi_neon;
+        c.decode_bool           = dav1s_msac_decode_bool_neon;
+        c.decode_hi_tok         = dav1s_msac_decode_hi_tok_neon;
     }
 #elif ARCH_LOONGARCH64 && HAVE_ASM
-    if (dav1d_get_cpu_flags() & DAV1D_LOONGARCH_CPU_FLAG_LSX) {
-        c.decode_symbol_adapt4  = dav1d_msac_decode_symbol_adapt4_lsx;
-        c.decode_symbol_adapt8  = dav1d_msac_decode_symbol_adapt8_lsx;
-        c.decode_symbol_adapt16 = dav1d_msac_decode_symbol_adapt16_lsx;
-        c.decode_bool_adapt     = dav1d_msac_decode_bool_adapt_lsx;
-        c.decode_bool           = dav1d_msac_decode_bool_lsx;
-        c.decode_bool_equi      = dav1d_msac_decode_bool_equi_lsx;
-        c.decode_hi_tok         = dav1d_msac_decode_hi_tok_lsx;
+    if (dav1s_get_cpu_flags() & DAV1S_LOONGARCH_CPU_FLAG_LSX) {
+        c.decode_symbol_adapt4  = dav1s_msac_decode_symbol_adapt4_lsx;
+        c.decode_symbol_adapt8  = dav1s_msac_decode_symbol_adapt8_lsx;
+        c.decode_symbol_adapt16 = dav1s_msac_decode_symbol_adapt16_lsx;
+        c.decode_bool_adapt     = dav1s_msac_decode_bool_adapt_lsx;
+        c.decode_bool           = dav1s_msac_decode_bool_lsx;
+        c.decode_bool_equi      = dav1s_msac_decode_bool_equi_lsx;
+        c.decode_hi_tok         = dav1s_msac_decode_hi_tok_lsx;
     }
 #elif ARCH_X86 && HAVE_ASM
-    if (dav1d_get_cpu_flags() & DAV1D_X86_CPU_FLAG_SSE2) {
-        c.decode_symbol_adapt4  = dav1d_msac_decode_symbol_adapt4_sse2;
-        c.decode_symbol_adapt8  = dav1d_msac_decode_symbol_adapt8_sse2;
-        c.decode_symbol_adapt16 = dav1d_msac_decode_symbol_adapt16_sse2;
-        c.decode_bool_adapt     = dav1d_msac_decode_bool_adapt_sse2;
-        c.decode_bool_equi      = dav1d_msac_decode_bool_equi_sse2;
-        c.decode_bool           = dav1d_msac_decode_bool_sse2;
-        c.decode_hi_tok         = dav1d_msac_decode_hi_tok_sse2;
+    if (dav1s_get_cpu_flags() & DAV1S_X86_CPU_FLAG_SSE2) {
+        c.decode_symbol_adapt4  = dav1s_msac_decode_symbol_adapt4_sse2;
+        c.decode_symbol_adapt8  = dav1s_msac_decode_symbol_adapt8_sse2;
+        c.decode_symbol_adapt16 = dav1s_msac_decode_symbol_adapt16_sse2;
+        c.decode_bool_adapt     = dav1s_msac_decode_bool_adapt_sse2;
+        c.decode_bool_equi      = dav1s_msac_decode_bool_equi_sse2;
+        c.decode_bool           = dav1s_msac_decode_bool_sse2;
+        c.decode_hi_tok         = dav1s_msac_decode_hi_tok_sse2;
     }
 
 #if ARCH_X86_64
-    if (dav1d_get_cpu_flags() & DAV1D_X86_CPU_FLAG_AVX2) {
-        c.decode_symbol_adapt16 = dav1d_msac_decode_symbol_adapt16_avx2;
+    if (dav1s_get_cpu_flags() & DAV1S_X86_CPU_FLAG_AVX2) {
+        c.decode_symbol_adapt16 = dav1s_msac_decode_symbol_adapt16_avx2;
     }
 #endif
 #endif

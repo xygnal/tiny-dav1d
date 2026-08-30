@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -3912,7 +3912,7 @@ static const CdfCoefContext default_coef_cdf[4] = {
     }
 };
 
-void dav1d_cdf_thread_update(const Dav1dFrameHeader *const hdr,
+void dav1s_cdf_thread_update(const Dav1dFrameHeader *const hdr,
                              CdfContext *const dst,
                              const CdfContext *const src)
 {
@@ -3956,7 +3956,7 @@ void dav1d_cdf_thread_update(const Dav1dFrameHeader *const hdr,
     update_cdf_1d(7, m.cfl_sign);
     update_cdf_2d(8, 6, m.angle_delta);
     update_cdf_1d(4, m.filter_intra);
-    update_cdf_2d(3, DAV1D_MAX_SEGMENTS - 1, m.seg_id);
+    update_cdf_2d(3, DAV1S_MAX_SEGMENTS - 1, m.seg_id);
     update_cdf_3d(2, 7, 6, m.pal_sz);
     update_cdf_4d(2, 7, 5, k + 1, m.color_map);
     update_cdf_3d(N_TX_SIZES - 1, 3, imin(k + 1, 2), m.txsz);
@@ -3981,7 +3981,7 @@ void dav1d_cdf_thread_update(const Dav1dFrameHeader *const hdr,
     update_cdf_2d(4, N_INTRA_PRED_MODES - 1, m.y_mode);
     update_cdf_2d(9, 15, m.wedge_idx);
     update_cdf_2d(8, N_COMP_INTER_PRED_MODES - 1, m.comp_inter_mode);
-    update_cdf_3d(2, 8, DAV1D_N_SWITCHABLE_FILTERS - 1, m.filter);
+    update_cdf_3d(2, 8, DAV1S_N_SWITCHABLE_FILTERS - 1, m.filter);
     update_cdf_2d(4, 3, m.interintra_mode);
     update_cdf_2d(N_BS_SIZES, 2, m.motion_mode);
     update_cdf_2d(3, 1, m.skip_mode);
@@ -4020,12 +4020,12 @@ void dav1d_cdf_thread_update(const Dav1dFrameHeader *const hdr,
 /*
  * CDF threading wrappers.
  */
-void dav1d_cdf_thread_init_static(CdfThreadContext *const cdf, const unsigned qidx) {
+void dav1s_cdf_thread_init_static(CdfThreadContext *const cdf, const unsigned qidx) {
     cdf->ref = NULL;
     cdf->data.qcat = (qidx > 20) + (qidx > 60) + (qidx > 120);
 }
 
-void dav1d_cdf_thread_copy(CdfContext *const dst, const CdfThreadContext *const src) {
+void dav1s_cdf_thread_copy(CdfContext *const dst, const CdfThreadContext *const src) {
     if (src->ref) {
         memcpy(dst, src->data.cdf, sizeof(*dst));
     } else {
@@ -4037,12 +4037,12 @@ void dav1d_cdf_thread_copy(CdfContext *const dst, const CdfThreadContext *const 
     }
 }
 
-int dav1d_cdf_thread_alloc(Dav1dContext *const c, CdfThreadContext *const cdf,
+int dav1s_cdf_thread_alloc(Dav1dContext *const c, CdfThreadContext *const cdf,
                            const int have_frame_mt)
 {
-    cdf->ref = dav1d_ref_create_using_pool(c->cdf_pool,
+    cdf->ref = dav1s_ref_create_using_pool(c->cdf_pool,
                                            sizeof(CdfContext) + sizeof(atomic_uint));
-    if (!cdf->ref) return DAV1D_ERR(ENOMEM);
+    if (!cdf->ref) return DAV1S_ERR(ENOMEM);
     cdf->data.cdf = cdf->ref->data;
     if (have_frame_mt) {
         cdf->progress = (atomic_uint *) &cdf->data.cdf[1];
@@ -4051,15 +4051,15 @@ int dav1d_cdf_thread_alloc(Dav1dContext *const c, CdfThreadContext *const cdf,
     return 0;
 }
 
-void dav1d_cdf_thread_ref(CdfThreadContext *const dst,
+void dav1s_cdf_thread_ref(CdfThreadContext *const dst,
                           CdfThreadContext *const src)
 {
     *dst = *src;
     if (src->ref)
-        dav1d_ref_inc(src->ref);
+        dav1s_ref_inc(src->ref);
 }
 
-void dav1d_cdf_thread_unref(CdfThreadContext *const cdf) {
+void dav1s_cdf_thread_unref(CdfThreadContext *const cdf) {
     memset(&cdf->data, 0, sizeof(*cdf) - offsetof(CdfThreadContext, data));
-    dav1d_ref_dec(&cdf->ref);
+    dav1s_ref_dec(&cdf->ref);
 }

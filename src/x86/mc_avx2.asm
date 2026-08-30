@@ -1,4 +1,4 @@
-; Copyright © 2018-2021, VideoLAN and dav1d authors
+; Copyright © 2018-2021, VideoLAN and dav1s authors
 ; Copyright © 2018-2021, Two Orioles, LLC
 ; All rights reserved.
 ;
@@ -30,7 +30,7 @@
 
 SECTION_RODATA 32
 
-; dav1d_obmc_masks[] with 64-x interleaved
+; dav1s_obmc_masks[] with 64-x interleaved
 obmc_masks:     db  0,  0,  0,  0
                 ; 2
                 db 45, 19, 64,  0

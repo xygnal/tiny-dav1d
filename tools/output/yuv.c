@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -63,10 +63,10 @@ static int yuv_write(YuvOutputContext *const c, Dav1dPicture *const p) {
         ptr += p->stride[0];
     }
 
-    if (p->p.layout != DAV1D_PIXEL_LAYOUT_I400) {
+    if (p->p.layout != DAV1S_PIXEL_LAYOUT_I400) {
         // u/v
-        const int ss_ver = p->p.layout == DAV1D_PIXEL_LAYOUT_I420;
-        const int ss_hor = p->p.layout != DAV1D_PIXEL_LAYOUT_I444;
+        const int ss_ver = p->p.layout == DAV1S_PIXEL_LAYOUT_I420;
+        const int ss_hor = p->p.layout != DAV1S_PIXEL_LAYOUT_I444;
         const int cw = (p->p.w + ss_hor) >> ss_hor;
         const int ch = (p->p.h + ss_ver) >> ss_ver;
         for (int pl = 1; pl <= 2; pl++) {
@@ -79,11 +79,11 @@ static int yuv_write(YuvOutputContext *const c, Dav1dPicture *const p) {
         }
     }
 
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
     return 0;
 
 error:
-    dav1d_picture_unref(p);
+    dav1s_picture_unref(p);
     fprintf(stderr, "Failed to write frame data: %s\n", strerror(errno));
     return -1;
 }

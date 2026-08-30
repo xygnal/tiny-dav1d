@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -77,7 +77,7 @@ static inline int resolve_divisor_32(const unsigned d, int *const shift) {
     return div_lut[f];
 }
 
-int dav1d_get_shear_params(Dav1dWarpedMotionParams *const wm) {
+int dav1s_get_shear_params(Dav1dWarpedMotionParams *const wm) {
     const int32_t *const mat = wm->matrix;
 
     if (mat[2] <= 0) return 1;
@@ -130,7 +130,7 @@ static int get_mult_shift_diag(const int64_t px,
     return iclip(v2, 0xe001, 0x11fff);
 }
 
-void dav1d_set_affine_mv2d(const int bw4, const int bh4,
+void dav1s_set_affine_mv2d(const int bw4, const int bh4,
                            const mv mv, Dav1dWarpedMotionParams *const wm,
                            const int bx4, const int by4)
 {
@@ -146,7 +146,7 @@ void dav1d_set_affine_mv2d(const int bw4, const int bh4,
                    -0x800000, 0x7fffff);
 }
 
-int dav1d_find_affine_int(const int (*pts)[2][2], const int np,
+int dav1s_find_affine_int(const int (*pts)[2][2], const int np,
                           const int bw4, const int bh4,
                           const mv mv, Dav1dWarpedMotionParams *const wm,
                           const int bx4, const int by4)

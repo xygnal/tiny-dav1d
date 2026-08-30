@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023, VideoLAN and dav1d authors
+ * Copyright © 2023, VideoLAN and dav1s authors
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ static void check_pal_idx_finish(const Dav1dPalDSPContext *const c) {
 
 void checkasm_check_pal(void) {
     Dav1dPalDSPContext c;
-    dav1d_pal_dsp_init(&c);
+    dav1s_pal_dsp_init(&c);
 
     check_pal_idx_finish(&c);
 }

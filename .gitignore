@@ -5,6 +5,6 @@
 tags
 .DS_Store
 /tests/argon
-/tests/dav1d-test-data
+/tests/dav1s-test-data
 *.snap
 /tools/output/xxhash.h

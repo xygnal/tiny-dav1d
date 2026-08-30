@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_ENV_H
-#define DAV1D_SRC_ENV_H
+#ifndef DAV1S_SRC_ENV_H
+#define DAV1S_SRC_ENV_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -138,18 +138,18 @@ static inline int get_filter_ctx(const BlockContext *const a,
                                  const int yb4, const int xb4)
 {
     const int a_filter = (a->ref[0][xb4] == ref || a->ref[1][xb4] == ref) ?
-                         a->filter[dir][xb4] : DAV1D_N_SWITCHABLE_FILTERS;
+                         a->filter[dir][xb4] : DAV1S_N_SWITCHABLE_FILTERS;
     const int l_filter = (l->ref[0][yb4] == ref || l->ref[1][yb4] == ref) ?
-                         l->filter[dir][yb4] : DAV1D_N_SWITCHABLE_FILTERS;
+                         l->filter[dir][yb4] : DAV1S_N_SWITCHABLE_FILTERS;
 
     if (a_filter == l_filter) {
         return comp * 4 + a_filter;
-    } else if (a_filter == DAV1D_N_SWITCHABLE_FILTERS) {
+    } else if (a_filter == DAV1S_N_SWITCHABLE_FILTERS) {
         return comp * 4 + l_filter;
-    } else if (l_filter == DAV1D_N_SWITCHABLE_FILTERS) {
+    } else if (l_filter == DAV1S_N_SWITCHABLE_FILTERS) {
         return comp * 4 + a_filter;
     } else {
-        return comp * 4 + DAV1D_N_SWITCHABLE_FILTERS;
+        return comp * 4 + DAV1S_N_SWITCHABLE_FILTERS;
     }
 }
 
@@ -481,12 +481,12 @@ static inline mv get_gmv_2d(const Dav1dWarpedMotionParams *const gmv,
                             const Dav1dFrameHeader *const hdr)
 {
     switch (gmv->type) {
-    case DAV1D_WM_TYPE_ROT_ZOOM:
+    case DAV1S_WM_TYPE_ROT_ZOOM:
         assert(gmv->matrix[5] ==  gmv->matrix[2]);
         assert(gmv->matrix[4] == -gmv->matrix[3]);
         // fall-through
     default:
-    case DAV1D_WM_TYPE_AFFINE: {
+    case DAV1S_WM_TYPE_AFFINE: {
         const int x = bx4 * 4 + bw4 * 2 - 1;
         const int y = by4 * 4 + bh4 * 2 - 1;
         const int xc = (gmv->matrix[2] - (1 << 16)) * x +
@@ -503,7 +503,7 @@ static inline mv get_gmv_2d(const Dav1dWarpedMotionParams *const gmv,
             fix_int_mv_precision(&res);
         return res;
     }
-    case DAV1D_WM_TYPE_TRANSLATION: {
+    case DAV1S_WM_TYPE_TRANSLATION: {
         mv res = (mv) {
             .y = gmv->matrix[0] >> 13,
             .x = gmv->matrix[1] >> 13,
@@ -512,9 +512,9 @@ static inline mv get_gmv_2d(const Dav1dWarpedMotionParams *const gmv,
             fix_int_mv_precision(&res);
         return res;
     }
-    case DAV1D_WM_TYPE_IDENTITY:
+    case DAV1S_WM_TYPE_IDENTITY:
         return (mv) { .x = 0, .y = 0 };
     }
 }
 
-#endif /* DAV1D_SRC_ENV_H */
+#endif /* DAV1S_SRC_ENV_H */

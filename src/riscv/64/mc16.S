@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2024, Nathan Egge
  * All rights reserved.
  *
@@ -105,7 +105,7 @@ L(blend_v_epilog):
   sub t1, a3, t1
   vsetvl zero, t1, t0
   csrw vxrm, zero
-  la t1, dav1d_obmc_masks
+  la t1, dav1s_obmc_masks
   add t1, t1, a3
   vle8.v v20, (t1)
   vzext.vf2 v16, v20

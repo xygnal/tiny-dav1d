@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -39,7 +39,7 @@
 # include <unistd.h>
 #endif
 
-#include "dav1d_cli_parse.h"
+#include "dav1s_cli_parse.h"
 #include "src/cpu.h"
 
 static const char short_opts[] = "i:o:vql:s:";
@@ -209,30 +209,30 @@ typedef struct EnumParseTable {
 
 #if ARCH_X86
 enum CpuMask {
-    X86_CPU_MASK_SSE2      = DAV1D_X86_CPU_FLAG_SSE2,
-    X86_CPU_MASK_SSSE3     = DAV1D_X86_CPU_FLAG_SSSE3     | X86_CPU_MASK_SSE2,
-    X86_CPU_MASK_SSE41     = DAV1D_X86_CPU_FLAG_SSE41     | X86_CPU_MASK_SSSE3,
-    X86_CPU_MASK_AVX2      = DAV1D_X86_CPU_FLAG_AVX2      | X86_CPU_MASK_SSE41,
-    X86_CPU_MASK_AVX512ICL = DAV1D_X86_CPU_FLAG_AVX512ICL | X86_CPU_MASK_AVX2,
+    X86_CPU_MASK_SSE2      = DAV1S_X86_CPU_FLAG_SSE2,
+    X86_CPU_MASK_SSSE3     = DAV1S_X86_CPU_FLAG_SSSE3     | X86_CPU_MASK_SSE2,
+    X86_CPU_MASK_SSE41     = DAV1S_X86_CPU_FLAG_SSE41     | X86_CPU_MASK_SSSE3,
+    X86_CPU_MASK_AVX2      = DAV1S_X86_CPU_FLAG_AVX2      | X86_CPU_MASK_SSE41,
+    X86_CPU_MASK_AVX512ICL = DAV1S_X86_CPU_FLAG_AVX512ICL | X86_CPU_MASK_AVX2,
 };
 #elif ARCH_AARCH64 || ARCH_ARM
 enum CpuMask {
-    ARM_CPU_MASK_NEON      = DAV1D_ARM_CPU_FLAG_NEON,
-    ARM_CPU_MASK_DOTPROD   = DAV1D_ARM_CPU_FLAG_DOTPROD | ARM_CPU_MASK_NEON,
-    ARM_CPU_MASK_I8MM      = DAV1D_ARM_CPU_FLAG_I8MM    | ARM_CPU_MASK_DOTPROD,
+    ARM_CPU_MASK_NEON      = DAV1S_ARM_CPU_FLAG_NEON,
+    ARM_CPU_MASK_DOTPROD   = DAV1S_ARM_CPU_FLAG_DOTPROD | ARM_CPU_MASK_NEON,
+    ARM_CPU_MASK_I8MM      = DAV1S_ARM_CPU_FLAG_I8MM    | ARM_CPU_MASK_DOTPROD,
 #if ARCH_AARCH64
     // SVE doesn't imply DOTPROD or I8MM.
-    ARM_CPU_MASK_SVE       = DAV1D_ARM_CPU_FLAG_SVE     | ARM_CPU_MASK_NEON,
+    ARM_CPU_MASK_SVE       = DAV1S_ARM_CPU_FLAG_SVE     | ARM_CPU_MASK_NEON,
     // SVE2 implies DOTPROD, but not I8MM.
-    ARM_CPU_MASK_SVE2      = DAV1D_ARM_CPU_FLAG_SVE2    | ARM_CPU_MASK_SVE | ARM_CPU_MASK_DOTPROD,
+    ARM_CPU_MASK_SVE2      = DAV1S_ARM_CPU_FLAG_SVE2    | ARM_CPU_MASK_SVE | ARM_CPU_MASK_DOTPROD,
 #endif
 };
 #endif
 
 #if ARCH_PPC64LE
 enum CpuMask {
-    PPC_CPU_MASK_VSX       = DAV1D_PPC_CPU_FLAG_VSX,
-    PPC_CPU_MASK_PWR9      = DAV1D_PPC_CPU_FLAG_VSX | DAV1D_PPC_CPU_FLAG_PWR9,
+    PPC_CPU_MASK_VSX       = DAV1S_PPC_CPU_FLAG_VSX,
+    PPC_CPU_MASK_PWR9      = DAV1S_PPC_CPU_FLAG_VSX | DAV1S_PPC_CPU_FLAG_PWR9,
 };
 #endif
 
@@ -247,13 +247,13 @@ static const EnumParseTable cpu_mask_tbl[] = {
     { "sve2",    ARM_CPU_MASK_SVE2 },
 #endif /* ARCH_AARCH64 */
 #elif ARCH_LOONGARCH
-    { "lsx", DAV1D_LOONGARCH_CPU_FLAG_LSX },
-    { "lasx", DAV1D_LOONGARCH_CPU_FLAG_LASX },
+    { "lsx", DAV1S_LOONGARCH_CPU_FLAG_LSX },
+    { "lasx", DAV1S_LOONGARCH_CPU_FLAG_LASX },
 #elif ARCH_PPC64LE
     { "vsx",  PPC_CPU_MASK_VSX },
     { "pwr9", PPC_CPU_MASK_PWR9 },
 #elif ARCH_RISCV
-    { "rvv", DAV1D_RISCV_CPU_FLAG_V },
+    { "rvv", DAV1S_RISCV_CPU_FLAG_V },
 #elif ARCH_X86
     { "sse2",      X86_CPU_MASK_SSE2 },
     { "ssse3",     X86_CPU_MASK_SSSE3 },
@@ -265,21 +265,21 @@ static const EnumParseTable cpu_mask_tbl[] = {
 };
 
 static const EnumParseTable inloop_filters_tbl[] = {
-    { "none",          DAV1D_INLOOPFILTER_NONE },
-    { "deblock",       DAV1D_INLOOPFILTER_DEBLOCK },
-    { "nodeblock",     DAV1D_INLOOPFILTER_ALL - DAV1D_INLOOPFILTER_DEBLOCK },
-    { "cdef",          DAV1D_INLOOPFILTER_CDEF },
-    { "nocdef",        DAV1D_INLOOPFILTER_ALL - DAV1D_INLOOPFILTER_CDEF },
-    { "restoration",   DAV1D_INLOOPFILTER_RESTORATION },
-    { "norestoration", DAV1D_INLOOPFILTER_ALL - DAV1D_INLOOPFILTER_RESTORATION },
-    { "all",           DAV1D_INLOOPFILTER_ALL },
+    { "none",          DAV1S_INLOOPFILTER_NONE },
+    { "deblock",       DAV1S_INLOOPFILTER_DEBLOCK },
+    { "nodeblock",     DAV1S_INLOOPFILTER_ALL - DAV1S_INLOOPFILTER_DEBLOCK },
+    { "cdef",          DAV1S_INLOOPFILTER_CDEF },
+    { "nocdef",        DAV1S_INLOOPFILTER_ALL - DAV1S_INLOOPFILTER_CDEF },
+    { "restoration",   DAV1S_INLOOPFILTER_RESTORATION },
+    { "norestoration", DAV1S_INLOOPFILTER_ALL - DAV1S_INLOOPFILTER_RESTORATION },
+    { "all",           DAV1S_INLOOPFILTER_ALL },
 };
 
 static const EnumParseTable decode_frame_type_tbl[] = {
-    { "all",           DAV1D_DECODEFRAMETYPE_ALL },
-    { "reference",     DAV1D_DECODEFRAMETYPE_REFERENCE },
-    { "intra",         DAV1D_DECODEFRAMETYPE_INTRA },
-    { "key",           DAV1D_DECODEFRAMETYPE_KEY },
+    { "all",           DAV1S_DECODEFRAMETYPE_ALL },
+    { "reference",     DAV1S_DECODEFRAMETYPE_REFERENCE },
+    { "intra",         DAV1S_DECODEFRAMETYPE_INTRA },
+    { "key",           DAV1S_DECODEFRAMETYPE_KEY },
 };
 
 #define ARRAY_SIZE(n) (sizeof(n)/sizeof(*(n)))
@@ -325,7 +325,7 @@ void parse(const int argc, char *const *const argv,
     int o;
 
     memset(cli_settings, 0, sizeof(*cli_settings));
-    dav1d_default_settings(lib_settings);
+    dav1s_default_settings(lib_settings);
     lib_settings->strict_std_compliance = 1; // override library default
     int grain_specified = 0;
 
@@ -410,10 +410,10 @@ void parse(const int argc, char *const *const argv,
                 parse_unsigned(optarg, ARG_STRICT_STD_COMPLIANCE, argv[0]);
             break;
         case 'v':
-            fprintf(stderr, "%s\n", dav1d_version());
+            fprintf(stderr, "%s\n", dav1s_version());
             exit(0);
         case ARG_CPU_MASK:
-            dav1d_set_cpu_flags_mask(parse_enum(optarg, cpu_mask_tbl, ARRAY_SIZE(cpu_mask_tbl),
+            dav1s_set_cpu_flags_mask(parse_enum(optarg, cpu_mask_tbl, ARRAY_SIZE(cpu_mask_tbl),
                                                 ARG_CPU_MASK, argv[0]));
             break;
         case ARG_NEG_STRIDE:

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_FILM_GRAIN_H
-#define DAV1D_SRC_FILM_GRAIN_H
+#ifndef DAV1S_SRC_FILM_GRAIN_H
+#define DAV1S_SRC_FILM_GRAIN_H
 
 #include "common/bitdepth.h"
 
@@ -79,6 +79,6 @@ typedef struct Dav1dFilmGrainDSPContext {
     fguv_32x32xn_fn fguv_32x32xn[3];
 } Dav1dFilmGrainDSPContext;
 
-bitfn_decls(void dav1d_film_grain_dsp_init, Dav1dFilmGrainDSPContext *c);
+bitfn_decls(void dav1s_film_grain_dsp_init, Dav1dFilmGrainDSPContext *c);
 
-#endif /* DAV1D_SRC_FILM_GRAIN_H */
+#endif /* DAV1S_SRC_FILM_GRAIN_H */

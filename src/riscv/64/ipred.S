@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2024, Bogdan Gligorijevic
  * All rights reserved.
  *
@@ -254,7 +254,7 @@ function ipred_h_8bpc_rvv, export=1, ext="v,zba"
 endfunc
 
 function dc_gen_8bpc_rvv, export=1, ext="v,zbb"
-    .variant_cc dav1d_dc_gen_8bpc_rvv
+    .variant_cc dav1s_dc_gen_8bpc_rvv
     add t1, a1, a2
     srli t5, t1, 1
     mv t1, a1
@@ -321,7 +321,7 @@ function dc_gen_8bpc_rvv, export=1, ext="v,zbb"
 endfunc
 
 function dc_gen_top_8bpc_rvv, export=1, ext="v,zbb"
-    .variant_cc dav1d_dc_gen_top_8bpc_rvv
+    .variant_cc dav1s_dc_gen_top_8bpc_rvv
     mv t1, a1
     srli t5, a1, 1
     addi a0, a0, 1
@@ -339,7 +339,7 @@ function dc_gen_top_8bpc_rvv, export=1, ext="v,zbb"
 endfunc
 
 function dc_gen_left_8bpc_rvv, export=1, ext="v,zbb"
-    .variant_cc dav1d_dc_gen_left_8bpc_rvv
+    .variant_cc dav1s_dc_gen_left_8bpc_rvv
     mv t1, a1
     srli t5, a1, 1
     vsetvli t2, t1, e16, m4, ta, ma
@@ -357,7 +357,7 @@ function dc_gen_left_8bpc_rvv, export=1, ext="v,zbb"
 endfunc
 
 function dc_gen_sum_up_8bpc_rvv, export=1, ext="v,zbb"
-    .variant_cc dav1d_dc_gen_sum_up_8bpc_rvv
+    .variant_cc dav1s_dc_gen_sum_up_8bpc_rvv
     vsetvli zero, a1, e32, m8, ta, ma
     vmv.s.x v4, t5
     vsetvli zero, zero, e16, m4, ta, ma
@@ -515,7 +515,7 @@ endfunc
 
 function ipred_smooth_8bpc_rvv, export=1, ext="v,zba"
     csrw vxrm, zero
-    la t0, dav1d_sm_weights
+    la t0, dav1s_sm_weights
     add t1, t0, a3
     add t2, a2, a3
     add t0, t0, a4
@@ -574,7 +574,7 @@ endfunc
 
 function ipred_smooth_v_8bpc_rvv, export=1, ext="v,zba"
     csrw vxrm, zero
-    la t0, dav1d_sm_weights
+    la t0, dav1s_sm_weights
     add t2, a2, a3
     add t0, t0, a4
     sub t3, a2, a4
@@ -618,7 +618,7 @@ endfunc
 
 function ipred_smooth_h_8bpc_rvv, export=1, ext="v,zba"
     csrw vxrm, zero
-    la t0, dav1d_sm_weights
+    la t0, dav1s_sm_weights
     add t1, t0, a3
     add t2, a2, a3
     lbu t2, (t2)

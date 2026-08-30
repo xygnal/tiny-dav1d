@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,12 +25,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_OBU_H
-#define DAV1D_SRC_OBU_H
+#ifndef DAV1S_SRC_OBU_H
+#define DAV1S_SRC_OBU_H
 
-#include "dav1d/data.h"
+#include "dav1s/data.h"
 #include "src/internal.h"
 
-ptrdiff_t dav1d_parse_obus(Dav1dContext *c, Dav1dData *in);
+ptrdiff_t dav1s_parse_obus(Dav1dContext *c, Dav1dData *in);
 
-#endif /* DAV1D_SRC_OBU_H */
+#endif /* DAV1S_SRC_OBU_H */

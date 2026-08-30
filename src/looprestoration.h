@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018-2021, VideoLAN and dav1d authors
+ * Copyright © 2018-2021, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_LOOPRESTORATION_H
-#define DAV1D_SRC_LOOPRESTORATION_H
+#ifndef DAV1S_SRC_LOOPRESTORATION_H
+#define DAV1S_SRC_LOOPRESTORATION_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -74,6 +74,6 @@ typedef struct Dav1dLoopRestorationDSPContext {
     looprestorationfilter_fn sgr[3]; /* 5x5, 3x3, mix */
 } Dav1dLoopRestorationDSPContext;
 
-bitfn_decls(void dav1d_loop_restoration_dsp_init, Dav1dLoopRestorationDSPContext *c, int bpc);
+bitfn_decls(void dav1s_loop_restoration_dsp_init, Dav1dLoopRestorationDSPContext *c, int bpc);
 
-#endif /* DAV1D_SRC_LOOPRESTORATION_H */
+#endif /* DAV1S_SRC_LOOPRESTORATION_H */

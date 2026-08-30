@@ -1,5 +1,5 @@
 /*
- * Copyright © 2023, VideoLAN and dav1d authors
+ * Copyright © 2023, VideoLAN and dav1s authors
  * Copyright © 2024, Bogdan Gligorijevic
  * All rights reserved.
  *
@@ -28,12 +28,12 @@
 #include "src/cpu.h"
 #include "src/pal.h"
 
-decl_pal_idx_finish_fn(dav1d_pal_idx_finish_rvv);
+decl_pal_idx_finish_fn(dav1s_pal_idx_finish_rvv);
 
 static ALWAYS_INLINE void pal_dsp_init_riscv(Dav1dPalDSPContext *const c) {
-    const unsigned flags = dav1d_get_cpu_flags();
+    const unsigned flags = dav1s_get_cpu_flags();
 
-  if (!(flags & DAV1D_RISCV_CPU_FLAG_V)) return;
+  if (!(flags & DAV1S_RISCV_CPU_FLAG_V)) return;
 
-    c->pal_idx_finish = dav1d_pal_idx_finish_rvv;
+    c->pal_idx_finish = dav1s_pal_idx_finish_rvv;
 }

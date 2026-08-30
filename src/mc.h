@@ -1,5 +1,5 @@
 /*
- * Copyright © 2018, VideoLAN and dav1d authors
+ * Copyright © 2018, VideoLAN and dav1s authors
  * Copyright © 2018, Two Orioles, LLC
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DAV1D_SRC_MC_H
-#define DAV1D_SRC_MC_H
+#ifndef DAV1S_SRC_MC_H
+#define DAV1S_SRC_MC_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -114,15 +114,15 @@ void (name)(pixel *dst, ptrdiff_t dst_stride, \
 typedef decl_resize_fn(*resize_fn);
 
 #define decl_8tap_gen(decl_name, fn_name, opt) \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_regular,        opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_regular_smooth, opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_regular_sharp,  opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_smooth_regular, opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_smooth,         opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_smooth_sharp,   opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_sharp_regular,  opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_sharp_smooth,   opt)); \
-    decl_##decl_name##_fn(BF(dav1d_##fn_name##_8tap_sharp,          opt))
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_regular,        opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_regular_smooth, opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_regular_sharp,  opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_smooth_regular, opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_smooth,         opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_smooth_sharp,   opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_sharp_regular,  opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_sharp_smooth,   opt)); \
+    decl_##decl_name##_fn(BF(dav1s_##fn_name##_8tap_sharp,          opt))
 
 #define decl_8tap_fns(opt) \
     decl_8tap_gen(mc,  put,  opt); \
@@ -161,6 +161,6 @@ typedef struct Dav1dMCDSPContext {
     resize_fn resize;
 } Dav1dMCDSPContext;
 
-bitfn_decls(void dav1d_mc_dsp_init, Dav1dMCDSPContext *c);
+bitfn_decls(void dav1s_mc_dsp_init, Dav1dMCDSPContext *c);
 
-#endif /* DAV1D_SRC_MC_H */
+#endif /* DAV1S_SRC_MC_H */
