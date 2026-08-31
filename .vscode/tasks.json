@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Meson: Setup",
+            "type": "shell",
+            "command": "meson setup build --buildtype=debug -Denable_asm=false",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [],
+            "detail": "Make a build dir for the 1st time"
+        },
+        {
+            "label": "Ninja: Build",
+            "type": "shell",
+            "command": "ninja -C build",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        }
+    ]
+}
